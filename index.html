@@ -28,7 +28,7 @@
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="mb-4">
                 <label class="block text-gray-700 font-semibold mb-2">Username</label>
-                <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter Employee ID" required>
+                <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter Username (e.g. Admin)" required>
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Password</label>
@@ -69,7 +69,17 @@
 
         <!-- Main Content -->
         <div class="flex-1 p-8 overflow-y-auto w-full">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Overview Dashboard</h2>
+            
+            <!-- Dashboard Header with Live Date & Time -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Overview Dashboard</h2>
+                
+                <!-- Date & Time Box -->
+                <div class="bg-white px-4 py-2 rounded-lg shadow border-l-4 border-indigo-500 text-center md:text-right w-full md:w-auto">
+                    <p id="currentDate" class="text-sm font-bold text-gray-500 tracking-wider">DD-MM-YYYY</p>
+                    <p id="currentTime" class="text-xl font-bold text-indigo-600">HH:MM:SS</p>
+                </div>
+            </div>
             
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -94,11 +104,13 @@
             <!-- Graph Section (Graphy) -->
             <div class="bg-white p-6 rounded-lg shadow mb-8">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Task Completion Trends (Weekly)</h3>
-                <canvas id="taskChart" height="80"></canvas>
+                <div class="relative h-64 w-full">
+                    <canvas id="taskChart"></canvas>
+                </div>
             </div>
 
             <!-- Task Table Section -->
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="bg-white p-6 rounded-lg shadow overflow-hidden">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">My Assigned Tasks</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -153,13 +165,41 @@
 
     <!-- Javascript Logic -->
     <script>
-        // Yahan Apna Google Apps Script Web App URL daalein
         const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+        let chartInstance = null;
+
+        // Date and Time Logic
+        function updateLiveTime() {
+            const now = new Date();
+            
+            // Format Date: DD-MM-YYYY
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            const year = now.getFullYear();
+            const formattedDate = `${day}-${month}-${year}`;
+            
+            // Format Time: HH:MM:SS
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}:${seconds}`;
+            
+            // Update HTML Elements
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement && timeElement) {
+                dateElement.innerText = formattedDate;
+                timeElement.innerText = formattedTime;
+            }
+        }
+
+        // Start Clock
+        setInterval(updateLiveTime, 1000);
+        updateLiveTime();
 
         function handleLogin(event) {
             event.preventDefault();
-            // Real setup mein yahan fetch() lagayenge GAS URL ke sath check karne ke liye.
-            // Abhi UI switch dikha rahe hain.
             const user = document.getElementById('username').value;
             
             document.getElementById('login-section').style.display = 'none';
@@ -167,7 +207,7 @@
             document.body.classList.remove('items-center', 'justify-center');
             document.getElementById('displayUser').innerText = user;
             
-            loadGraph(); // Login ke baad graph load hoga
+            loadGraph(); // Load graph after login
         }
 
         function logout() {
@@ -175,17 +215,21 @@
             document.getElementById('login-section').style.display = 'block';
             document.body.classList.add('items-center', 'justify-center');
             document.getElementById('loginForm').reset();
+            
+            // Destroy chart on logout to avoid overlap on re-login
+            if(chartInstance) {
+                chartInstance.destroy();
+            }
         }
 
         function markAttendance() {
             const status = document.getElementById('attendanceStatus').value;
-            alert("Attendance Marked as: " + status + "\n(This will save to Google Sheets)");
-            // Yahan par Fetch API se Google Sheet par data bheja jayega
+            alert("Attendance Marked as: " + status + "\n(This will save to Google Sheets later)");
         }
 
         function loadGraph() {
             const ctx = document.getElementById('taskChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -195,7 +239,13 @@
                         { label: 'Delayed', data: [0, 1, 0, 1, 0, 0], backgroundColor: '#EF4444' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
             });
         }
     </script>
