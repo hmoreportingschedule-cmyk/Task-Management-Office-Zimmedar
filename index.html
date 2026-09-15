@@ -14,6 +14,9 @@
         /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; }
+        
+        /* Cursor pointer for chart canvas */
+        #taskAnalyticsChart { cursor: pointer; }
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center">
@@ -81,12 +84,12 @@
         <!-- Main Content -->
         <div class="flex-1 p-8 overflow-y-auto w-full relative">
             
-            <!-- Dashboard Header with Analytics Button & Live Time -->
+            <!-- Dashboard Header with Attendance Analytics Button & Live Time -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="flex items-center gap-4 mb-4 md:mb-0">
                     <h2 class="text-3xl font-bold text-gray-800">Overview Dashboard</h2>
-                    <button onclick="openAnalytics()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold flex items-center gap-2">
-                        <i class="fas fa-chart-bar"></i> Analytics
+                    <button onclick="openAttendanceAnalytics()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold flex items-center gap-2">
+                        <i class="fas fa-user-clock"></i> Attendance Graph
                     </button>
                 </div>
                 
@@ -99,8 +102,8 @@
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
-                    <h3 class="text-gray-500 text-sm">Monthly Total Performance</h3>
-                    <p class="text-2xl font-bold text-blue-600">85%</p>
+                    <h3 class="text-gray-500 text-sm">Total Tasks</h3>
+                    <p class="text-2xl font-bold text-blue-600" id="statTotal">0</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
                     <h3 class="text-gray-500 text-sm">Completed Tasks</h3>
@@ -111,14 +114,26 @@
                     <p class="text-2xl font-bold text-yellow-600" id="statPending">0</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500">
-                    <h3 class="text-gray-500 text-sm">Total Tasks</h3>
-                    <p class="text-2xl font-bold text-red-600" id="statTotal">0</p>
+                    <h3 class="text-gray-500 text-sm">Incomplete/Close</h3>
+                    <p class="text-2xl font-bold text-red-600" id="statOther">0</p>
                 </div>
             </div>
 
             <!-- Task Table Section -->
             <div class="bg-white p-6 rounded-lg shadow overflow-hidden">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">My Assigned Tasks</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">My Assigned Tasks</h3>
+                    <div class="flex gap-2">
+                        <!-- Clear Filter Button (Hidden by default) -->
+                        <button id="clearFilterBtn" onclick="clearTaskFilter()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded shadow text-sm font-bold flex items-center gap-1">
+                            <i class="fas fa-times"></i> Clear Filter
+                        </button>
+                        <!-- Task Graph Button -->
+                        <button onclick="openTaskAnalytics()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-chart-pie"></i> Task Graph
+                        </button>
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -138,22 +153,37 @@
         </div>
     </div>
 
-    <!-- Analytics Modal -->
-    <div id="analyticsModal" class="modal">
+    <!-- Attendance Analytics Modal -->
+    <div id="attendanceAnalyticsModal" class="modal">
         <div class="modal-content relative">
-            <span onclick="closeAnalytics()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">My Attendance Analytics</h3>
+            <span onclick="closeAttendanceAnalytics()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">My Attendance Graph</h3>
             <div class="relative h-64 w-full">
-                <canvas id="analyticsChart"></canvas>
+                <canvas id="attendanceChart"></canvas>
             </div>
-            <p id="analyticsLoading" class="text-center text-sm text-gray-500 mt-4">Loading Data from Sheet...</p>
+            <p id="attendanceLoading" class="text-center text-sm text-gray-500 mt-4">Loading Data from Sheet...</p>
+        </div>
+    </div>
+
+    <!-- Task Analytics Modal -->
+    <div id="taskAnalyticsModal" class="modal">
+        <div class="modal-content relative">
+            <span onclick="closeTaskAnalytics()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">My Task Graph</h3>
+            <p class="text-sm text-blue-500 mb-4 font-semibold"><i class="fas fa-info-circle"></i> Tip: Click on any bar below to see only those tasks in the table.</p>
+            <div class="relative h-64 w-full">
+                <canvas id="taskAnalyticsChart"></canvas>
+            </div>
         </div>
     </div>
 
     <script>
         // YAHAN APNA NAYA GOOGLE SCRIPT URL DAALEIN
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec";
-        let myChart = null;
+        
+        let attendanceChartInstance = null;
+        let taskChartInstance = null;
+        let globalAllTasks = []; // To store all tasks for filtering
 
         // Live Time
         function updateLiveTime() {
@@ -187,10 +217,8 @@
                 timeBox.classList.add('hidden');
             }
         }
-        // Initialize once on load
         toggleInputs();
 
-        // Format 24h input to 12h AM/PM
         function formatTime12h(time24) {
             if(!time24) return "";
             let [h, m] = time24.split(':');
@@ -245,7 +273,6 @@
             const username = document.getElementById('displayUser').innerText;
             const btn = document.getElementById('attendanceBtn');
             
-            // Check manual time for Punch/Breaks
             if(['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action) && !rawManualTime) {
                 alert("Please select the Time manually!"); return;
             }
@@ -272,24 +299,46 @@
             .catch(err => { alert("Saved successfully!"); btn.innerText = "Submit"; btn.disabled = false; });
         }
 
+        // ================= TASKS LOGIC =================
         function fetchUserTasks(username) {
             const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center">Loading Tasks...</td></tr>';
+            
             const formData = new FormData();
             formData.append('action', 'getTasks'); formData.append('username', username);
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
-            .then(data => renderTasks(data.tasks))
+            .then(data => {
+                if(data.status === 'success') {
+                    globalAllTasks = data.tasks; // Store globally
+                    renderTasks(globalAllTasks);
+                }
+            })
             .catch(err => console.log("Task fetch err"));
         }
 
-        function renderTasks(tasks) {
-            const tbody = document.getElementById('taskTableBody'); tbody.innerHTML = ''; 
-            let compCount = 0, pendCount = 0;
-            if (tasks.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center">No tasks assigned.</td></tr>';
-            else {
-                tasks.forEach(task => {
-                    if(['completed','close'].includes(task.status.toLowerCase())) compCount++;
-                    else pendCount++;
+        function renderTasks(tasksToRender) {
+            const tbody = document.getElementById('taskTableBody'); 
+            tbody.innerHTML = ''; 
+            
+            // Calculate Stats for Top Cards based on globalAllTasks (so cards always show total info)
+            let compCount = 0, pendCount = 0, otherCount = 0;
+            globalAllTasks.forEach(t => {
+                let s = t.status.toLowerCase();
+                if(s === 'completed') compCount++;
+                else if(s === 'pending') pendCount++;
+                else otherCount++;
+            });
+            document.getElementById('statTotal').innerText = globalAllTasks.length;
+            document.getElementById('statCompleted').innerText = compCount;
+            document.getElementById('statPending').innerText = pendCount;
+            document.getElementById('statOther').innerText = otherCount;
+
+            // Render Table Rows
+            if (tasksToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center">No tasks found.</td></tr>';
+            } else {
+                tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'bg-red-200 text-red-600' : 'bg-yellow-200 text-yellow-600';
                     tbody.innerHTML += `
                         <tr class="border-b hover:bg-gray-50">
@@ -301,28 +350,97 @@
                                 <select onchange="updateTaskStatus(this, ${task.rowIndex})" class="border rounded px-2 py-1 bg-white">
                                     <option value="Pending" ${task.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                     <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="Incomplete" ${task.status === 'Incomplete' ? 'selected' : ''}>Incomplete</option>
+                                    <option value="Close" ${task.status === 'Close' ? 'selected' : ''}>Close</option>
                                 </select>
                             </td>
                         </tr>
                     `;
                 });
             }
-            document.getElementById('statCompleted').innerText = compCount;
-            document.getElementById('statPending').innerText = pendCount;
-            document.getElementById('statTotal').innerText = tasks.length;
+
+            // Manage Clear Filter Button
+            const clearBtn = document.getElementById('clearFilterBtn');
+            if(tasksToRender.length !== globalAllTasks.length) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
         }
 
         function updateTaskStatus(sel, rIdx) {
             sel.disabled = true; 
             const formData = new FormData();
             formData.append('action', 'updateTask'); formData.append('rowIndex', rIdx); formData.append('status', sel.value);
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData }).then(()=> sel.disabled = false);
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(()=> { 
+                sel.disabled = false; 
+                // Refresh tasks after update
+                fetchUserTasks(document.getElementById('displayUser').innerText); 
+            });
         }
 
-        /* Analytics Modal Logic */
-        function openAnalytics() {
-            document.getElementById('analyticsModal').style.display = 'block';
-            document.getElementById('analyticsLoading').style.display = 'block';
+        // --- TASK GRAPH & FILTERING LOGIC ---
+        function openTaskAnalytics() {
+            document.getElementById('taskAnalyticsModal').style.display = 'block';
+            
+            let pending = 0, completed = 0, incomplete = 0, close = 0;
+            globalAllTasks.forEach(t => {
+                let s = t.status.toLowerCase();
+                if(s === 'pending') pending++;
+                else if(s === 'completed') completed++;
+                else if(s === 'incomplete') incomplete++;
+                else if(s === 'close') close++;
+            });
+
+            const ctx = document.getElementById('taskAnalyticsChart').getContext('2d');
+            if(taskChartInstance) taskChartInstance.destroy();
+            
+            taskChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pending', 'Completed', 'Incomplete', 'Close'],
+                    datasets: [{
+                        label: 'Number of Tasks',
+                        data: [pending, completed, incomplete, close],
+                        backgroundColor: ['#F59E0B', '#10B981', '#EF4444', '#6B7280'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    // Make Bars Clickable to Filter Table!
+                    onClick: (e, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const dataIndex = activeElements[0].index;
+                            const clickedStatus = taskChartInstance.data.labels[dataIndex];
+                            
+                            // Filter logic
+                            const filteredTasks = globalAllTasks.filter(t => t.status.toLowerCase() === clickedStatus.toLowerCase());
+                            renderTasks(filteredTasks);
+                            
+                            // Close Modal automatically to show the user the filtered table
+                            closeTaskAnalytics();
+                        }
+                    }
+                }
+            });
+        }
+
+        function closeTaskAnalytics() {
+            document.getElementById('taskAnalyticsModal').style.display = 'none';
+        }
+
+        function clearTaskFilter() {
+            renderTasks(globalAllTasks);
+        }
+
+        // ================= ATTENDANCE ANALYTICS LOGIC =================
+        function openAttendanceAnalytics() {
+            document.getElementById('attendanceAnalyticsModal').style.display = 'block';
+            document.getElementById('attendanceLoading').style.display = 'block';
             const username = document.getElementById('displayUser').innerText;
 
             const formData = new FormData();
@@ -332,22 +450,22 @@
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                document.getElementById('analyticsLoading').style.display = 'none';
-                renderAnalyticsChart(data.stats);
+                document.getElementById('attendanceLoading').style.display = 'none';
+                renderAttendanceChart(data.stats);
             }).catch(err => {
-                document.getElementById('analyticsLoading').innerText = "Failed to load data.";
+                document.getElementById('attendanceLoading').innerText = "Failed to load data.";
             });
         }
 
-        function closeAnalytics() {
-            document.getElementById('analyticsModal').style.display = 'none';
+        function closeAttendanceAnalytics() {
+            document.getElementById('attendanceAnalyticsModal').style.display = 'none';
         }
 
-        function renderAnalyticsChart(stats) {
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
-            if(myChart) myChart.destroy();
+        function renderAttendanceChart(stats) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            if(attendanceChartInstance) attendanceChartInstance.destroy();
             
-            myChart = new Chart(ctx, {
+            attendanceChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['On Time', 'Delay', 'Leaves', 'Breaks Taken', 'Approved', 'Rejected'],
@@ -363,7 +481,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
         }
