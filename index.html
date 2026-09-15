@@ -12,15 +12,36 @@
         .glassmorphism { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 15px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         #dashboard-section { display: none; }
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 2% auto; padding: 20px; border-radius: 10px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background-color: #fefefe; margin: 2% auto; padding: 20px; border-radius: 10px; width: 95%; max-width: 1200px; max-height: 90vh; overflow-y: auto; }
         .hod-only { display: none; }
         .emp-only { display: block; }
         
-        /* Specific Table Styling for Analysation Card */
+        /* Analysation Table */
         .perf-table th { background-color: #e5e7eb; color: #374151; padding: 10px; text-align: left; border: 1px solid #d1d5db; font-size: 0.875rem; }
         .perf-table td { padding: 10px; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; }
         .perf-header { background-color: #1e3a8a; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.1rem; }
         .perf-subheader { background-color: #f59e0b; color: white; text-align: center; padding: 5px; font-weight: bold; font-size: 1.2rem; }
+
+        /* Progress Card Specific Styling */
+        .prog-table th.orange-header { background-color: #f59e0b; color: white; padding: 12px; text-align: center; border-right: 2px solid white; }
+        .prog-table th.blue-header { background-color: #1e3a8a; color: white; padding: 12px; text-align: left; border-right: 2px solid white;}
+        .prog-table td.blue-cell { background-color: #274060; color: white; font-weight: bold; padding: 12px; border-bottom: 1px solid #4b5563; }
+        .prog-table td.light-cell { background-color: #ffffff; color: #374151; padding: 12px; text-align: center; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; }
+        
+        /* Progress Bar & Dots */
+        .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
+        .dot-red { background-color: #ef4444; }
+        .dot-orange { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+        .progress-bar-bg { background-color: #e5e7eb; border-radius: 4px; height: 16px; width: 100%; display: inline-block; vertical-align: middle; overflow: hidden;}
+        .progress-bar-fill { background-color: #10b981; height: 100%; }
+
+        /* One View Table Styling */
+        .oneview-table th { border: 1px solid #cbd5e1; }
+        .oneview-table td { border: 1px solid #e2e8f0; }
+        .ov-teal { background-color: #0d9488; color: white; }
+        .ov-yellow { background-color: #fbbf24; color: #78350f; }
+        .ov-light-teal { background-color: #ccfbf1; }
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center">
@@ -54,6 +75,7 @@
                     <p id="displayUser" class="font-semibold text-sm">Name</p>
                     <p class="text-xs text-blue-300">Dept: <span id="displayDept">--</span></p>
                     <p class="text-xs text-green-400">Shift: <span id="displayOfficeTime">--</span></p>
+                    <p class="text-xs text-purple-400 font-bold mt-1">Weekoff: <span id="displayWeekoff">--</span></p>
                     <span id="displayRole" class="hidden"></span>
                 </div>
             </div>
@@ -79,7 +101,18 @@
                         <label class="text-xs text-gray-400">Time (Manual):</label>
                         <input type="time" id="manualTime" class="w-full text-black px-2 py-1 rounded text-xs">
                     </div>
-                    <textarea id="actionReason" class="w-full text-black px-2 py-1 rounded mb-2 text-xs" rows="2" placeholder="Reason..."></textarea>
+                    
+                    <select id="actionReasonSelect" class="w-full text-black px-2 py-1 rounded mb-2 text-xs" onchange="toggleOtherReason()">
+                        <option value="">-- Select Reason --</option>
+                        <option value="Namaze Zohar/Namaze Juma & Lunch">Namaze Zohar/Namaze Juma & Lunch</option>
+                        <option value="Ghare Men Emergency">Ghare Men Emergency</option>
+                        <option value="Bimari">Bimari</option>
+                        <option value="Traffic">Traffic</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    
+                    <textarea id="actionReasonOther" class="w-full text-black px-2 py-1 rounded mb-2 text-xs hidden" rows="2" placeholder="Write details here..."></textarea>
+                    
                     <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-1 rounded">Submit</button>
                 </div>
             </div>
@@ -87,7 +120,7 @@
             <!-- HOD Only: Notice Box -->
             <div id="hodNoticeBox" class="hod-only bg-gray-800 p-4 rounded-lg mb-4 border-l-4 border-indigo-500">
                 <p class="text-sm font-semibold text-indigo-300">Admin/HOD Mode</p>
-                <p class="text-xs text-gray-400 mt-2">You are viewing team activities. Attendance tracking is disabled for your role.</p>
+                <p class="text-xs text-gray-400 mt-2">Attendance features disabled. Manage tasks and view team reports here.</p>
             </div>
 
             <!-- Report Card Sidebar -->
@@ -105,10 +138,17 @@
             
             <!-- Dashboard Header -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4">
-                <div class="flex items-center gap-4 mb-4 md:mb-0">
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Workspace Overview</h2>
-                    <button onclick="openAnalysationModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow font-bold flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2 mb-4 md:mb-0">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mr-4">Workspace</h2>
+                    <button onclick="openAnalysationModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded shadow font-bold flex items-center gap-2 text-sm">
                         <i class="fas fa-chart-line"></i> Analisation
+                    </button>
+                    <button onclick="openProgressCardModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded shadow font-bold flex items-center gap-2 text-sm">
+                        <i class="fas fa-tasks"></i> Progress Card
+                    </button>
+                    <!-- NEW: Attendance One View Button -->
+                    <button onclick="openOneViewModal()" class="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded shadow font-bold flex items-center gap-2 text-sm">
+                        <i class="fas fa-calendar-alt"></i> Attendance One View
                     </button>
                 </div>
                 <div class="flex gap-2">
@@ -194,6 +234,11 @@
             <div class="bg-white p-6 rounded-lg shadow overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h3 class="text-lg font-bold text-gray-800" id="taskTableTitle">My Tasks</h3>
+                    <div class="flex gap-2">
+                        <select id="hodEmpFilter" class="hod-only border border-gray-300 rounded px-2 py-1 text-sm bg-white font-semibold text-indigo-700" onchange="filterTasksByEmp()">
+                            <option value="All">All Employees</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -201,8 +246,9 @@
                             <tr class="bg-gray-100 text-gray-600 uppercase text-xs leading-normal">
                                 <th class="py-3 px-4">Task Name</th>
                                 <th class="py-3 px-4 hod-only-col hidden">Employee</th>
-                                <th class="py-3 px-4">Dept</th>
+                                <th class="py-3 px-4">Timeline</th>
                                 <th class="py-3 px-4">Priority</th>
+                                <th class="py-3 px-4">Time Spent</th>
                                 <th class="py-3 px-4">Emp Status</th>
                                 <th class="py-3 px-4">HOD Approval</th>
                             </tr>
@@ -215,19 +261,29 @@
         </div>
     </div>
 
-    <!-- HOD ASSIGN TASK MODAL -->
+    <!-- MODAL: HOD ASSIGN TASK -->
     <div id="assignTaskModal" class="modal">
         <div class="modal-content relative max-w-lg">
             <span onclick="closeAssignTaskModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
             <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Assign New Task</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Assign To (Username):</label>
-                    <input type="text" id="newTaskUser" class="w-full border p-2 rounded" placeholder="e.g. Emp001" required>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Assign To (Employee):</label>
+                    <select id="newTaskUser" class="w-full border p-2 rounded" required></select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border p-2 rounded" required>
+                </div>
+                <div class="flex gap-4 mt-2">
+                    <div class="w-1/2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
+                        <input type="date" id="newTaskStart" class="w-full border p-2 rounded" required>
+                    </div>
+                    <div class="w-1/2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Due Date (End):</label>
+                        <input type="date" id="newTaskEnd" class="w-full border p-2 rounded" required>
+                    </div>
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/2">
@@ -241,6 +297,7 @@
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Frequency:</label>
                         <select id="newTaskFreq" class="w-full border p-2 rounded">
+                            <option>One-time</option>
                             <option>Daily</option>
                             <option>Weekly</option>
                             <option>Monthly</option>
@@ -252,25 +309,20 @@
         </div>
     </div>
 
-    <!-- ANALYSATION MODAL (PERFORMANCE SCORE CARD) -->
+    <!-- MODAL: ANALYSATION -->
     <div id="analysationModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300">
             <span onclick="closeAnalysationModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            
             <h2 class="text-2xl font-normal text-gray-800 mb-1">Employee overall performance status score card</h2>
-            <p class="text-xs text-gray-500 mb-4">This slide covers overall performance score of employee appraised by reporting manager. It includes scores based on metrics such as departmental performance, downtime, efficiency, setup, utilization, quality failures as per goals.</p>
-
+            <p class="text-xs text-gray-500 mb-4">This slide covers overall performance score of employee appraised by reporting manager.</p>
             <div class="w-full">
                 <div class="perf-subheader rounded-t-lg">Employee performance card</div>
                 <div class="grid grid-cols-2">
                     <div class="perf-header border-r border-gray-400 bg-blue-900">Performance score</div>
                     <div class="perf-header bg-blue-900">Departmental performance score</div>
-                    
-                    <!-- Scores -->
                     <div class="text-center py-4 text-3xl font-bold border border-t-0 border-gray-300 bg-gray-50" id="indivScore">88.9</div>
                     <div class="text-center py-4 text-3xl font-bold border border-t-0 border-l-0 border-gray-300 bg-gray-50" id="deptScore">68.5</div>
                 </div>
-
                 <table class="w-full perf-table mt-4">
                     <thead>
                         <tr>
@@ -282,61 +334,105 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Downtime (Delay/Breaks)</td>
-                            <td class="text-center">9.3%</td>
-                            <td class="text-center">1.5%</td>
-                            <td class="text-center">200.0</td>
-                            <td class="text-center">5.1%</td>
-                        </tr>
-                        <tr>
-                            <td>Efficiency (Task Completion)</td>
-                            <td class="text-center">88%</td>
-                            <td class="text-center" id="metricEfficiency">92.0%</td>
-                            <td class="text-center">200.0</td>
-                            <td class="text-center">84.2%</td>
-                        </tr>
-                        <tr>
-                            <td>Setup (On-Time Punch)</td>
-                            <td class="text-center">99%</td>
-                            <td class="text-center">95.5%</td>
-                            <td class="text-center">200.0</td>
-                            <td class="text-center">85.2%</td>
-                        </tr>
-                        <tr>
-                            <td>Utilization (Act Hrs / ADP)</td>
-                            <td class="text-center">80%</td>
-                            <td class="text-center">89.5%</td>
-                            <td class="text-center">200.0</td>
-                            <td class="text-center">74.6%</td>
-                        </tr>
-                        <tr>
-                            <td>Quality failures</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                        </tr>
-                        <tr>
-                            <td>Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                            <td class="text-center text-gray-400">Add text here</td>
-                        </tr>
+                        <tr><td>Downtime (Delay/Breaks)</td><td class="text-center">9.3%</td><td class="text-center">1.5%</td><td class="text-center">200.0</td><td class="text-center">5.1%</td></tr>
+                        <tr><td>Efficiency (Task Completion)</td><td class="text-center">88%</td><td class="text-center" id="metricEfficiency">92.0%</td><td class="text-center">200.0</td><td class="text-center">84.2%</td></tr>
                     </tbody>
                 </table>
-
                 <div class="mt-8 relative h-64 w-full">
                     <canvas id="monthlyPerformanceChart"></canvas>
                 </div>
-                
-                <div class="mt-6 flex flex-col gap-1 text-sm text-gray-700 font-medium">
-                    <p><i class="fas fa-caret-down text-orange-400"></i> Production manager _______________________________</p>
-                    <p><i class="fas fa-caret-down text-orange-400"></i> Supervisor _______________________________________</p>
-                    <p><i class="fas fa-caret-down text-orange-400"></i> Continuous improvement coordinator _________________</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PROGRESS CARD -->
+    <div id="progressCardModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300">
+            <span onclick="closeProgressCardModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            <h2 class="text-2xl font-normal text-gray-800 mb-1">Employees task prioritization progress status card</h2>
+            <p class="text-xs text-gray-500 mb-6">This slide covers task completion output report sheet. It includes task, assigned person, priority status and the task progress bar with percentage.</p>
+
+            <div class="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 border rounded-lg items-end">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Filter Type:</label>
+                    <select id="progFilterType" class="border p-2 rounded text-sm w-40" onchange="toggleProgFilterInputs()">
+                        <option value="all">All / Previous Tasks</option>
+                        <option value="day">Day-wise</option>
+                        <option value="month">Monthly</option>
+                        <option value="year">Yearly</option>
+                    </select>
                 </div>
-                <p class="text-center text-xs text-gray-400 mt-4">This graph/chart is linked to data. Changes automatically based on actual output.</p>
+                <div id="progDateInputBox" class="hidden">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Date:</label>
+                    <input type="date" id="progFilterDate" class="border p-2 rounded text-sm w-40">
+                </div>
+                <div id="progMonthInputBox" class="hidden">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Month:</label>
+                    <input type="month" id="progFilterMonth" class="border p-2 rounded text-sm w-40">
+                </div>
+                <div id="progYearInputBox" class="hidden">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Year:</label>
+                    <input type="number" id="progFilterYear" placeholder="YYYY" class="border p-2 rounded text-sm w-40">
+                </div>
+                <div>
+                    <button onclick="applyProgressFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow font-bold text-sm">
+                        Apply Filter
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto border-t-4 border-orange-500">
+                <table class="w-full text-left border-collapse prog-table whitespace-nowrap">
+                    <thead>
+                        <tr>
+                            <th class="blue-header w-1/4"><i class="fas fa-list-alt mr-2"></i> Task list</th>
+                            <th class="orange-header w-1/6">Assign</th>
+                            <th class="orange-header w-1/6">Priority</th>
+                            <th class="orange-header w-1/6">Time Spent</th>
+                            <th class="orange-header w-1/6">Status</th>
+                            <th class="orange-header w-1/4">Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody id="progressCardBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW MODAL: ATTENDANCE ONE VIEW -->
+    <div id="oneViewModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300">
+            <span onclick="closeOneViewModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance One View</h2>
+            <p class="text-xs text-gray-500 mb-6">Comprehensive monthly view of employee attendance, leaves, and absences.</p>
+            
+            <div class="flex items-end gap-4 mb-4 bg-gray-50 p-4 border rounded">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Month & Year:</label>
+                    <input type="month" id="oneViewMonthPicker" class="border p-2 rounded text-sm w-48">
+                </div>
+                <button onclick="fetchOneViewData()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded shadow font-bold text-sm">
+                    Generate Report
+                </button>
+                <span id="oneViewLoading" class="hidden text-sm text-gray-500 italic ml-4">Loading matrix...</span>
+            </div>
+
+            <div class="flex gap-4 mb-2 text-xs font-bold justify-end">
+                <span class="text-green-600">P = Present</span>
+                <span class="text-red-500">A = Absent</span>
+                <span class="text-yellow-600">L = Leave</span>
+                <span class="text-blue-500">W = Weekoff</span>
+            </div>
+
+            <div class="overflow-x-auto shadow rounded border border-gray-200">
+                <table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm">
+                    <thead id="oneViewThead">
+                        <!-- Dynamic Headers -->
+                    </thead>
+                    <tbody id="oneViewTbody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -390,6 +486,12 @@
         }
         toggleInputs();
 
+        function toggleOtherReason() {
+            const val = document.getElementById('actionReasonSelect').value;
+            if(val === 'Other') document.getElementById('actionReasonOther').classList.remove('hidden');
+            else document.getElementById('actionReasonOther').classList.add('hidden');
+        }
+
         function formatTime12h(time24) {
             if(!time24) return "";
             let [h, m] = time24.split(':');
@@ -433,23 +535,19 @@
                     document.getElementById('displayUser').innerText = user;
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
+                    document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
                     
                     const role = data.role.toLowerCase();
                     document.getElementById('displayRole').innerText = role;
 
-                    // Apply Role Based UI Logic
                     if(role === 'hod' || role === 'admin') {
-                        // Show HOD elements
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'flex');
                         document.getElementById('hodNoticeBox').style.display = 'block';
                         document.getElementById('teamAttendanceSection').style.display = 'block';
                         document.getElementById('taskTableTitle').innerText = 'Department Tasks Overview';
                         document.querySelectorAll('.hod-only-col').forEach(el => el.classList.remove('hidden'));
-                        
-                        // Hide EMP elements
                         document.querySelectorAll('.emp-only').forEach(el => el.style.display = 'none');
                     } else {
-                        // Ensure Emp defaults are set
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'none');
                         document.querySelectorAll('.emp-only').forEach(el => el.style.display = 'block');
                         document.getElementById('empTimeTracker').style.display = 'flex';
@@ -468,7 +566,9 @@
 
         function markAttendance() {
             const action = document.getElementById('attendanceAction').value;
-            const reason = document.getElementById('actionReason').value;
+            let reason = document.getElementById('actionReasonSelect').value;
+            if(reason === 'Other') reason = document.getElementById('actionReasonOther').value;
+            
             const rawManualTime = document.getElementById('manualTime').value;
             const selectedDate = document.getElementById('attendanceDate').value;
             const username = document.getElementById('displayUser').innerText;
@@ -494,6 +594,11 @@
             .then(data => {
                 alert(data.message);
                 btn.innerText = "Submit"; btn.disabled = false;
+                
+                document.getElementById('actionReasonSelect').value = '';
+                document.getElementById('actionReasonOther').value = '';
+                document.getElementById('actionReasonOther').classList.add('hidden');
+                
                 fetchDashboardData(username, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText);
             }).catch(err => { alert("Saved!"); btn.innerText = "Submit"; btn.disabled = false; });
         }
@@ -501,7 +606,7 @@
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
             const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center">Loading data...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center">Loading data...</td></tr>';
             
             const formData = new FormData();
             formData.append('action', 'getDashboardData'); 
@@ -514,16 +619,48 @@
             .then(data => {
                 if(data.status === 'success') {
                     globalAllTasks = data.tasks; 
-                    renderTasks(globalAllTasks, role);
-                    calculateReportCard(globalAllTasks);
                     
                     if (role === 'hod' || role === 'admin') {
+                        populateTeamDropdowns(data.teamMembers);
                         renderTeamAttendance(data.teamAttendance);
                     } else {
                         calculateTimeTracker(data.todayAttendance);
                     }
+
+                    filterTasksByEmp(); 
                 }
             }).catch(err => console.log(err));
+        }
+
+        function populateTeamDropdowns(members) {
+            const assignSelect = document.getElementById('newTaskUser');
+            const filterSelect = document.getElementById('hodEmpFilter');
+            let currentFilter = filterSelect.value;
+
+            assignSelect.innerHTML = '';
+            filterSelect.innerHTML = '<option value="All">All Employees</option>';
+            
+            members.forEach(m => {
+                assignSelect.innerHTML += `<option value="${m}">${m}</option>`;
+                filterSelect.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            if(members.includes(currentFilter)) filterSelect.value = currentFilter;
+        }
+
+        function filterTasksByEmp() {
+            const role = document.getElementById('displayRole').innerText;
+            const isHOD = (role === 'hod' || role === 'admin');
+            let tasksToRender = globalAllTasks;
+
+            if(isHOD) {
+                const selectedEmp = document.getElementById('hodEmpFilter').value;
+                if(selectedEmp !== 'All') {
+                    tasksToRender = globalAllTasks.filter(t => t.assignedTo === selectedEmp);
+                }
+            }
+            renderTasks(tasksToRender, role);
+            calculateReportCard(tasksToRender);
         }
 
         function renderTasks(tasksToRender, role) {
@@ -548,14 +685,13 @@
             document.getElementById('statPending').innerText = pendCount;
             document.getElementById('statDaily').innerText = `${dailyDone} / ${dailyTotal}`;
             
-            // For Analysation Modal
             if(tasksToRender.length > 0) {
                 let eff = Math.round((compCount / tasksToRender.length) * 100);
                 document.getElementById('metricEfficiency').innerText = `${eff}%`;
             }
 
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?6:5}" class="py-4 text-center">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-4 text-center">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -564,20 +700,23 @@
                     
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
+                    let timeSpentHTML = '';
 
                     if (!isHOD) {
+                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border rounded px-2 py-1 w-20 text-xs bg-white" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
                         empStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border rounded px-2 py-1 bg-white">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border rounded px-2 py-1 bg-white text-xs">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
                             </select>`;
                         let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
                         hodStatusHTML = `<span class="px-2 py-1 rounded text-xs font-bold ${hBadge}">${task.hodStatus}</span>`;
                     } else {
+                        timeSpentHTML = `<span class="font-bold text-gray-700">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold' : 'text-yellow-600';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border rounded px-2 py-1 bg-white">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border rounded px-2 py-1 bg-white text-xs">
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
@@ -587,8 +726,9 @@
                     tr.innerHTML = `
                         <td class="py-2 px-4 font-medium">${task.taskName}</td>
                         ${isHOD ? `<td class="py-2 px-4 text-indigo-600">${task.assignedTo}</td>` : ''}
-                        <td class="py-2 px-4">${task.department}</td>
-                        <td class="py-2 px-4 font-semibold ${prioColor}">${task.priority}</td>
+                        <td class="py-2 px-4 text-xs text-gray-500 font-semibold">${task.startDate} <br>to<br> ${task.endDate}</td>
+                        <td class="py-2 px-4 font-semibold ${prioColor}">${task.priority} <br><span class="text-xs text-gray-400">${task.frequency}</span></td>
+                        <td class="py-2 px-4">${timeSpentHTML}</td>
                         <td class="py-2 px-4">${empStatusHTML}</td>
                         <td class="py-2 px-4">${hodStatusHTML}</td>
                     `;
@@ -614,7 +754,6 @@
                 let status = clean(r.status);
                 let leave = clean(r.leave);
                 
-                // Show Leave if applicable, else show status
                 let stateBadge = leave !== '-' ? 
                     `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">${leave} (${status})</span>` : 
                     `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Present</span>`;
@@ -644,17 +783,30 @@
             });
         }
 
+        function updateTaskTime(rIdx, val) {
+            const formData = new FormData();
+            formData.append('action', 'updateTaskStatus'); 
+            formData.append('rowIndex', rIdx); 
+            formData.append('type', 'time'); 
+            formData.append('status', val); 
+            
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+        }
+
         // ================= HOD ASSIGN TASK =================
         function openAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'block'; }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
+        
         function submitNewTask() {
             const tUser = document.getElementById('newTaskUser').value;
             const tName = document.getElementById('newTaskName').value;
             const tPrio = document.getElementById('newTaskPriority').value;
             const tFreq = document.getElementById('newTaskFreq').value;
+            const tStart = document.getElementById('newTaskStart').value;
+            const tEnd = document.getElementById('newTaskEnd').value;
             const dept = document.getElementById('displayDept').innerText;
 
-            if(!tUser || !tName) { alert("Fill required fields!"); return; }
+            if(!tUser || !tName || !tStart || !tEnd) { alert("Fill all required fields including dates!"); return; }
 
             document.getElementById('saveTaskBtn').innerText = "Assigning...";
             const formData = new FormData();
@@ -664,6 +816,8 @@
             formData.append('dept', dept);
             formData.append('priority', tPrio);
             formData.append('frequency', tFreq);
+            formData.append('startDate', tStart);
+            formData.append('endDate', tEnd);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -697,9 +851,8 @@
             mg.className = `text-5xl font-extrabold ${color}`;
             document.getElementById('monthlyPerc').innerText = `${perc}% Completion`;
             
-            // Set for Analysation Modal
             document.getElementById('indivScore').innerText = perc.toFixed(1);
-            document.getElementById('deptScore').innerText = (perc * 0.85).toFixed(1); // Fake dept score for mockup
+            document.getElementById('deptScore').innerText = (perc * 0.85).toFixed(1); 
         }
 
         // ================= TIME TRACKER =================
@@ -754,14 +907,10 @@
         function closeAnalysationModal() {
             document.getElementById('analysationModal').style.display = 'none';
         }
-
         function renderMonthlyChart() {
             const ctx = document.getElementById('monthlyPerformanceChart').getContext('2d');
             if(monthlyChartInst) monthlyChartInst.destroy();
-            
-            // Mock data matching the requested image trend
             const dataScores = [55.6, 60.3, 68.2, 70.0, 74.6, 80.8, 84.4, 88.5, 90.8, 77.1, 0, 0];
-
             monthlyChartInst = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -769,41 +918,258 @@
                     datasets: [{
                         label: 'Monthly Performance',
                         data: dataScores,
-                        backgroundColor: '#1e3a8a', // Dark blue matching image
+                        backgroundColor: '#1e3a8a', 
                         barPercentage: 0.5
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: { 
-                        y: { beginAtZero: true, max: 100 },
-                        x: { grid: { display: false } }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 }, x: { grid: { display: false } } },
                     animation: {
                         onComplete: function() {
-                            // Add data labels on top of bars
-                            var chartInstance = this.chart;
-                            var ctx = chartInstance.ctx;
-                            ctx.font = "11px Arial";
-                            ctx.fillStyle = "#6b7280";
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'bottom';
+                            var ctx = this.chart.ctx;
+                            ctx.font = "11px Arial"; ctx.fillStyle = "#6b7280";
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
                             this.data.datasets.forEach(function(dataset, i) {
-                                var meta = chartInstance.getDatasetMeta(i);
+                                var meta = this.chart.getDatasetMeta(i);
                                 meta.data.forEach(function(bar, index) {
                                     var data = dataset.data[index];
                                     if(data > 0) ctx.fillText(data, bar.x, bar.y - 5);
                                 });
-                            });
+                            }, this);
                         }
                     }
                 }
             });
         }
+
+        // ================= PROGRESS CARD MODAL =================
+        function openProgressCardModal() {
+            document.getElementById('progressCardModal').style.display = 'block';
+            document.getElementById('progFilterType').value = 'all';
+            toggleProgFilterInputs();
+            applyProgressFilter(); 
+        }
+        function closeProgressCardModal() { document.getElementById('progressCardModal').style.display = 'none'; }
+        function toggleProgFilterInputs() {
+            const val = document.getElementById('progFilterType').value;
+            document.getElementById('progDateInputBox').classList.add('hidden');
+            document.getElementById('progMonthInputBox').classList.add('hidden');
+            document.getElementById('progYearInputBox').classList.add('hidden');
+            if(val === 'day') document.getElementById('progDateInputBox').classList.remove('hidden');
+            if(val === 'month') document.getElementById('progMonthInputBox').classList.remove('hidden');
+            if(val === 'year') document.getElementById('progYearInputBox').classList.remove('hidden');
+        }
+        function applyProgressFilter() {
+            const fType = document.getElementById('progFilterType').value;
+            let filteredTasks = globalAllTasks;
+            if (fType === 'day') {
+                const dateVal = document.getElementById('progFilterDate').value;
+                if(dateVal) {
+                    const [y,m,d] = dateVal.split('-');
+                    const targetStr = `${d}-${m}-${y}`;
+                    filteredTasks = globalAllTasks.filter(t => t.startDate === targetStr || t.endDate === targetStr);
+                }
+            } else if (fType === 'month') {
+                const monthVal = document.getElementById('progFilterMonth').value;
+                if(monthVal) {
+                    const [y,m] = monthVal.split('-');
+                    const targetStr = `${m}-${y}`;
+                    filteredTasks = globalAllTasks.filter(t => (t.startDate && t.startDate.includes(targetStr)) || (t.endDate && t.endDate.includes(targetStr)));
+                }
+            } else if (fType === 'year') {
+                const yearVal = document.getElementById('progFilterYear').value;
+                if(yearVal) {
+                    filteredTasks = globalAllTasks.filter(t => (t.startDate && t.startDate.includes(yearVal)) || (t.endDate && t.endDate.includes(yearVal)));
+                }
+            }
+            renderProgressCardTable(filteredTasks);
+        }
+        function renderProgressCardTable(tasks) {
+            const tbody = document.getElementById('progressCardBody');
+            tbody.innerHTML = '';
+            if (tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">No tasks found for the selected period.</td></tr>`;
+                return;
+            }
+            tasks.forEach(t => {
+                let prioColorClass = 'dot-green'; let pLabel = 'Normal';
+                if(t.priority.toLowerCase() === 'high') { prioColorClass = 'dot-red'; pLabel = 'High'; }
+                if(t.priority.toLowerCase() === 'urgent') { prioColorClass = 'dot-red'; pLabel = 'Urgent'; }
+
+                let sLabel = 'In Progress'; let statColorClass = 'dot-orange'; let progPercent = 40; 
+                if (t.empStatus.toLowerCase() === 'completed') {
+                    sLabel = 'Done'; statColorClass = 'dot-green'; progPercent = 100;
+                } else if (t.empStatus.toLowerCase() === 'incomplete') {
+                    sLabel = 'In Progress'; statColorClass = 'dot-orange'; progPercent = 10;
+                } else {
+                    progPercent = (t.taskName.length % 5 + 3) * 10; 
+                }
+
+                let displayTime = t.timeSpent ? t.timeSpent + ' min' : '-';
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="blue-cell">${t.taskName}</td>
+                        <td class="light-cell">${t.assignedTo}</td>
+                        <td class="light-cell"><span class="dot ${prioColorClass}"></span> ${pLabel}</td>
+                        <td class="light-cell font-semibold text-gray-700">${displayTime}</td>
+                        <td class="light-cell"><span class="dot ${statColorClass}"></span> ${sLabel}</td>
+                        <td class="light-cell">
+                            <div class="flex items-center gap-2 w-full">
+                                <span class="text-sm w-8">${progPercent}%</span>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${progPercent}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================= NEW: ATTENDANCE ONE VIEW LOGIC =================
+        function openOneViewModal() {
+            document.getElementById('oneViewModal').style.display = 'block';
+            
+            // Set default month to current month
+            const now = new Date();
+            let m = String(now.getMonth() + 1).padStart(2, '0');
+            let y = now.getFullYear();
+            document.getElementById('oneViewMonthPicker').value = `${y}-${m}`;
+            
+            fetchOneViewData();
+        }
+
+        function closeOneViewModal() {
+            document.getElementById('oneViewModal').style.display = 'none';
+        }
+
+        function fetchOneViewData() {
+            document.getElementById('oneViewLoading').style.display = 'inline';
+            const username = document.getElementById('displayUser').innerText;
+            const role = document.getElementById('displayRole').innerText;
+            const dept = document.getElementById('displayDept').innerText;
+            const monthYear = document.getElementById('oneViewMonthPicker').value; // YYYY-MM
+            
+            if(!monthYear) {
+                alert('Please select a month');
+                document.getElementById('oneViewLoading').style.display = 'none';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'getOneViewAttendance');
+            formData.append('username', username);
+            formData.append('role', role);
+            formData.append('department', dept);
+            formData.append('monthYear', monthYear);
+
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('oneViewLoading').style.display = 'none';
+                if(data.status === 'success') {
+                    renderOneViewTable(data.members, data.records, monthYear);
+                }
+            }).catch(err => {
+                document.getElementById('oneViewLoading').style.display = 'none';
+                alert("Failed to load One View Data");
+            });
+        }
+
+        function renderOneViewTable(members, records, monthYear) {
+            const [yStr, mStr] = monthYear.split('-');
+            const year = parseInt(yStr, 10);
+            const month = parseInt(mStr, 10);
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            // Build Headers
+            let theadHtml = `<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
+            for(let d = 1; d <= daysInMonth; d++) {
+                theadHtml += `<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
+            }
+            theadHtml += `<th class="p-2 border text-center">P</th><th class="p-2 border text-center">A</th><th class="p-2 border text-center">L</th><th class="p-2 border text-center">W</th><th class="p-2 border text-center">%</th></tr>`;
+            document.getElementById('oneViewThead').innerHTML = passedHeaders = theadHtml;
+
+            // Prepare matrix
+            let matrix = {};
+            members.forEach(m => matrix[m] = {});
+
+            records.forEach(r => {
+                if(!matrix[r.user]) return;
+                // Parse date "15-09-2026"
+                let parts = r.date.split('-');
+                let d = parseInt(parts[0], 10);
+                
+                let status = '';
+                if (r.inTime) status = 'P'; // Present
+                else if (r.leave && r.leave.toLowerCase().includes('leave')) status = 'L';
+                else if (r.leave && r.leave.toLowerCase().includes('weekoff')) status = 'W';
+                else if (r.leave && r.leave.toLowerCase().includes('adjustment')) status = 'Adj';
+
+                if (status === 'P' || !matrix[r.user][d]) {
+                    matrix[r.user][d] = status; // P overrides others if multiple on same day
+                }
+            });
+
+            // Build Rows
+            const tbody = document.getElementById('oneViewTbody');
+            tbody.innerHTML = '';
+            
+            const today = new Date();
+            const isCurrentMonth = (today.getFullYear() === year && (today.getMonth()+1) === month);
+            const currentDay = today.getDate();
+
+            members.forEach((m, idx) => {
+                let pCount = 0; let aCount = 0; let lCount = 0; let wCount = 0;
+                let rowHtml = `<tr class="hover:bg-gray-50"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border font-bold text-gray-700 ov-light-teal">${m}</td>`;
+
+                for(let d = 1; d <= daysInMonth; d++) {
+                    let s = matrix[m][d];
+                    
+                    if(!s) {
+                        let isPast = (year < today.getFullYear()) || 
+                                     (year == today.getFullYear() && month < (today.getMonth()+1)) || 
+                                     (isCurrentMonth && d < currentDay);
+                        if(isPast) s = 'A'; // Mark Absent if date has passed and no entry
+                        else s = '-'; // Future date
+                    }
+
+                    if(s === 'P') pCount++;
+                    if(s === 'A') aCount++;
+                    if(s === 'L') lCount++;
+                    if(s === 'W') wCount++;
+
+                    let color = 'text-gray-400';
+                    if(s==='P') color = 'text-green-600 font-bold';
+                    if(s==='A') color = 'text-red-500 font-bold';
+                    if(s==='L') color = 'text-yellow-600 font-bold';
+                    if(s==='W') color = 'text-blue-500 font-bold';
+
+                    rowHtml += `<td class="p-1 border text-center text-xs ${color}">${s}</td>`;
+                }
+
+                // Calculate percentage (Present / (Present + Absent) * 100)
+                let workingDays = pCount + aCount; 
+                let perc = workingDays > 0 ? Math.round((pCount / workingDays) * 100) : 0;
+
+                rowHtml += `
+                    <td class="p-2 border text-center font-bold text-green-600">${pCount}</td>
+                    <td class="p-2 border text-center font-bold text-red-500">${aCount}</td>
+                    <td class="p-2 border text-center font-bold text-yellow-600">${lCount}</td>
+                    <td class="p-2 border text-center font-bold text-blue-500">${wCount}</td>
+                    <td class="p-2 border text-center font-bold text-white bg-teal-500">${perc}%</td>
+                </tr>`;
+                
+                tbody.innerHTML += rowHtml;
+            });
+
+            if (members.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${daysInMonth + 7}" class="text-center p-4">No employees found in your department.</td></tr>`;
+            }
+        }
+
     </script>
 </body>
 </html>
