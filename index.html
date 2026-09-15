@@ -11,12 +11,12 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
         .glassmorphism { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 15px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         #dashboard-section { display: none; }
-        /* Modal Styles */
+        /* Modal Styles - Widened for table display */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 10px; width: 90%; max-width: 900px; }
         
         /* Cursor pointer for chart canvas */
-        #taskAnalyticsChart { cursor: pointer; }
+        #taskAnalyticsChart, #attendanceChart { cursor: pointer; }
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center">
@@ -160,15 +160,46 @@
         </div>
     </div>
 
-    <!-- Attendance Analytics Modal -->
+    <!-- Attendance Analytics Modal (WITH TABLE INTEGRATION) -->
     <div id="attendanceAnalyticsModal" class="modal">
         <div class="modal-content relative">
             <span onclick="closeAttendanceAnalytics()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">My Attendance Graph</h3>
-            <div class="relative h-64 w-full">
-                <canvas id="attendanceChart"></canvas>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2" id="attendanceModalTitle">My Attendance Graph</h3>
+            
+            <!-- Chart Container -->
+            <div id="attendanceChartContainer">
+                <p class="text-sm text-blue-500 mb-4 font-semibold"><i class="fas fa-info-circle"></i> Tip: Click on any tower (On Time, Delay, etc.) to see the Date-wise details.</p>
+                <div class="relative h-64 w-full">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
             </div>
-            <p id="attendanceLoading" class="text-center text-sm text-gray-500 mt-4">Loading Data from Sheet...</p>
+
+            <!-- Table Container (Hidden by default) -->
+            <div id="attendanceTableContainer" class="hidden w-full mt-4">
+                <button onclick="backToAttendanceChart()" class="mb-4 bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded shadow text-sm font-bold flex items-center gap-1">
+                    <i class="fas fa-arrow-left"></i> Back to Graph
+                </button>
+                <div class="overflow-x-auto h-64 overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="sticky top-0 bg-gray-100 shadow">
+                            <tr class="text-gray-600 uppercase">
+                                <th class="py-2 px-4">Date</th>
+                                <th class="py-2 px-4">In Time</th>
+                                <th class="py-2 px-4">Out Time</th>
+                                <th class="py-2 px-4">Breaks</th>
+                                <th class="py-2 px-4">Leave/Adj</th>
+                                <th class="py-2 px-4">Reason</th>
+                                <th class="py-2 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceDetailBody" class="text-gray-600 font-light">
+                            <!-- Details will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <p id="attendanceLoading" class="text-center text-sm text-gray-500 mt-4 hidden">Loading Data from Sheet...</p>
         </div>
     </div>
 
@@ -190,7 +221,8 @@
         
         let attendanceChartInstance = null;
         let taskChartInstance = null;
-        let globalAllTasks = []; // To store all tasks for filtering
+        let globalAllTasks = []; 
+        let globalAttendanceDetails = {}; // Store date-wise attendance details globally
 
         // Setup Date Picker Constraints (Today & Yesterday ONLY)
         function setDateConstraints() {
@@ -198,15 +230,14 @@
             const today = new Date();
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
-
-            // Format YYYY-MM-DD for input type="date"
-            const tzOffset = today.getTimezoneOffset() * 60000; // Local timezone handling
+            
+            const tzOffset = today.getTimezoneOffset() * 60000; 
             const localToday = (new Date(today - tzOffset)).toISOString().split('T')[0];
             const localYesterday = (new Date(yesterday - tzOffset)).toISOString().split('T')[0];
-
+            
             dateInput.max = localToday;
             dateInput.min = localYesterday;
-            dateInput.value = localToday; // Default to today
+            dateInput.value = localToday; 
         }
         setDateConstraints();
 
@@ -315,7 +346,7 @@
             formData.append('attAction', action);
             formData.append('reason', reason);
             formData.append('manualTime', manualTime12h);
-            formData.append('selectedDate', selectedDate); // Sending user selected date
+            formData.append('selectedDate', selectedDate);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -339,7 +370,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    globalAllTasks = data.tasks; // Store globally
+                    globalAllTasks = data.tasks; 
                     renderTasks(globalAllTasks);
                 }
             })
@@ -350,7 +381,6 @@
             const tbody = document.getElementById('taskTableBody'); 
             tbody.innerHTML = ''; 
             
-            // Calculate Stats for Top Cards based on globalAllTasks (so cards always show total info)
             let compCount = 0, pendCount = 0, otherCount = 0;
             globalAllTasks.forEach(t => {
                 let s = t.status.toLowerCase();
@@ -363,7 +393,6 @@
             document.getElementById('statPending').innerText = pendCount;
             document.getElementById('statOther').innerText = otherCount;
 
-            // Render Table Rows
             if (tasksToRender.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center">No tasks found.</td></tr>';
             } else {
@@ -388,7 +417,6 @@
                 });
             }
 
-            // Manage Clear Filter Button
             const clearBtn = document.getElementById('clearFilterBtn');
             if(tasksToRender.length !== globalAllTasks.length) {
                 clearBtn.classList.remove('hidden');
@@ -439,17 +467,12 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                    // Make Bars Clickable to Filter Table!
                     onClick: (e, activeElements) => {
                         if (activeElements.length > 0) {
                             const dataIndex = activeElements[0].index;
                             const clickedStatus = taskChartInstance.data.labels[dataIndex];
-                            
-                            // Filter logic
                             const filteredTasks = globalAllTasks.filter(t => t.status.toLowerCase() === clickedStatus.toLowerCase());
                             renderTasks(filteredTasks);
-                            
-                            // Close Modal automatically to show the user the filtered table
                             closeTaskAnalytics();
                         }
                     }
@@ -465,12 +488,16 @@
             renderTasks(globalAllTasks);
         }
 
-        // ================= ATTENDANCE ANALYTICS LOGIC =================
+        // ================= ATTENDANCE ANALYTICS LOGIC (WITH DETAILS TABLE) =================
         function openAttendanceAnalytics() {
             document.getElementById('attendanceAnalyticsModal').style.display = 'block';
+            // Ensure graph is visible and table is hidden on fresh open
+            backToAttendanceChart();
+            
             document.getElementById('attendanceLoading').style.display = 'block';
+            document.getElementById('attendanceChartContainer').style.opacity = '0.3'; // fade out while loading
+            
             const username = document.getElementById('displayUser').innerText;
-
             const formData = new FormData();
             formData.append('action', 'getAnalytics');
             formData.append('username', username);
@@ -479,6 +506,9 @@
             .then(res => res.json())
             .then(data => {
                 document.getElementById('attendanceLoading').style.display = 'none';
+                document.getElementById('attendanceChartContainer').style.opacity = '1';
+                
+                globalAttendanceDetails = data.details; // Save date-wise details
                 renderAttendanceChart(data.stats);
             }).catch(err => {
                 document.getElementById('attendanceLoading').innerText = "Failed to load data.";
@@ -509,9 +539,56 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    // Make Attendance Bars Clickable to show table
+                    onClick: (e, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const dataIndex = activeElements[0].index;
+                            const clickedCategory = attendanceChartInstance.data.labels[dataIndex];
+                            showAttendanceDetails(clickedCategory);
+                        }
+                    }
                 }
             });
+        }
+
+        // Show table inside modal instead of graph
+        function showAttendanceDetails(category) {
+            document.getElementById('attendanceChartContainer').classList.add('hidden');
+            document.getElementById('attendanceTableContainer').classList.remove('hidden');
+            document.getElementById('attendanceModalTitle').innerHTML = `Attendance Details: <span class="text-indigo-600">${category}</span>`;
+
+            const tbody = document.getElementById('attendanceDetailBody');
+            tbody.innerHTML = '';
+            
+            const records = globalAttendanceDetails[category] || [];
+
+            if(records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center">No records found for this category.</td></tr>';
+            } else {
+                records.forEach(r => {
+                    // Remove quotes if present from sheet data format
+                    const cleanStr = (str) => (str && str.startsWith("'")) ? str.substring(1) : (str || '-');
+                    
+                    tbody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 font-medium whitespace-nowrap">${r.date || '-'}</td>
+                            <td class="py-2 px-4 text-green-600">${cleanStr(r.in)}</td>
+                            <td class="py-2 px-4 text-red-600">${cleanStr(r.out)}</td>
+                            <td class="py-2 px-4 text-blue-500 max-w-xs truncate" title="${cleanStr(r.breaks)}">${cleanStr(r.breaks)}</td>
+                            <td class="py-2 px-4">${cleanStr(r.leave)}</td>
+                            <td class="py-2 px-4 text-gray-500 italic max-w-xs truncate" title="${cleanStr(r.reason)}">${cleanStr(r.reason)}</td>
+                            <td class="py-2 px-4 font-semibold">${cleanStr(r.status)}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function backToAttendanceChart() {
+            document.getElementById('attendanceChartContainer').classList.remove('hidden');
+            document.getElementById('attendanceTableContainer').classList.add('hidden');
+            document.getElementById('attendanceModalTitle').innerText = 'My Attendance Graph';
         }
     </script>
 </body>
