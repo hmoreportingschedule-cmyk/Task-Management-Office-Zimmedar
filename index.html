@@ -11,6 +11,9 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
         .glassmorphism { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 15px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         #dashboard-section { display: none; }
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; }
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center">
@@ -42,6 +45,7 @@
                 <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center"><i class="fas fa-user"></i></div>
                 <div>
                     <p id="displayUser" class="font-semibold">Employee Name</p>
+                    <p class="text-xs text-blue-300">Dept: <span id="displayDept">--</span></p>
                     <p class="text-xs text-green-400">Shift: <span id="displayOfficeTime">--</span></p>
                 </div>
             </div>
@@ -50,7 +54,7 @@
             <!-- Attendance Form -->
             <div class="bg-gray-800 p-4 rounded-lg mb-4">
                 <p class="mb-2 text-sm font-semibold">Attendance / Actions</p>
-                <select id="attendanceAction" class="w-full text-black px-2 py-1 rounded mb-2" onchange="toggleReason()">
+                <select id="attendanceAction" class="w-full text-black px-2 py-1 rounded mb-2" onchange="toggleInputs()">
                     <option value="Punch In">In Time (Punch In)</option>
                     <option value="Punch Out">Out Time (Punch Out)</option>
                     <option value="Break Start">Break Start</option>
@@ -60,7 +64,13 @@
                     <option value="Time Adjustment">Time Adjustment</option>
                 </select>
                 
-                <textarea id="actionReason" class="w-full text-black px-2 py-1 rounded mb-2 hidden text-sm" rows="2" placeholder="Enter reason..."></textarea>
+                <!-- Manual Time Input -->
+                <div id="manualTimeBox" class="mb-2">
+                    <label class="text-xs text-gray-400">Select Time (Manual):</label>
+                    <input type="time" id="manualTime" class="w-full text-black px-2 py-1 rounded text-sm">
+                </div>
+
+                <textarea id="actionReason" class="w-full text-black px-2 py-1 rounded mb-2 text-sm" rows="2" placeholder="Reason (if any)..."></textarea>
                 
                 <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-1 rounded">Submit</button>
             </div>
@@ -70,14 +80,15 @@
 
         <!-- Main Content -->
         <div class="flex-1 p-8 overflow-y-auto w-full relative">
-            <!-- Notifications Bell (HOD ONLY) -->
-            <div id="hodNotification" class="absolute top-8 right-64 hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 rounded shadow-md cursor-pointer text-sm" onclick="alert('Please check the Google Sheet (Attendance Tab) for pending Leave/Adjustment approvals!')">
-                <i class="fas fa-bell"></i> <span id="notiText">Pending Approvals</span>
-            </div>
-
-            <!-- Dashboard Header with Live Date & Time -->
+            
+            <!-- Dashboard Header with Analytics Button & Live Time -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Overview Dashboard</h2>
+                <div class="flex items-center gap-4 mb-4 md:mb-0">
+                    <h2 class="text-3xl font-bold text-gray-800">Overview Dashboard</h2>
+                    <button onclick="openAnalytics()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold flex items-center gap-2">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
+                </div>
                 
                 <div class="bg-white px-4 py-2 rounded-lg shadow border-l-4 border-indigo-500 text-center md:text-right w-full md:w-auto">
                     <p id="currentDate" class="text-sm font-bold text-gray-500 tracking-wider">DD-MM-YYYY</p>
@@ -127,9 +138,22 @@
         </div>
     </div>
 
+    <!-- Analytics Modal -->
+    <div id="analyticsModal" class="modal">
+        <div class="modal-content relative">
+            <span onclick="closeAnalytics()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">My Attendance Analytics</h3>
+            <div class="relative h-64 w-full">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+            <p id="analyticsLoading" class="text-center text-sm text-gray-500 mt-4">Loading Data from Sheet...</p>
+        </div>
+    </div>
+
     <script>
         // YAHAN APNA NAYA GOOGLE SCRIPT URL DAALEIN
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec";
+        let myChart = null;
 
         // Live Time
         function updateLiveTime() {
@@ -142,7 +166,7 @@
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12; h = h ? h : 12; // 12-hour format
+            h = h % 12; h = h ? h : 12;
             const formattedTime = `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
             
             const dateElement = document.getElementById('currentDate');
@@ -152,16 +176,27 @@
         }
         setInterval(updateLiveTime, 1000); updateLiveTime();
 
-        // Toggle Reason Textbox based on selected action
-        function toggleReason() {
+        // Toggle Inputs based on action
+        function toggleInputs() {
             const action = document.getElementById('attendanceAction').value;
-            const reasonBox = document.getElementById('actionReason');
-            if (action === 'Break Start' || action === 'Leave' || action === 'Time Adjustment') {
-                reasonBox.classList.remove('hidden');
+            const timeBox = document.getElementById('manualTimeBox');
+            
+            if (['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action)) {
+                timeBox.classList.remove('hidden');
             } else {
-                reasonBox.classList.add('hidden');
-                reasonBox.value = '';
+                timeBox.classList.add('hidden');
             }
+        }
+        // Initialize once on load
+        toggleInputs();
+
+        // Format 24h input to 12h AM/PM
+        function formatTime12h(time24) {
+            if(!time24) return "";
+            let [h, m] = time24.split(':');
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
         }
 
         function handleLogin(event) {
@@ -189,35 +224,33 @@
                     document.body.classList.remove('items-center', 'justify-center');
                     
                     document.getElementById('displayUser').innerText = user;
+                    document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
                     
-                    // Show notifications for HOD
-                    if(data.role.toLowerCase().includes('hod')) {
-                        document.getElementById('hodNotification').classList.remove('hidden');
-                    }
-
                     fetchUserTasks(user);
                 } else {
                     alert(data.message || "Invalid Username or Password");
                     btn.innerText = "Login to Dashboard"; btn.disabled = false;
                 }
             })
-            .catch(err => { alert("Error connecting to Google Sheets. Check URL & Deployment."); btn.innerText = "Login to Dashboard"; btn.disabled = false; });
+            .catch(err => { alert("Error connecting to Sheet"); btn.innerText = "Login to Dashboard"; btn.disabled = false; });
         }
 
-        function logout() {
-            location.reload();
-        }
+        function logout() { location.reload(); }
 
         function markAttendance() {
             const action = document.getElementById('attendanceAction').value;
             const reason = document.getElementById('actionReason').value;
+            const rawManualTime = document.getElementById('manualTime').value;
             const username = document.getElementById('displayUser').innerText;
             const btn = document.getElementById('attendanceBtn');
             
-            if(!reason && !document.getElementById('actionReason').classList.contains('hidden')) {
-                alert("Please provide a reason!"); return;
+            // Check manual time for Punch/Breaks
+            if(['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action) && !rawManualTime) {
+                alert("Please select the Time manually!"); return;
             }
+
+            const manualTime12h = formatTime12h(rawManualTime);
 
             btn.innerText = "Saving..."; btn.disabled = true;
 
@@ -226,6 +259,7 @@
             formData.append('username', username);
             formData.append('attAction', action);
             formData.append('reason', reason);
+            formData.append('manualTime', manualTime12h);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -233,32 +267,29 @@
                 alert(data.message);
                 btn.innerText = "Submit"; btn.disabled = false;
                 document.getElementById('actionReason').value = '';
+                document.getElementById('manualTime').value = '';
             })
             .catch(err => { alert("Saved successfully!"); btn.innerText = "Submit"; btn.disabled = false; });
         }
 
         function fetchUserTasks(username) {
             const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
             const formData = new FormData();
             formData.append('action', 'getTasks'); formData.append('username', username);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => renderTasks(data.tasks))
-            .catch(err => tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Error loading tasks.</td></tr>');
+            .catch(err => console.log("Task fetch err"));
         }
 
         function renderTasks(tasks) {
             const tbody = document.getElementById('taskTableBody'); tbody.innerHTML = ''; 
             let compCount = 0, pendCount = 0;
-
             if (tasks.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center">No tasks assigned.</td></tr>';
             else {
                 tasks.forEach(task => {
                     if(['completed','close'].includes(task.status.toLowerCase())) compCount++;
                     else pendCount++;
-
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'bg-red-200 text-red-600' : 'bg-yellow-200 text-yellow-600';
                     tbody.innerHTML += `
                         <tr class="border-b hover:bg-gray-50">
@@ -270,8 +301,6 @@
                                 <select onchange="updateTaskStatus(this, ${task.rowIndex})" class="border rounded px-2 py-1 bg-white">
                                     <option value="Pending" ${task.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                     <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                                    <option value="Incomplete" ${task.status === 'Incomplete' ? 'selected' : ''}>Incomplete</option>
-                                    <option value="Close" ${task.status === 'Close' ? 'selected' : ''}>Close</option>
                                 </select>
                             </td>
                         </tr>
@@ -287,10 +316,56 @@
             sel.disabled = true; 
             const formData = new FormData();
             formData.append('action', 'updateTask'); formData.append('rowIndex', rIdx); formData.append('status', sel.value);
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData }).then(()=> sel.disabled = false);
+        }
+
+        /* Analytics Modal Logic */
+        function openAnalytics() {
+            document.getElementById('analyticsModal').style.display = 'block';
+            document.getElementById('analyticsLoading').style.display = 'block';
+            const username = document.getElementById('displayUser').innerText;
+
+            const formData = new FormData();
+            formData.append('action', 'getAnalytics');
+            formData.append('username', username);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(res => res.json()).then(data => { sel.disabled = false; fetchUserTasks(document.getElementById('displayUser').innerText); })
-            .catch(err => sel.disabled = false);
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('analyticsLoading').style.display = 'none';
+                renderAnalyticsChart(data.stats);
+            }).catch(err => {
+                document.getElementById('analyticsLoading').innerText = "Failed to load data.";
+            });
+        }
+
+        function closeAnalytics() {
+            document.getElementById('analyticsModal').style.display = 'none';
+        }
+
+        function renderAnalyticsChart(stats) {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['On Time', 'Delay', 'Leaves', 'Breaks Taken', 'Approved', 'Rejected'],
+                    datasets: [{
+                        label: 'Attendance Records',
+                        data: [stats.onTime, stats.delay, stats.leaves, stats.breaks, stats.approved, stats.rejected],
+                        backgroundColor: [
+                            '#10B981', '#F59E0B', '#6366F1', '#3B82F6', '#22C55E', '#EF4444'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
         }
     </script>
 </body>
