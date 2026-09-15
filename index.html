@@ -57,6 +57,13 @@
             <!-- Attendance Form -->
             <div class="bg-gray-800 p-4 rounded-lg mb-4">
                 <p class="mb-2 text-sm font-semibold">Attendance / Actions</p>
+                
+                <!-- Restrict Date Picker (Only Today & Yesterday) -->
+                <div id="dateBox" class="mb-2">
+                    <label class="text-xs text-gray-400">Select Date:</label>
+                    <input type="date" id="attendanceDate" class="w-full text-black px-2 py-1 rounded text-sm" required>
+                </div>
+
                 <select id="attendanceAction" class="w-full text-black px-2 py-1 rounded mb-2" onchange="toggleInputs()">
                     <option value="Punch In">In Time (Punch In)</option>
                     <option value="Punch Out">Out Time (Punch Out)</option>
@@ -185,6 +192,24 @@
         let taskChartInstance = null;
         let globalAllTasks = []; // To store all tasks for filtering
 
+        // Setup Date Picker Constraints (Today & Yesterday ONLY)
+        function setDateConstraints() {
+            const dateInput = document.getElementById('attendanceDate');
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            // Format YYYY-MM-DD for input type="date"
+            const tzOffset = today.getTimezoneOffset() * 60000; // Local timezone handling
+            const localToday = (new Date(today - tzOffset)).toISOString().split('T')[0];
+            const localYesterday = (new Date(yesterday - tzOffset)).toISOString().split('T')[0];
+
+            dateInput.max = localToday;
+            dateInput.min = localYesterday;
+            dateInput.value = localToday; // Default to today
+        }
+        setDateConstraints();
+
         // Live Time
         function updateLiveTime() {
             const now = new Date();
@@ -270,9 +295,12 @@
             const action = document.getElementById('attendanceAction').value;
             const reason = document.getElementById('actionReason').value;
             const rawManualTime = document.getElementById('manualTime').value;
+            const selectedDate = document.getElementById('attendanceDate').value;
             const username = document.getElementById('displayUser').innerText;
             const btn = document.getElementById('attendanceBtn');
             
+            if(!selectedDate) { alert("Please select a valid date!"); return; }
+
             if(['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action) && !rawManualTime) {
                 alert("Please select the Time manually!"); return;
             }
@@ -287,6 +315,7 @@
             formData.append('attAction', action);
             formData.append('reason', reason);
             formData.append('manualTime', manualTime12h);
+            formData.append('selectedDate', selectedDate); // Sending user selected date
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -375,7 +404,6 @@
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(()=> { 
                 sel.disabled = false; 
-                // Refresh tasks after update
                 fetchUserTasks(document.getElementById('displayUser').innerText); 
             });
         }
