@@ -6,8 +6,8 @@
     <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Add SheetJS for Excel Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Robust SheetJS library for Excel Export -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ecf3f3; }
@@ -142,7 +142,7 @@
                 </button>
             </div>
 
-            <!-- Notice Box -->
+            <!-- Admin/HOD Only: Notice Box -->
             <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
                 <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
                 <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
@@ -185,11 +185,9 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
-                        <!-- EXCEL EXPORT BUTTON -->
                         <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </button>
-
                         <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
                         </button>
@@ -202,7 +200,6 @@
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> One View
                         </button>
-                        <!-- EMAIL BUTTON (ADMIN ONLY) -->
                         <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-paper-plane text-[#5fd3cc]"></i> Email
                         </button>
@@ -580,6 +577,7 @@
         let globalMonthlyFullAttendance = []; 
         let globalWorkLogs = [];
         let monthlyChartInst = null;
+        let isFirstLoad = true;
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -677,7 +675,7 @@
                     document.getElementById('login-section').style.display = 'none';
                     document.getElementById('dashboard-section').style.display = 'flex';
                     
-                    document.getElementById('displayUser').innerText = data.actualName;
+                    document.getElementById('displayUser').innerText = data.actualName; // from backend
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
@@ -709,6 +707,7 @@
                         document.getElementById('empTimeTracker').style.display = 'flex';
                     }
 
+                    isFirstLoad = true;
                     fetchDashboardData(data.actualName, role, data.department);
                 } else {
                     alert(data.message || "Invalid Credentials");
@@ -735,6 +734,7 @@
                 alert("Select Time manually!"); return;
             }
 
+            // Early Punch Out Restriction
             if (action === 'Punch Out') {
                 const shiftStr = document.getElementById('displayOfficeTime').innerText;
                 const parts = shiftStr.toLowerCase().split('to');
@@ -789,9 +789,11 @@
 
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
-            const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
-            fetchDataAPI(username, role, dept);
+            if(isFirstLoad) {
+                const tbody = document.getElementById('taskTableBody');
+                tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
+            }
+            fetchDataAPI(username, role, dept, false);
         }
 
         function fetchDashboardDataSilently() {
@@ -830,10 +832,15 @@
 
                     filterTasksByEmp(); 
                 }
+                isFirstLoad = false;
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             }).catch(err => {
                 console.log(err);
+                if (isFirstLoad) {
+                    const tbody = document.getElementById('taskTableBody');
+                    tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-red-500 font-semibold">Error loading data. Check internet or URL.</td></tr>';
+                }
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             });
@@ -933,13 +940,8 @@
             document.getElementById('statPending').innerText = pendCount;
             document.getElementById('statDaily').innerText = `${dailyDone} / ${dailyTotal}`;
             
-            if(tasksToRender.length > 0) {
-                let eff = Math.round((compCount / tasksToRender.length) * 100);
-                document.getElementById('metricEfficiency').innerText = `${eff}%`;
-            }
-
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?8:7}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -953,13 +955,14 @@
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    let timeSpentHTML = '';
                     let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
 
                     let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
                     let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
 
-                    if (!isHOD && !isAdmin) { 
+                    if (!isHOD && !isAdmin) { // Employee
+                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer" ${empLocked}>
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -968,7 +971,8 @@
                         let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : (task.hodStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600');
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
                     } 
-                    else if (isHOD && !isAdmin) { 
+                    else if (isHOD && !isAdmin) { // HOD
+                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
@@ -978,7 +982,8 @@
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
                             </select>`;
                     } 
-                    else if (isAdmin) { 
+                    else if (isAdmin) { // Admin
+                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border border-[#7db0b1] rounded-md px-2 py-1 w-20 text-xs bg-white focus:ring-1 focus:ring-[#259b94] outline-none transition" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -1084,6 +1089,15 @@
             });
         }
 
+        function updateTaskTime(rIdx, val) {
+            const formData = new FormData();
+            formData.append('action', 'updateTaskStatus'); 
+            formData.append('rowIndex', rIdx); 
+            formData.append('type', 'time'); 
+            formData.append('status', val); 
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+        }
+
         // ================= HOD ASSIGN TASK =================
         function openAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'block'; }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
@@ -1161,7 +1175,7 @@
             });
         }
 
-        // ================= EMAIL REPORT CARD =================
+        // ================= EMAIL REPORT CARD (ADMIN) =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
         
@@ -1180,7 +1194,7 @@
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
             
-            let attPerc = 100; // Will be properly calculated via main grade logic in backend
+            let attPerc = 100; // Simplified for email
             let finalScore = taskPerc; 
             let grade = "D";
             if (finalScore >= 90) grade = "A";
@@ -1269,57 +1283,63 @@
                 alert("Excel library is loading, please try again in a few seconds.");
                 return;
             }
-            
-            let wb = XLSX.utils.book_new();
-            
-            // 1. Tasks Sheet
-            let tasksForExport = globalAllTasks.map(t => ({
-                "Task Name": t.taskName,
-                "Assigned To": t.assignedTo,
-                "Department": t.department,
-                "Start Date": t.startDate,
-                "End Date": t.endDate,
-                "Priority": t.priority,
-                "Frequency": t.frequency,
-                "Time Spent (Mins)": t.timeSpent,
-                "Employee Status": t.empStatus,
-                "HOD Approval": t.hodStatus
-            }));
-            let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
-            XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
-            
-            // 2. Attendance Sheet
-            let attForExport = globalMonthlyFullAttendance.map(a => ({
-                "Date": a.Date,
-                "Employee": a.Employee,
-                "In Time": a.InTime,
-                "Out Time": a.OutTime,
-                "Leave/Weekoff": a.Leave,
-                "Reason": a.Reason,
-                "HOD Status": a.Status
-            }));
-            let wsAtt = XLSX.utils.json_to_sheet(attForExport);
-            XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
-            
-            // 3. Work Logs
-            let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs);
-            XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
-            
-            // 4. Progress Summary
-            let username = document.getElementById('displayUser').innerText;
-            let grade = document.getElementById('monthlyGrade').innerText;
-            let overall = document.getElementById('monthlyPerc').innerText;
-            let summaryData = [
-                {"Metric": "Employee", "Value": username},
-                {"Metric": "Overall Grade", "Value": grade},
-                {"Metric": "Performance", "Value": overall},
-                {"Metric": "Total Tasks", "Value": globalAllTasks.length},
-                {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
-            ];
-            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
+            try {
+                let wb = XLSX.utils.book_new();
+                
+                let tasksForExport = globalAllTasks.map(t => ({
+                    "Task Name": t.taskName || "-",
+                    "Assigned To": t.assignedTo || "-",
+                    "Department": t.department || "-",
+                    "Start Date": t.startDate || "-",
+                    "End Date": t.endDate || "-",
+                    "Priority": t.priority || "-",
+                    "Frequency": t.frequency || "-",
+                    "Time Spent (Mins)": t.timeSpent || 0,
+                    "Employee Status": t.empStatus || "Pending",
+                    "HOD Approval": t.hodStatus || "Pending"
+                }));
+                let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
+                XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
+                
+                let attForExport = globalMonthlyFullAttendance.map(a => ({
+                    "Date": a.Date || "-",
+                    "Employee": a.Employee || "-",
+                    "In Time": a.InTime || "-",
+                    "Out Time": a.OutTime || "-",
+                    "Leave/Weekoff": a.Leave || "-",
+                    "Reason": a.Reason || "-",
+                    "HOD Status": a.Status || "-"
+                }));
+                let wsAtt = XLSX.utils.json_to_sheet(attForExport);
+                XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
+                
+                let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs.map(w => ({
+                    "Date": w.Date || "-",
+                    "Employee": w.Employee || "-",
+                    "Task Name": w.Task || "-",
+                    "Time Spent (Mins)": w.TimeSpentMins || 0,
+                    "Description": w.Description || "-"
+                })));
+                XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
+                
+                let username = document.getElementById('displayUser').innerText;
+                let grade = document.getElementById('monthlyGrade').innerText;
+                let overall = document.getElementById('monthlyPerc').innerText;
+                let summaryData = [
+                    {"Metric": "Employee", "Value": username},
+                    {"Metric": "Overall Grade", "Value": grade},
+                    {"Metric": "Performance", "Value": overall},
+                    {"Metric": "Total Tasks", "Value": globalAllTasks.length},
+                    {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
+                ];
+                let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
 
-            XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
+                XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
+            } catch(e) {
+                alert("Error exporting Excel: " + e.message);
+                console.error(e);
+            }
         }
 
         // ================= ANALYSATION MODAL =================
