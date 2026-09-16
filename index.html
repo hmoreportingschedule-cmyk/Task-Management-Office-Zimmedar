@@ -45,6 +45,13 @@
         .ov-teal { background-color: #0d9488; color: white; }
         .ov-yellow { background-color: #fbbf24; color: #78350f; }
         .ov-light-teal { background-color: #ccfbf1; }
+
+        /* Schedule Report Styling */
+        .sched-main-header { background-color: #5b9bd5; color: white; padding: 15px; font-size: 1.5rem; }
+        .sched-sub-header { background-color: #9dc3e6; color: #1f4e79; padding: 10px; font-weight: bold; }
+        .sched-table th { background-color: #a6a6a6; color: white; padding: 8px; font-size: 0.8rem; text-align: center; border: 1px solid #fff;}
+        .sched-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 0.85rem; }
+        .sched-grey-cell { background-color: #d9d9d9; font-weight: bold; text-align: center;}
     </style>
 </head>
 <body class="h-screen w-full flex items-center justify-center text-gray-800">
@@ -153,17 +160,21 @@
                 </div>
                 
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="openAnalysationModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                    <button onclick="openAnalysationModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-chart-line text-indigo-500"></i> Analytics
                     </button>
-                    <button onclick="openProgressCardModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                    <button onclick="openProgressCardModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-tasks text-orange-500"></i> Progress Card
                     </button>
-                    <button onclick="openOneViewModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                    <!-- NEW: SCHEDULE REPORT BUTTON -->
+                    <button onclick="openScheduleModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                        <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
+                    </button>
+                    <button onclick="openOneViewModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-calendar-alt text-teal-500"></i> One View
                     </button>
                     <!-- NEW EMAIL BUTTON (ADMIN ONLY) -->
-                    <button onclick="openEmailModal()" class="admin-only bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                    <button onclick="openEmailModal()" class="admin-only bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-paper-plane"></i> Email Report
                     </button>
                 </div>
@@ -231,7 +242,7 @@
                 </button>
             </div>
 
-            <!-- HOD ONLY: Team Attendance Overview -->
+            <!-- HOD ONLY: Team Attendance Overview (Matching Reference Image Style) -->
             <div id="teamAttendanceSection" class="hod-only modern-card overflow-hidden mb-8">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h3 class="text-lg font-bold text-gray-900">Employees Status (Today)</h3>
@@ -457,6 +468,42 @@
             
         </div>
     </div>
+    
+    <!-- NEW MODAL: PROJECT SCHEDULE / REPORT CARD -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
+            <span onclick="closeScheduleModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            
+            <div class="sched-main-header rounded-t-lg">
+                <i class="fas fa-calendar-alt"></i> Zimmedar Project Schedule
+            </div>
+            <div class="sched-sub-header flex justify-between items-center bg-[#9dc3e6]">
+                <div class="flex items-center gap-4">
+                    <span>Project Start Date: <span class="bg-white px-2 py-1 rounded text-gray-700 text-sm ml-2" id="schedStartDate">--</span></span>
+                    <span>Project Lead: <span class="bg-white px-2 py-1 rounded text-gray-700 text-sm ml-2" id="schedLead">--</span></span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse sched-table whitespace-nowrap">
+                    <thead>
+                        <tr>
+                            <th class="w-12">WBS</th>
+                            <th>TASK</th>
+                            <th>LEAD</th>
+                            <th>START</th>
+                            <th>END</th>
+                            <th>DAYS</th>
+                            <th>% DONE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleCardBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- ATTENDANCE ONE VIEW MODAL -->
     <div id="oneViewModal" class="modal">
@@ -498,7 +545,7 @@
 
     <script>
         // YAHAN APNA NAYA GOOGLE SCRIPT URL DAALEIN
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec"";
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
@@ -1136,9 +1183,9 @@
                 if (t.empStatus.toLowerCase() === 'completed') {
                     sLabel = 'Done'; statColorClass = 'dot-green'; progPercent = 100;
                 } else if (t.empStatus.toLowerCase() === 'incomplete') {
-                    sLabel = 'In Progress'; statColorClass = 'dot-orange'; progPercent = 10;
+                    sLabel = 'In Progress'; statColorClass = 'dot-orange'; progPercent = 50;
                 } else {
-                    progPercent = (t.taskName.length % 5 + 3) * 10; 
+                    progPercent = 0; // Default pending 
                 }
 
                 let displayTime = t.timeSpent ? t.timeSpent + ' min' : '-';
@@ -1160,6 +1207,68 @@
                     </tr>
                 `;
             });
+        }
+
+        // ================= PROJECT SCHEDULE MODAL (NEW) =================
+        function parseDDMMYYYY(dateStr) {
+            if(!dateStr || dateStr === '-') return new Date();
+            const parts = dateStr.split('-');
+            if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+            return new Date();
+        }
+
+        function calcDaysDiff(startStr, endStr) {
+            if(startStr === '-' || endStr === '-') return '-';
+            const s = parseDDMMYYYY(startStr);
+            const e = parseDDMMYYYY(endStr);
+            const diffTime = e - s;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            return diffDays >= 0 ? diffDays + 1 : 0; // +1 to include both start and end day
+        }
+
+        function openScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'block';
+            
+            // Set header info
+            let leader = document.getElementById('displayRole').innerText === 'emp' ? document.getElementById('displayUser').innerText : "Department Head";
+            document.getElementById('schedLead').innerText = leader;
+            
+            let pStart = globalAllTasks.length > 0 ? globalAllTasks[0].startDate : "--";
+            document.getElementById('schedStartDate').innerText = pStart;
+
+            // Render table
+            const tbody = document.getElementById('scheduleCardBody');
+            tbody.innerHTML = '';
+
+            if (globalAllTasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500 font-medium italic">No schedule data available.</td></tr>`;
+                return;
+            }
+
+            globalAllTasks.forEach((t, index) => {
+                let progPercent = 0; 
+                if (t.empStatus.toLowerCase() === 'completed') progPercent = 100;
+                else if (t.empStatus.toLowerCase() === 'incomplete') progPercent = 50;
+                
+                let days = calcDaysDiff(t.startDate, t.endDate);
+
+                // Adding a row for the Task
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="sched-grey-cell border-b">${index + 1}</td>
+                        <td class="border-b pl-4">${t.taskName}</td>
+                        <td class="border-b text-center">${t.assignedTo}</td>
+                        <td class="border-b text-center">${t.startDate}</td>
+                        <td class="border-b text-center">${t.endDate}</td>
+                        <td class="border-b text-center">${days}</td>
+                        <td class="border-b text-center ${progPercent === 100 ? 'bg-gray-300 font-bold' : ''}">${progPercent}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
         }
 
         // ================= ATTENDANCE ONE VIEW =================
