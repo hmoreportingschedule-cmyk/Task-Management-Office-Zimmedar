@@ -57,9 +57,7 @@
 <body class="h-screen w-full text-gray-800 overflow-hidden">
     <!-- LOGIN PAGE -->
     <div id="login-section" class="w-full h-full flex items-center justify-center bg-gradient-to-tr from-[#259b94] to-[#5fd3cc]">
-        <!-- Outer glow/frame -->
         <div class="p-4 bg-[#4bbab6] shadow-[0_0_60px_rgba(0,0,0,0.5)] relative">
-            <!-- Inner dark card -->
             <div class="bg-[#2a4d53] p-10 w-full sm:w-[380px] border border-[#3e6a6e]">
                 <div class="flex justify-center mb-6">
                     <div class="w-20 h-20 rounded-full border-[1.5px] border-[#7db0b1] flex items-center justify-center">
@@ -149,6 +147,11 @@
                     
                     <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold text-sm py-2 rounded-lg shadow-md transition">Submit Record</button>
                 </div>
+
+                <!-- Daily Work Logger Button -->
+                <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
+                    <i class="fas fa-edit"></i> Log Daily Work
+                </button>
             </div>
 
             <!-- HOD Only: Notice Box -->
@@ -157,11 +160,14 @@
                 <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Focus on team reports and tasks approval.</p>
             </div>
 
-            <!-- Report Card Sidebar -->
+            <!-- Comprehensive Report Card Sidebar -->
             <div class="bg-[#1e3e43] border border-[#3e6a6e] p-4 rounded-xl mb-4 text-center">
-                <h3 class="text-[#7db0b1] uppercase text-xs font-bold mb-2">Overall Grade</h3>
-                <div id="monthlyGrade" class="text-4xl font-extrabold text-[#f59e0b]">-</div>
-                <p id="monthlyPerc" class="text-xs font-semibold text-[#a5cacc] mt-1">0% Performance</p>
+                <h3 class="text-[#7db0b1] uppercase text-xs font-bold mb-2">Monthly Grade</h3>
+                <div id="monthlyGrade" class="text-5xl font-extrabold text-[#f59e0b]">-</div>
+                <div class="mt-2 text-xs text-[#a5cacc] flex justify-between px-2">
+                    <span>Task: <b id="taskPercText" class="text-white">0%</b></span>
+                    <span>Att: <b id="attPercText" class="text-white">0%</b></span>
+                </div>
             </div>
             
             <button onclick="logout()" class="mt-auto bg-[#1e3e43] hover:bg-[#ef4444] text-white font-bold py-3 rounded-xl w-full text-sm transition border border-[#3e6a6e]"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -187,8 +193,9 @@
                     <button onclick="openScheduleModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
                     </button>
+                    <!-- UPDATED: Attendance Sheet Button -->
                     <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-calendar-alt"></i> One View
+                        <i class="fas fa-calendar-alt"></i> Attendance Sheet
                     </button>
                     <!-- EMAIL BUTTON (ADMIN ONLY) -->
                     <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
@@ -300,8 +307,8 @@
                                 <th class="py-4 px-6">Task Name</th>
                                 <th class="py-4 px-6 hod-only-col hidden">Employee</th>
                                 <th class="py-4 px-6">Timeline</th>
+                                <th class="py-4 px-6">Deadline Status</th> <!-- NEW COLUMN FOR DELAY -->
                                 <th class="py-4 px-6">Priority</th>
-                                <th class="py-4 px-6">Time Spent</th>
                                 <th class="py-4 px-6">Emp Status</th>
                                 <th class="py-4 px-6">HOD Approval</th>
                             </tr>
@@ -310,6 +317,30 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOG WORK MODAL (EMPLOYEE ONLY) -->
+    <div id="logWorkModal" class="modal">
+        <div class="modal-content relative max-w-md shadow-2xl">
+            <span onclick="closeLogWorkModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2">Log Daily Work</h3>
+            <p class="text-sm text-gray-500 mb-6">Enter how much time you spent on a task today.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Select Task:</label>
+                    <select id="logTaskSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Time Spent (in Minutes):</label>
+                    <input type="number" id="logTimeMins" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="e.g. 120" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">What did you do? (Description):</label>
+                    <textarea id="logDesc" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" rows="3" placeholder="Called 15 clients, updated sheet..."></textarea>
+                </div>
+                <button id="saveLogBtn" onclick="submitWorkLog()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Save Log</button>
             </div>
         </div>
     </div>
@@ -374,13 +405,12 @@
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
-                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
-                        <!-- Populated dynamically -->
+                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">HOD Email Address:</label>
-                    <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="hod@company.com" required>
+                    <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="hod@company.com" required>
                 </div>
                 <div class="bg-teal-50 p-4 rounded-lg border border-teal-100 text-sm text-teal-800">
                     <p><i class="fas fa-info-circle"></i> The email will include the employee's total assigned tasks, completion rate, and calculated grade based on current data.</p>
@@ -465,7 +495,6 @@
                 </div>
             </div>
 
-            <!-- Progress Table -->
             <div class="overflow-x-auto border-t-4 border-orange-500 rounded-b-lg">
                 <table class="w-full text-left border-collapse prog-table whitespace-nowrap">
                     <thead>
@@ -482,7 +511,6 @@
                     </tbody>
                 </table>
             </div>
-            
         </div>
     </div>
     
@@ -521,11 +549,11 @@
         </div>
     </div>
 
-    <!-- ATTENDANCE ONE VIEW MODAL -->
+    <!-- ATTENDANCE SHEET (ONE VIEW) MODAL -->
     <div id="oneViewModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeOneViewModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <h2 class="text-2xl font-bold text-[#259b94] mb-1">Attendance One View</h2>
+            <h2 class="text-2xl font-bold text-[#259b94] mb-1">Monthly Attendance Sheet</h2>
             <p class="text-xs text-gray-500 mb-6">Comprehensive monthly view of employee attendance, leaves, and absences.</p>
             
             <div class="flex items-end gap-4 mb-4 bg-[#e6fcf5] p-4 border border-[#b2d8d8] rounded-lg">
@@ -534,7 +562,7 @@
                     <input type="month" id="oneViewMonthPicker" class="border border-[#7db0b1] p-2 rounded text-sm w-48 focus:outline-none focus:ring-2 focus:ring-[#259b94]">
                 </div>
                 <button onclick="fetchOneViewData()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-5 py-2 rounded shadow font-bold text-sm transition">
-                    Generate Matrix
+                    Generate Sheet
                 </button>
                 <span id="oneViewLoading" class="hidden text-sm text-[#259b94] italic ml-4 font-semibold animate-pulse">Loading matrix data...</span>
             </div>
@@ -565,6 +593,7 @@
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
+        let globalMonthlyAtt = []; // to store attendance stats for grade calculation
         let monthlyChartInst = null;
 
         function setDateConstraints() {
@@ -628,6 +657,7 @@
             timeStr = timeStr.trim();
             const [time, modifier] = timeStr.split(' ');
             let [hours, minutes] = time.split(':');
+            if(!hours || !minutes) return 0;
             if (hours === '12') hours = '00';
             if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
@@ -655,7 +685,7 @@
                     document.getElementById('login-section').style.display = 'none';
                     document.getElementById('dashboard-section').style.display = 'flex';
                     
-                    document.getElementById('displayUser').innerText = user; // Exact case as typed
+                    document.getElementById('displayUser').innerText = data.actualName; // from backend
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
@@ -687,7 +717,7 @@
                         document.getElementById('empTimeTracker').style.display = 'flex';
                     }
 
-                    fetchDashboardData(user, role, data.department);
+                    fetchDashboardData(data.actualName, role, data.department);
                 } else {
                     alert(data.message || "Invalid Credentials");
                     btn.innerText = "Login"; btn.disabled = false;
@@ -712,6 +742,30 @@
             if(['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action) && !rawManualTime) {
                 alert("Select Time manually!"); return;
             }
+
+            // Early Punch Out Restriction
+            if (action === 'Punch Out') {
+                const shiftStr = document.getElementById('displayOfficeTime').innerText;
+                const parts = shiftStr.toLowerCase().split('to');
+                if (parts.length > 1) {
+                    const endTimeStr = parts[1].trim(); 
+                    const endMins = timeToMins(endTimeStr);
+                    
+                    let outMins;
+                    if (rawManualTime) {
+                        outMins = timeToMins(formatTime12h(rawManualTime));
+                    } else {
+                        const now = new Date();
+                        outMins = now.getHours() * 60 + now.getMinutes();
+                    }
+
+                    if (outMins < endMins) {
+                        alert(`Closing time is ${endTimeStr.toUpperCase()}. You cannot Punch Out early! Please use 'Leave' or 'Time Adjustment' with HOD approval if you are leaving early.`);
+                        return;
+                    }
+                }
+            }
+
             const manualTime12h = formatTime12h(rawManualTime);
 
             btn.innerText = "Saving..."; btn.disabled = true;
@@ -737,17 +791,6 @@
             }).catch(err => { alert("Saved!"); btn.innerText = "Submit Record"; btn.disabled = false; });
         }
 
-        function updateAttStatus(rIdx, val) {
-            const formData = new FormData();
-            formData.append('action', 'updateAttStatus'); 
-            formData.append('rowIndex', rIdx); 
-            formData.append('status', val);
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(()=> { 
-                fetchDashboardData(document.getElementById('displayUser').innerText, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText); 
-            });
-        }
-
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
             const tbody = document.getElementById('taskTableBody');
@@ -765,12 +808,14 @@
                 if(data.status === 'success') {
                     globalAllTasks = data.tasks; 
                     globalTeamMembers = data.teamMembers; 
+                    globalMonthlyAtt = data.monthlyAtt || []; // For report card
                     
                     if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                         populateTeamDropdowns(data.teamMembers);
                         renderTeamAttendance(data.teamAttendance);
                     } else {
                         calculateTimeTracker(data.todayAttendance);
+                        populateLogTaskDropdown(data.tasks); // Populate dropdown for work log
                     }
 
                     filterTasksByEmp(); 
@@ -798,6 +843,16 @@
             if(members.includes(currentFilter)) filterSelect.value = currentFilter;
         }
 
+        function populateLogTaskDropdown(tasks) {
+            const select = document.getElementById('logTaskSelect');
+            select.innerHTML = '<option value="">-- Select Active Task --</option>';
+            tasks.forEach(t => {
+                if(t.empStatus.toLowerCase() !== 'completed') {
+                    select.innerHTML += `<option value="${t.rowIndex}">${t.taskName}</option>`;
+                }
+            });
+        }
+
         function filterTasksByEmp() {
             const role = document.getElementById('displayRole').innerText;
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
@@ -811,6 +866,32 @@
             }
             renderTasks(tasksToRender, role);
             calculateReportCard(tasksToRender);
+        }
+
+        function getDeadlineHTML(endDateStr, empStatus) {
+            if (!endDateStr || endDateStr === '-') return `<span class="text-gray-500">-</span>`;
+            if (empStatus.toLowerCase() === 'completed') {
+                 return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs"><i class="fas fa-check"></i> Done</span>`;
+            }
+            
+            let parts = endDateStr.split('-');
+            if (parts.length !== 3) return `<span class="text-gray-500">${endDateStr}</span>`;
+            
+            let endD = new Date(parts[2], parts[1]-1, parts[0]);
+            let today = new Date();
+            endD.setHours(0,0,0,0);
+            today.setHours(0,0,0,0);
+            
+            let diffTime = endD - today;
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return `<span class="text-red-600 font-bold px-2 py-1 rounded-md bg-red-50 text-xs">${diffDays} Days (Delayed)</span>`;
+            } else if (diffDays === 0) {
+                return `<span class="text-yellow-600 font-bold px-2 py-1 rounded-md bg-yellow-50 text-xs">Due Today</span>`;
+            } else {
+                return `<span class="text-[#259b94] font-bold px-2 py-1 rounded-md bg-[#e6fcf5] text-xs">+${diffDays} Days Left</span>`;
+            }
         }
 
         function renderTasks(tasksToRender, role) {
@@ -847,7 +928,7 @@
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
                     let tr = document.createElement('tr');
                     
-                    // Highlight logic for HOD
+                    // Highlight logic for HOD: Light green if Emp marked completed but HOD hasn't approved
                     let rowClass = "transition hover:bg-gray-50 border-b";
                     if (isHOD && task.empStatus.toLowerCase() === 'completed' && task.hodStatus.toLowerCase() === 'pending') {
                         rowClass += " bg-[#e6fcf5]"; // Highlight for HOD to approve
@@ -856,10 +937,10 @@
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = '';
+                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
 
                     if (!isHOD) {
-                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border border-[#7db0b1] rounded-md px-2 py-1 w-20 text-xs bg-white focus:ring-1 focus:ring-[#259b94] outline-none transition" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -868,7 +949,6 @@
                         let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
                     } else {
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
@@ -883,6 +963,7 @@
                         <td class="py-4 px-6 font-bold text-[#112a2e]">${task.taskName}</td>
                         ${isHOD ? `<td class="py-4 px-6 text-[#259b94] font-bold">${task.assignedTo}</td>` : ''}
                         <td class="py-4 px-6 text-xs text-[#4b6d70] font-semibold leading-tight"><i class="far fa-calendar text-[#7db0b1]"></i> ${task.startDate} <br><span class="text-[#7db0b1]">to</span><br> <i class="far fa-calendar-check text-[#7db0b1]"></i> ${task.endDate}</td>
+                        <td class="py-4 px-6">${deadlineHTML}</td>
                         <td class="py-4 px-6 font-bold ${prioColor}">${task.priority} <br><span class="text-xs text-gray-400 font-medium">${task.frequency}</span></td>
                         <td class="py-4 px-6">${timeSpentHTML}</td>
                         <td class="py-4 px-6">${empStatusHTML}</td>
@@ -961,14 +1042,15 @@
             });
         }
 
-        function updateTaskTime(rIdx, val) {
+        function updateAttStatus(rIdx, val) {
             const formData = new FormData();
-            formData.append('action', 'updateTaskStatus'); 
+            formData.append('action', 'updateAttStatus'); 
             formData.append('rowIndex', rIdx); 
-            formData.append('type', 'time'); 
-            formData.append('status', val); 
-            
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+            formData.append('status', val);
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(()=> { 
+                fetchDashboardData(document.getElementById('displayUser').innerText, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText); 
+            });
         }
 
         // ================= HOD ASSIGN TASK =================
@@ -1007,6 +1089,51 @@
             }).catch(e => alert("Assigned!"));
         }
 
+        // ================= EMP LOG DAILY WORK =================
+        function openLogWorkModal() { 
+            document.getElementById('logWorkModal').style.display = 'block'; 
+        }
+        function closeLogWorkModal() { 
+            document.getElementById('logWorkModal').style.display = 'none'; 
+        }
+        
+        function submitWorkLog() {
+            const taskSel = document.getElementById('logTaskSelect');
+            const tIdx = taskSel.value;
+            const tName = taskSel.options[taskSel.selectedIndex].text;
+            const mins = document.getElementById('logTimeMins').value;
+            const desc = document.getElementById('logDesc').value;
+            const username = document.getElementById('displayUser').innerText;
+
+            if(!tIdx || !mins) { alert("Please select task and enter time!"); return; }
+
+            document.getElementById('saveLogBtn').innerText = "Saving...";
+            document.getElementById('saveLogBtn').disabled = true;
+
+            const formData = new FormData();
+            formData.append('action', 'logWork');
+            formData.append('username', username);
+            formData.append('rowIndex', tIdx); // task row index
+            formData.append('taskName', tName);
+            formData.append('timeSpent', mins);
+            formData.append('description', desc);
+
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('saveLogBtn').innerText = "Save Log";
+                document.getElementById('saveLogBtn').disabled = false;
+                document.getElementById('logTimeMins').value = '';
+                document.getElementById('logDesc').value = '';
+                closeLogWorkModal();
+                fetchDashboardData(username, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText);
+            }).catch(e => {
+                alert("Saved!"); 
+                closeLogWorkModal();
+            });
+        }
+
         // ================= EMAIL REPORT CARD (ADMIN) =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
@@ -1025,18 +1152,22 @@
             const empTasks = globalAllTasks.filter(t => t.assignedTo.trim().toLowerCase() === targetEmp.trim().toLowerCase());
             let comp = 0;
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
-            let perc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
+            let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
+            
+            // Att perc (rough estimate for email)
+            let attPerc = 100; // Will be properly calculated via main grade logic for simplicity
+            let finalScore = taskPerc;
             
             let grade = "D";
-            if (perc >= 90) grade = "A";
-            else if (perc >= 80) grade = "B";
-            else if (perc >= 70) grade = "C";
+            if (finalScore >= 90) grade = "A";
+            else if (finalScore >= 80) grade = "B";
+            else if (finalScore >= 70) grade = "C";
 
             const reportData = {
                 total: empTasks.length,
                 completed: comp,
                 pending: empTasks.length - comp,
-                completionRate: perc,
+                completionRate: finalScore,
                 grade: grade
             };
 
@@ -1063,30 +1194,54 @@
             });
         }
 
-        // ================= MONTHLY GRADE =================
+        // ================= COMPREHENSIVE MONTHLY GRADE =================
         function calculateReportCard(tasks) {
-            if(tasks.length === 0) {
-                document.getElementById('monthlyGrade').innerText = "-";
-                document.getElementById('monthlyPerc').innerText = "No Tasks";
-                return;
+            let taskPerc = 0;
+            let attPerc = 0;
+            
+            // 1. Task Logic
+            if(tasks.length > 0) {
+                let comp = 0;
+                tasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
+                taskPerc = Math.round((comp / tasks.length) * 100);
             }
-            let comp = 0;
-            tasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
-            let perc = Math.round((comp / tasks.length) * 100);
+
+            // 2. Attendance Logic (based on current month)
+            // Assuming 26 working days max for simplicity, or just calculate present/daysPassed
+            const today = new Date();
+            let daysElapsed = today.getDate(); 
+            // Filter globalMonthlyAtt for present days
+            let presentDays = 0;
+            if(globalMonthlyAtt && globalMonthlyAtt.length > 0) {
+                globalMonthlyAtt.forEach(r => {
+                    if(r.inTime) presentDays++;
+                });
+            }
+            if(daysElapsed > 0) {
+                attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
+            }
+
+            // Combine Score (50% Task, 50% Att)
+            let finalScore = Math.round((taskPerc * 0.5) + (attPerc * 0.5));
+            if(tasks.length === 0) finalScore = attPerc; // if no tasks, base on attendance only
             
             let grade = "D";
             let color = "text-red-500";
-            if (perc >= 90) { grade = "A"; color = "text-[#10b981]"; }
-            else if (perc >= 80) { grade = "B"; color = "text-[#259b94]"; }
-            else if (perc >= 70) { grade = "C"; color = "text-[#f59e0b]"; }
+            if (finalScore >= 90) { grade = "A"; color = "text-[#10b981]"; }
+            else if (finalScore >= 80) { grade = "B"; color = "text-[#259b94]"; }
+            else if (finalScore >= 70) { grade = "C"; color = "text-[#f59e0b]"; }
 
             const mg = document.getElementById('monthlyGrade');
             mg.innerText = grade;
-            mg.className = `text-4xl font-extrabold ${color}`;
-            document.getElementById('monthlyPerc').innerText = `${perc}% Completion`;
+            mg.className = `text-5xl font-extrabold ${color}`;
+            document.getElementById('monthlyPerc').innerText = `${finalScore}% Overall`;
             
-            document.getElementById('indivScore').innerText = perc.toFixed(1);
-            document.getElementById('deptScore').innerText = (perc * 0.85).toFixed(1); 
+            document.getElementById('taskPercText').innerText = `${taskPerc}%`;
+            document.getElementById('attPercText').innerText = `${attPerc}%`;
+            
+            document.getElementById('indivScore').innerText = finalScore.toFixed(1);
+            document.getElementById('deptScore').innerText = (finalScore * 0.85).toFixed(1); 
+            document.getElementById('metricEfficiency').innerText = `${taskPerc}%`;
         }
 
         // ================= TIME TRACKER =================
@@ -1360,7 +1515,7 @@
                 }
             }).catch(err => {
                 document.getElementById('oneViewLoading').style.display = 'none';
-                alert("Failed to load One View Data");
+                alert("Failed to load Attendance Sheet Data");
             });
         }
 
