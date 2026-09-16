@@ -54,28 +54,58 @@
         .sched-grey-cell { background-color: #d9d9d9; font-weight: bold; text-align: center;}
     </style>
 </head>
-<body class="h-screen w-full flex items-center justify-center text-gray-800">
+<body class="h-screen w-full text-gray-800 overflow-hidden">
     <!-- LOGIN PAGE -->
-    <div id="login-section" class="w-full max-w-md p-8 glassmorphism">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-indigo-600 tracking-tight">Office Zimmedar Task</h1>
-            <p class="text-gray-500 mt-2 font-medium">Enterprise Workspace Login</p>
+    <div id="login-section" class="w-full h-full flex items-center justify-center bg-gradient-to-tr from-[#259b94] to-[#5fd3cc]">
+        <!-- Outer glow/frame -->
+        <div class="p-4 bg-[#4bbab6] shadow-[0_0_60px_rgba(0,0,0,0.5)] relative">
+            <!-- Inner dark card -->
+            <div class="bg-[#2a4d53] p-10 w-full sm:w-[380px] border border-[#3e6a6e]">
+                
+                <!-- Icon -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-20 h-20 rounded-full border-[1.5px] border-[#7db0b1] flex items-center justify-center">
+                        <i class="fas fa-camera text-[#7db0b1] text-3xl"></i>
+                    </div>
+                </div>
+                
+                <!-- Title -->
+                <h2 class="text-center text-xl font-light text-[#a5cacc] tracking-[0.2em] mb-10 uppercase">User Login</h2>
+                
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <!-- Username -->
+                    <div class="relative mb-8">
+                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-[#7db0b1] text-sm"></i>
+                        </div>
+                        <input type="text" id="username" class="w-full bg-transparent border-b border-[#5a8789] text-white pl-8 py-2 text-sm focus:outline-none focus:border-white transition-colors placeholder-[#7db0b1]" placeholder="Email ID" required>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="relative mb-8">
+                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-[#7db0b1] text-sm"></i>
+                        </div>
+                        <input type="password" id="password" class="w-full bg-transparent border-b border-[#5a8789] text-white pl-8 py-2 text-sm focus:outline-none focus:border-white transition-colors placeholder-[#7db0b1]" placeholder="Password" required>
+                    </div>
+                    
+                    <!-- Remember me / Forgot Password -->
+                    <div class="flex justify-between items-center mb-10 text-xs text-[#a5cacc]">
+                        <label class="flex items-center cursor-pointer hover:text-white transition">
+                            <input type="checkbox" class="mr-2 cursor-pointer accent-[#0e1f23] bg-transparent border-[#5a8789]"> Remember me
+                        </label>
+                        <a href="#" class="italic hover:text-white transition">Forgot Password?</a>
+                    </div>
+                    
+                    <!-- Button -->
+                    <button type="submit" id="loginBtn" class="w-full bg-[#0d1a1c] hover:bg-[#050a0a] text-white font-bold py-3 text-sm tracking-widest uppercase transition duration-300 shadow-md">Login</button>
+                </form>
+            </div>
         </div>
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2">Username</label>
-                <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="e.g. Farhan Attari" required>
-            </div>
-            <div class="mb-6">
-                <label class="block text-gray-700 font-semibold mb-2">Password</label>
-                <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" required>
-            </div>
-            <button type="submit" id="loginBtn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Login to Dashboard</button>
-        </form>
     </div>
 
     <!-- DASHBOARD PAGE -->
-    <div id="dashboard-section" class="w-full h-full flex flex-col md:flex-row bg-[#f4f7fe]">
+    <div id="dashboard-section" class="w-full h-full flex-col md:flex-row bg-[#f4f7fe] hidden">
         <!-- Sidebar -->
         <div class="w-full md:w-64 bg-white text-gray-800 p-5 flex flex-col overflow-y-auto border-r border-gray-200 shadow-sm z-10">
             <h2 class="text-2xl font-extrabold text-indigo-600 mb-8 tracking-tight flex items-center gap-2">
@@ -173,7 +203,7 @@
                     <button onclick="openOneViewModal()" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-calendar-alt text-teal-500"></i> One View
                     </button>
-                    <!-- NEW EMAIL BUTTON (ADMIN ONLY) -->
+                    <!-- EMAIL BUTTON (ADMIN ONLY) -->
                     <button onclick="openEmailModal()" class="admin-only bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-paper-plane"></i> Email Report
                     </button>
@@ -242,7 +272,7 @@
                 </button>
             </div>
 
-            <!-- HOD ONLY: Team Attendance Overview (Matching Reference Image Style) -->
+            <!-- HOD ONLY: Team Attendance Overview -->
             <div id="teamAttendanceSection" class="hod-only modern-card overflow-hidden mb-8">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h3 class="text-lg font-bold text-gray-900">Employees Status (Today)</h3>
@@ -469,7 +499,7 @@
         </div>
     </div>
     
-    <!-- NEW MODAL: PROJECT SCHEDULE / REPORT CARD -->
+    <!-- PROJECT SCHEDULE MODAL -->
     <div id="scheduleModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeScheduleModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
@@ -545,7 +575,7 @@
 
     <script>
         // YAHAN APNA NAYA GOOGLE SCRIPT URL DAALEIN
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec"";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP6eABSV8nMP2t1Z8xpQ60D89OXPI0y-UjeeMwBK2umE_g3pueIubc1njxiYRfjs/exec";
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
@@ -1209,7 +1239,7 @@
             });
         }
 
-        // ================= PROJECT SCHEDULE MODAL (NEW) =================
+        // ================= PROJECT SCHEDULE MODAL =================
         function parseDDMMYYYY(dateStr) {
             if(!dateStr || dateStr === '-') return new Date();
             const parts = dateStr.split('-');
@@ -1223,20 +1253,18 @@
             const e = parseDDMMYYYY(endStr);
             const diffTime = e - s;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            return diffDays >= 0 ? diffDays + 1 : 0; // +1 to include both start and end day
+            return diffDays >= 0 ? diffDays + 1 : 0; 
         }
 
         function openScheduleModal() {
             document.getElementById('scheduleModal').style.display = 'block';
             
-            // Set header info
             let leader = document.getElementById('displayRole').innerText === 'emp' ? document.getElementById('displayUser').innerText : "Department Head";
             document.getElementById('schedLead').innerText = leader;
             
             let pStart = globalAllTasks.length > 0 ? globalAllTasks[0].startDate : "--";
             document.getElementById('schedStartDate').innerText = pStart;
 
-            // Render table
             const tbody = document.getElementById('scheduleCardBody');
             tbody.innerHTML = '';
 
@@ -1252,7 +1280,6 @@
                 
                 let days = calcDaysDiff(t.startDate, t.endDate);
 
-                // Adding a row for the Task
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="sched-grey-cell border-b">${index + 1}</td>
