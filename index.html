@@ -600,7 +600,7 @@
                     const role = data.role.toLowerCase();
                     document.getElementById('displayRole').innerText = role;
 
-                    if(role === 'admin') {
+                    if(role.indexOf('admin') > -1) {
                         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'flex');
                         document.getElementById('hodNoticeBox').style.display = 'block';
@@ -609,14 +609,13 @@
                         document.querySelectorAll('.hod-only-col').forEach(el => el.classList.remove('hidden'));
                         document.querySelectorAll('.emp-only').forEach(el => el.style.display = 'none');
                     }
-                    else if(role === 'hod') {
+                    else if(role.indexOf('hod') > -1) {
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'flex');
                         document.getElementById('hodNoticeBox').style.display = 'block';
                         document.getElementById('teamAttendanceSection').style.display = 'block';
                         document.getElementById('taskTableTitle').innerText = 'Department Tasks Overview';
                         document.querySelectorAll('.hod-only-col').forEach(el => el.classList.remove('hidden'));
                         document.querySelectorAll('.emp-only').forEach(el => el.style.display = 'none');
-                        // Ensure admin only is hidden
                         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
                     } else {
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'none');
@@ -691,9 +690,9 @@
             .then(data => {
                 if(data.status === 'success') {
                     globalAllTasks = data.tasks; 
-                    globalTeamMembers = data.teamMembers; // store for email modal
+                    globalTeamMembers = data.teamMembers; 
                     
-                    if (role === 'hod' || role === 'admin') {
+                    if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                         populateTeamDropdowns(data.teamMembers);
                         renderTeamAttendance(data.teamAttendance);
                     } else {
@@ -727,13 +726,13 @@
 
         function filterTasksByEmp() {
             const role = document.getElementById('displayRole').innerText;
-            const isHOD = (role === 'hod' || role === 'admin');
+            const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
             let tasksToRender = globalAllTasks;
 
             if(isHOD) {
                 const selectedEmp = document.getElementById('hodEmpFilter').value;
                 if(selectedEmp !== 'All') {
-                    tasksToRender = globalAllTasks.filter(t => t.assignedTo === selectedEmp);
+                    tasksToRender = globalAllTasks.filter(t => t.assignedTo.trim().toLowerCase() === selectedEmp.trim().toLowerCase());
                 }
             }
             renderTasks(tasksToRender, role);
@@ -743,7 +742,7 @@
         function renderTasks(tasksToRender, role) {
             const tbody = document.getElementById('taskTableBody'); 
             tbody.innerHTML = ''; 
-            const isHOD = (role === 'hod' || role === 'admin');
+            const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
 
             let compCount = 0, pendCount = 0;
             let dailyTotal = 0, dailyDone = 0;
@@ -923,7 +922,7 @@
             }
 
             // Calculate stats for target employee
-            const empTasks = globalAllTasks.filter(t => t.assignedTo === targetEmp);
+            const empTasks = globalAllTasks.filter(t => t.assignedTo.trim().toLowerCase() === targetEmp.trim().toLowerCase());
             let comp = 0;
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let perc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
