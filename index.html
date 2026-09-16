@@ -6,6 +6,8 @@
     <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ecf3f3; }
@@ -16,22 +18,18 @@
         .hod-only, .admin-only { display: none; }
         .emp-only { display: block; }
         
-        /* Modern Card Styling */
         .modern-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e1ebea; }
         
-        /* Analysation Table */
         .perf-table th { background-color: #2a4d53; color: white; padding: 12px; text-align: left; border-bottom: 2px solid #5fd3cc; font-size: 0.875rem; }
         .perf-table td { padding: 12px; border-bottom: 1px solid #e1ebea; font-size: 0.875rem; color: #4b5563; }
         .perf-header { background-color: #259b94; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.1rem; }
         .perf-subheader { background-color: #1e3e43; color: white; text-align: center; padding: 5px; font-weight: bold; font-size: 1.2rem; }
 
-        /* Progress Card Specific Styling */
         .prog-table th.orange-header { background-color: #259b94; color: white; padding: 12px; text-align: center; border-right: 2px solid white; }
         .prog-table th.blue-header { background-color: #2a4d53; color: white; padding: 12px; text-align: left; border-right: 2px solid white;}
         .prog-table td.blue-cell { background-color: #1e3e43; color: white; font-weight: bold; padding: 12px; border-bottom: 1px solid #2a4d53; }
         .prog-table td.light-cell { background-color: #ffffff; color: #374151; padding: 12px; text-align: center; border-bottom: 1px solid #e1ebea; border-right: 1px solid #e1ebea; }
         
-        /* Progress Bar & Dots */
         .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
         .dot-red { background-color: #ef4444; }
         .dot-orange { background-color: #f59e0b; }
@@ -39,14 +37,12 @@
         .progress-bar-bg { background-color: #e5e7eb; border-radius: 4px; height: 16px; width: 100%; display: inline-block; vertical-align: middle; overflow: hidden;}
         .progress-bar-fill { background-color: #259b94; height: 100%; }
 
-        /* One View Table Styling */
         .oneview-table th { border: 1px solid #cbd5e1; }
         .oneview-table td { border: 1px solid #e2e8f0; }
         .ov-teal { background-color: #259b94; color: white; }
         .ov-yellow { background-color: #fbbf24; color: #78350f; }
         .ov-light-teal { background-color: #e6fcf5; }
 
-        /* Schedule Report Styling */
         .sched-main-header { background-color: #259b94; color: white; padding: 15px; font-size: 1.5rem; }
         .sched-sub-header { background-color: #7db0b1; color: #112a2e; padding: 10px; font-weight: bold; }
         .sched-table th { background-color: #2a4d53; color: white; padding: 8px; font-size: 0.8rem; text-align: center; border: 1px solid #fff;}
@@ -86,7 +82,7 @@
 
     <!-- DASHBOARD PAGE -->
     <div id="dashboard-section" class="w-full h-full flex-col md:flex-row bg-[#ecf3f3] hidden">
-        <!-- Sidebar (Dark Teal) -->
+        <!-- Sidebar -->
         <div class="w-full md:w-64 bg-[#2a4d53] text-white p-5 flex flex-col overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.1)] z-10">
             <h2 class="text-2xl font-extrabold text-[#5fd3cc] mb-8 tracking-tight flex items-center gap-2">
                 <i class="fas fa-layer-group"></i> Office Zimmedar
@@ -136,19 +132,17 @@
                         <option value="Traffic">Traffic</option>
                         <option value="Other">Other</option>
                     </select>
-                    
                     <textarea id="actionReasonOther" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg mb-3 text-xs hidden focus:outline-none focus:border-[#5fd3cc]" rows="2" placeholder="Write details here..."></textarea>
                     
                     <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold text-sm py-2 rounded-lg shadow-md transition">Submit Record</button>
                 </div>
-
-                <!-- Daily Work Logger Button -->
+                
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
             </div>
 
-            <!-- Admin/HOD Only: Notice Box -->
+            <!-- Notice Box -->
             <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
                 <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
                 <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
@@ -173,27 +167,46 @@
             <!-- Dashboard Header -->
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-4">
                 <div>
-                    <h2 class="text-3xl font-extrabold text-[#112a2e] tracking-tight">Workspace Overview</h2>
-                    <p class="text-sm text-[#4b6d70] mt-1">Monitor progress, approve requests, and team analytics.</p>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-extrabold text-[#112a2e] tracking-tight">Workspace Overview</h2>
+                        <button onclick="fetchDashboardDataSilently()" class="text-gray-400 hover:text-[#259b94] transition" title="Manual Sync">
+                            <i class="fas fa-sync-alt" id="syncIcon"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-[#4b6d70] mt-1">Real-time sync active. Data updates automatically.</p>
                 </div>
                 
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
-                    </button>
-                    <button onclick="openProgressCardModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-tasks text-orange-500"></i> Progress Card
-                    </button>
-                    <button onclick="openScheduleModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
-                    </button>
-                    <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-calendar-alt"></i> Attendance Sheet
-                    </button>
-                    <!-- EMAIL BUTTON (ADMIN ONLY) -->
-                    <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                        <i class="fas fa-paper-plane text-[#5fd3cc]"></i> Email Report
-                    </button>
+                <div class="flex flex-col items-end gap-3">
+                    <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
+                        <div>
+                            <p id="currentDate" class="text-xs font-bold text-gray-500 uppercase tracking-wider">DD-MM-YYYY</p>
+                            <p id="currentTime" class="text-xl font-extrabold text-[#112a2e]">HH:MM:SS AM</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <!-- EXCEL EXPORT BUTTON -->
+                        <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+
+                        <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
+                        </button>
+                        <button onclick="openProgressCardModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-tasks text-orange-500"></i> Progress Card
+                        </button>
+                        <button onclick="openScheduleModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
+                        </button>
+                        <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-calendar-alt"></i> One View
+                        </button>
+                        <!-- EMAIL BUTTON (ADMIN ONLY) -->
+                        <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-paper-plane text-[#5fd3cc]"></i> Email
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -276,7 +289,6 @@
                             </tr>
                         </thead>
                         <tbody id="teamAttendanceBody" class="text-gray-700 text-sm bg-white divide-y divide-gray-100">
-                            <!-- Populated Dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -315,7 +327,7 @@
         </div>
     </div>
 
-    <!-- LOG WORK MODAL (EMPLOYEE ONLY) -->
+    <!-- LOG WORK MODAL -->
     <div id="logWorkModal" class="modal">
         <div class="modal-content relative max-w-md shadow-2xl">
             <span onclick="closeLogWorkModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
@@ -353,7 +365,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
                 </div>
-                
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
@@ -364,7 +375,6 @@
                         <input type="date" id="newTaskEnd" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Priority:</label>
@@ -389,27 +399,21 @@
         </div>
     </div>
 
-    <!-- EMAIL REPORT CARD MODAL (ADMIN ONLY) -->
+    <!-- EMAIL REPORT CARD MODAL -->
     <div id="emailReportModal" class="modal">
         <div class="modal-content relative max-w-lg shadow-2xl">
             <span onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-gray-900 mb-2"><i class="fas fa-envelope-open-text text-[#259b94]"></i> Email Performance Report</h3>
             <p class="text-sm text-gray-500 mb-6">Send an employee's current progress report directly to their HOD.</p>
-            
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
-                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
-                    </select>
+                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required></select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">HOD Email Address:</label>
                     <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="hod@company.com" required>
                 </div>
-                <div class="bg-teal-50 p-4 rounded-lg border border-teal-100 text-sm text-teal-800">
-                    <p><i class="fas fa-info-circle"></i> The email will include the employee's total assigned tasks, completion rate, and calculated grade based on current data.</p>
-                </div>
-                
                 <button id="sendEmailBtn" onclick="sendReportCardEmail()" class="w-full bg-[#1e3e43] hover:bg-[#112a2e] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Send Email Report</button>
             </div>
         </div>
@@ -420,8 +424,7 @@
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeAnalysationModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
             <h2 class="text-2xl font-normal text-gray-800 mb-1">Employee overall performance status score card</h2>
-            <p class="text-xs text-gray-500 mb-4">This slide covers overall performance score of employee appraised by reporting manager.</p>
-            <div class="w-full">
+            <div class="w-full mt-4">
                 <div class="perf-subheader rounded-t-lg">Employee performance card</div>
                 <div class="grid grid-cols-2">
                     <div class="perf-header border-r border-[#3e6a6e] bg-[#2a4d53]">Performance score</div>
@@ -456,9 +459,7 @@
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeProgressCardModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
             <h2 class="text-2xl font-normal text-gray-800 mb-1">Employees task prioritization progress status card</h2>
-            <p class="text-xs text-gray-500 mb-6">This slide covers task completion output report sheet. It includes task, assigned person, priority status and the task progress bar with percentage.</p>
-
-            <div class="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 border rounded-lg items-end">
+            <div class="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 border rounded-lg items-end mt-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Filter Type:</label>
                     <select id="progFilterType" class="border border-gray-300 p-2 rounded text-sm w-40 focus:outline-none focus:ring-1 focus:ring-[#259b94]" onchange="toggleProgFilterInputs()">
@@ -486,7 +487,6 @@
                     </button>
                 </div>
             </div>
-
             <div class="overflow-x-auto border-t-4 border-orange-500 rounded-b-lg">
                 <table class="w-full text-left border-collapse prog-table whitespace-nowrap">
                     <thead>
@@ -564,12 +564,8 @@
 
             <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200">
                 <table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm">
-                    <thead id="oneViewThead">
-                        <!-- Dynamic Headers -->
-                    </thead>
-                    <tbody id="oneViewTbody">
-                        <!-- Dynamic Rows -->
-                    </tbody>
+                    <thead id="oneViewThead"></thead>
+                    <tbody id="oneViewTbody"></tbody>
                 </table>
             </div>
         </div>
@@ -581,7 +577,8 @@
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
-        let globalMonthlyAtt = []; 
+        let globalMonthlyFullAttendance = []; 
+        let globalWorkLogs = [];
         let monthlyChartInst = null;
 
         function setDateConstraints() {
@@ -614,6 +611,13 @@
             document.getElementById('currentTime').innerText = formattedTime;
         }
         setInterval(updateLiveTime, 1000); updateLiveTime();
+
+        // 30 SECONDS AUTO SYNC
+        setInterval(() => {
+            if(document.getElementById('dashboard-section').style.display === 'flex') {
+                fetchDashboardDataSilently();
+            }
+        }, 30000);
 
         function toggleInputs() {
             const action = document.getElementById('attendanceAction').value;
@@ -779,7 +783,7 @@
                 document.getElementById('actionReasonOther').value = '';
                 document.getElementById('actionReasonOther').classList.add('hidden');
                 
-                fetchDashboardData(username, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText);
+                fetchDashboardDataSilently();
             }).catch(err => { alert("Saved!"); btn.innerText = "Submit Record"; btn.disabled = false; });
         }
 
@@ -787,7 +791,20 @@
         function fetchDashboardData(username, role, dept) {
             const tbody = document.getElementById('taskTableBody');
             tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
+            fetchDataAPI(username, role, dept);
+        }
+
+        function fetchDashboardDataSilently() {
+            const syncIcon = document.getElementById('syncIcon');
+            if(syncIcon) syncIcon.classList.add('fa-spin');
             
+            const username = document.getElementById('displayUser').innerText;
+            const role = document.getElementById('displayRole').innerText;
+            const dept = document.getElementById('displayDept').innerText;
+            fetchDataAPI(username, role, dept, true);
+        }
+
+        function fetchDataAPI(username, role, dept, silent = false) {
             const formData = new FormData();
             formData.append('action', 'getDashboardData'); 
             formData.append('username', username);
@@ -800,7 +817,8 @@
                 if(data.status === 'success') {
                     globalAllTasks = data.tasks; 
                     globalTeamMembers = data.teamMembers; 
-                    globalMonthlyAtt = data.monthlyAtt || []; 
+                    globalMonthlyFullAttendance = data.monthlyFullAttendance || []; 
+                    globalWorkLogs = data.workLogs || [];
                     
                     if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                         populateTeamDropdowns(data.teamMembers);
@@ -812,7 +830,13 @@
 
                     filterTasksByEmp(); 
                 }
-            }).catch(err => console.log(err));
+                const syncIcon = document.getElementById('syncIcon');
+                if(syncIcon) syncIcon.classList.remove('fa-spin');
+            }).catch(err => {
+                console.log(err);
+                const syncIcon = document.getElementById('syncIcon');
+                if(syncIcon) syncIcon.classList.remove('fa-spin');
+            });
         }
 
         function populateTeamDropdowns(members) {
@@ -929,14 +953,13 @@
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = '';
+                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                     let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
 
                     let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
                     let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
 
-                    if (!isHOD && !isAdmin) { // Employee
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    if (!isHOD && !isAdmin) { 
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer" ${empLocked}>
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -945,8 +968,7 @@
                         let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : (task.hodStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600');
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
                     } 
-                    else if (isHOD && !isAdmin) { // HOD
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    else if (isHOD && !isAdmin) { 
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
@@ -956,8 +978,7 @@
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
                             </select>`;
                     } 
-                    else if (isAdmin) { // Admin
-                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border border-[#7db0b1] rounded-md px-2 py-1 w-20 text-xs bg-white focus:ring-1 focus:ring-[#259b94] outline-none transition" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
+                    else if (isAdmin) { 
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -1048,7 +1069,7 @@
             
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(()=> { 
-                fetchDashboardData(document.getElementById('displayUser').innerText, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText); 
+                fetchDashboardDataSilently();
             });
         }
 
@@ -1059,17 +1080,8 @@
             formData.append('status', val);
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(()=> { 
-                fetchDashboardData(document.getElementById('displayUser').innerText, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText); 
+                fetchDashboardDataSilently();
             });
-        }
-
-        function updateTaskTime(rIdx, val) {
-            const formData = new FormData();
-            formData.append('action', 'updateTaskStatus'); 
-            formData.append('rowIndex', rIdx); 
-            formData.append('type', 'time'); 
-            formData.append('status', val); 
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
 
         // ================= HOD ASSIGN TASK =================
@@ -1104,7 +1116,7 @@
                 alert("Task Assigned!");
                 document.getElementById('saveTaskBtn').innerText = "Assign Task";
                 closeAssignTaskModal();
-                fetchDashboardData(document.getElementById('displayUser').innerText, document.getElementById('displayRole').innerText, dept);
+                fetchDashboardDataSilently();
             }).catch(e => alert("Assigned!"));
         }
 
@@ -1142,14 +1154,14 @@
                 document.getElementById('logTimeMins').value = '';
                 document.getElementById('logDesc').value = '';
                 closeLogWorkModal();
-                fetchDashboardData(username, document.getElementById('displayRole').innerText, document.getElementById('displayDept').innerText);
+                fetchDashboardDataSilently();
             }).catch(e => {
                 alert("Saved!"); 
                 closeLogWorkModal();
             });
         }
 
-        // ================= EMAIL REPORT CARD (ADMIN) =================
+        // ================= EMAIL REPORT CARD =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
         
@@ -1220,9 +1232,9 @@
             const today = new Date();
             let daysElapsed = today.getDate(); 
             let presentDays = 0;
-            if(globalMonthlyAtt && globalMonthlyAtt.length > 0) {
-                globalMonthlyAtt.forEach(r => {
-                    if(r.inTime) presentDays++;
+            if(globalMonthlyFullAttendance && globalMonthlyFullAttendance.length > 0) {
+                globalMonthlyFullAttendance.forEach(r => {
+                    if(r.InTime) presentDays++;
                 });
             }
             if(daysElapsed > 0) {
@@ -1251,48 +1263,63 @@
             document.getElementById('metricEfficiency').innerText = `${taskPerc}%`;
         }
 
-        // ================= TIME TRACKER =================
-        function calculateTimeTracker(attData) {
-            if(!attData) return;
-            let totalBreakMins = 0;
+        // ================= EXCEL EXPORT (SHEETJS) =================
+        function exportToExcel() {
+            if(typeof XLSX === 'undefined') {
+                alert("Excel library is loading, please try again in a few seconds.");
+                return;
+            }
             
-            if(attData.breakStarts && attData.breakEnds) {
-                let starts = attData.breakStarts.toString().replace(/'/g, "").split('|');
-                let ends = attData.breakEnds.toString().replace(/'/g, "").split('|');
-                
-                for(let i=0; i<starts.length; i++) {
-                    if(starts[i] && ends[i]) {
-                        let sMins = timeToMins(starts[i]);
-                        let eMins = timeToMins(ends[i]);
-                        if(eMins > sMins) totalBreakMins += (eMins - sMins);
-                    }
-                }
-            }
+            let wb = XLSX.utils.book_new();
+            
+            // 1. Tasks Sheet
+            let tasksForExport = globalAllTasks.map(t => ({
+                "Task Name": t.taskName,
+                "Assigned To": t.assignedTo,
+                "Department": t.department,
+                "Start Date": t.startDate,
+                "End Date": t.endDate,
+                "Priority": t.priority,
+                "Frequency": t.frequency,
+                "Time Spent (Mins)": t.timeSpent,
+                "Employee Status": t.empStatus,
+                "HOD Approval": t.hodStatus
+            }));
+            let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
+            XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
+            
+            // 2. Attendance Sheet
+            let attForExport = globalMonthlyFullAttendance.map(a => ({
+                "Date": a.Date,
+                "Employee": a.Employee,
+                "In Time": a.InTime,
+                "Out Time": a.OutTime,
+                "Leave/Weekoff": a.Leave,
+                "Reason": a.Reason,
+                "HOD Status": a.Status
+            }));
+            let wsAtt = XLSX.utils.json_to_sheet(attForExport);
+            XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
+            
+            // 3. Work Logs
+            let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs);
+            XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
+            
+            // 4. Progress Summary
+            let username = document.getElementById('displayUser').innerText;
+            let grade = document.getElementById('monthlyGrade').innerText;
+            let overall = document.getElementById('monthlyPerc').innerText;
+            let summaryData = [
+                {"Metric": "Employee", "Value": username},
+                {"Metric": "Overall Grade", "Value": grade},
+                {"Metric": "Performance", "Value": overall},
+                {"Metric": "Total Tasks", "Value": globalAllTasks.length},
+                {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
+            ];
+            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
 
-            document.getElementById('todayBreakTime').innerText = `${totalBreakMins} Min`;
-
-            let netWorkStr = "0h 0m";
-            if(attData.inTime) {
-                let inMins = timeToMins(attData.inTime.toString().replace(/'/g, ""));
-                let outMins = 0;
-                
-                if(attData.outTime) {
-                    outMins = timeToMins(attData.outTime.toString().replace(/'/g, ""));
-                } else {
-                    const now = new Date();
-                    outMins = (now.getHours() * 60) + now.getMinutes();
-                }
-                
-                let workMins = outMins - inMins;
-                if(workMins > 0) {
-                    let netMins = workMins - totalBreakMins;
-                    if(netMins < 0) netMins = 0;
-                    let hrs = Math.floor(netMins / 60);
-                    let mns = netMins % 60;
-                    netWorkStr = `${hrs}h ${mns}m`;
-                }
-            }
-            document.getElementById('todayNetWork').innerText = netWorkStr;
+            XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
         }
 
         // ================= ANALYSATION MODAL =================
@@ -1300,9 +1327,7 @@
             document.getElementById('analysationModal').style.display = 'block';
             renderMonthlyChart();
         }
-        function closeAnalysationModal() {
-            document.getElementById('analysationModal').style.display = 'none';
-        }
+        function closeAnalysationModal() { document.getElementById('analysationModal').style.display = 'none'; }
         function renderMonthlyChart() {
             const ctx = document.getElementById('monthlyPerformanceChart').getContext('2d');
             if(monthlyChartInst) monthlyChartInst.destroy();
@@ -1431,7 +1456,6 @@
             if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
             return new Date();
         }
-
         function calcDaysDiff(startStr, endStr) {
             if(startStr === '-' || endStr === '-') return '-';
             const s = parseDDMMYYYY(startStr);
@@ -1440,31 +1464,23 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
             return diffDays >= 0 ? diffDays + 1 : 0; 
         }
-
         function openScheduleModal() {
             document.getElementById('scheduleModal').style.display = 'block';
-            
             let leader = document.getElementById('displayRole').innerText === 'emp' ? document.getElementById('displayUser').innerText : "Department Head";
             document.getElementById('schedLead').innerText = leader;
-            
             let pStart = globalAllTasks.length > 0 ? globalAllTasks[0].startDate : "--";
             document.getElementById('schedStartDate').innerText = pStart;
-
             const tbody = document.getElementById('scheduleCardBody');
             tbody.innerHTML = '';
-
             if (globalAllTasks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500 font-medium italic">No schedule data available.</td></tr>`;
                 return;
             }
-
             globalAllTasks.forEach((t, index) => {
                 let progPercent = 0; 
                 if (t.empStatus.toLowerCase() === 'completed') progPercent = 100;
                 else if (t.empStatus.toLowerCase() === 'incomplete') progPercent = 50;
-                
                 let days = calcDaysDiff(t.startDate, t.endDate);
-
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="sched-grey-cell border-b text-[#2a4d53]">${index + 1}</td>
@@ -1478,10 +1494,7 @@
                 `;
             });
         }
-
-        function closeScheduleModal() {
-            document.getElementById('scheduleModal').style.display = 'none';
-        }
+        function closeScheduleModal() { document.getElementById('scheduleModal').style.display = 'none'; }
 
         // ================= ATTENDANCE ONE VIEW =================
         function openOneViewModal() {
