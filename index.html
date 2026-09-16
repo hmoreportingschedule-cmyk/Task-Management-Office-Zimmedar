@@ -78,12 +78,6 @@
                         </div>
                         <input type="password" id="password" class="w-full bg-transparent border-b border-[#5a8789] text-white pl-8 py-2 text-sm focus:outline-none focus:border-white transition-colors placeholder-[#7db0b1]" placeholder="Password" required>
                     </div>
-                    <div class="flex justify-between items-center mb-10 text-xs text-[#a5cacc]">
-                        <label class="flex items-center cursor-pointer hover:text-white transition">
-                            <input type="checkbox" class="mr-2 cursor-pointer accent-[#0e1f23] bg-transparent border-[#5a8789]"> Remember me
-                        </label>
-                        <a href="#" class="italic hover:text-white transition">Forgot Password?</a>
-                    </div>
                     <button type="submit" id="loginBtn" class="w-full bg-[#0d1a1c] hover:bg-[#050a0a] text-white font-bold py-3 text-sm tracking-widest uppercase transition duration-300 shadow-md">Login</button>
                 </form>
             </div>
@@ -154,10 +148,10 @@
                 </button>
             </div>
 
-            <!-- HOD Only: Notice Box -->
-            <div id="hodNoticeBox" class="hod-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
-                <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager Mode</p>
-                <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Focus on team reports and tasks approval.</p>
+            <!-- Admin/HOD Only: Notice Box -->
+            <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
+                <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
+                <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
             </div>
 
             <!-- Comprehensive Report Card Sidebar -->
@@ -193,7 +187,6 @@
                     <button onclick="openScheduleModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
                     </button>
-                    <!-- UPDATED: Attendance Sheet Button -->
                     <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                         <i class="fas fa-calendar-alt"></i> Attendance Sheet
                     </button>
@@ -256,9 +249,9 @@
             </div>
 
             <!-- HOD ACTION BAR -->
-            <div id="hodActionBar" class="hod-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
+            <div id="hodActionBar" class="hod-only admin-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
                 <div class="mb-4 md:mb-0">
-                    <h3 class="text-xl font-bold text-[#112a2e] mb-1">HOD Controls</h3>
+                    <h3 class="text-xl font-bold text-[#112a2e] mb-1">Manager Controls</h3>
                     <p class="text-sm text-[#2a4d53] font-medium">Assign tasks and approve team requests below.</p>
                 </div>
                 <button onclick="openAssignTaskModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-6 py-3 rounded-xl shadow-md font-bold flex items-center gap-2 transition">
@@ -267,7 +260,7 @@
             </div>
 
             <!-- HOD ONLY: Team Attendance Overview -->
-            <div id="teamAttendanceSection" class="hod-only modern-card overflow-hidden mb-8 border-t-4 border-[#f59e0b]">
+            <div id="teamAttendanceSection" class="hod-only admin-only modern-card overflow-hidden mb-8 border-t-4 border-[#f59e0b]">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h3 class="text-lg font-bold text-[#112a2e]"><i class="fas fa-bell text-[#f59e0b] mr-2"></i> Team Activities & Requests</h3>
                 </div>
@@ -294,8 +287,8 @@
                 <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-white gap-4">
                     <h3 class="text-lg font-bold text-[#112a2e]" id="taskTableTitle">Assigned Tasks</h3>
                     <div class="flex gap-3 items-center">
-                        <span class="text-sm font-semibold text-[#4b6d70] hod-only">Filter by Employee:</span>
-                        <select id="hodEmpFilter" class="hod-only border border-[#b2d8d8] rounded-lg px-3 py-2 text-sm bg-[#f0f7f7] font-bold text-[#2a4d53] focus:outline-none focus:ring-2 focus:ring-[#259b94] transition" onchange="filterTasksByEmp()">
+                        <span class="text-sm font-semibold text-[#4b6d70] hod-only admin-only">Filter by Employee:</span>
+                        <select id="hodEmpFilter" class="hod-only admin-only border border-[#b2d8d8] rounded-lg px-3 py-2 text-sm bg-[#f0f7f7] font-bold text-[#2a4d53] focus:outline-none focus:ring-2 focus:ring-[#259b94] transition" onchange="filterTasksByEmp()">
                             <option value="All">All Employees</option>
                         </select>
                     </div>
@@ -307,8 +300,9 @@
                                 <th class="py-4 px-6">Task Name</th>
                                 <th class="py-4 px-6 hod-only-col hidden">Employee</th>
                                 <th class="py-4 px-6">Timeline</th>
-                                <th class="py-4 px-6">Deadline Status</th> <!-- NEW COLUMN FOR DELAY -->
+                                <th class="py-4 px-6">Deadline Status</th>
                                 <th class="py-4 px-6">Priority</th>
+                                <th class="py-4 px-6">Time Spent</th>
                                 <th class="py-4 px-6">Emp Status</th>
                                 <th class="py-4 px-6">HOD Approval</th>
                             </tr>
@@ -461,11 +455,9 @@
     <div id="progressCardModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeProgressCardModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            
             <h2 class="text-2xl font-normal text-gray-800 mb-1">Employees task prioritization progress status card</h2>
             <p class="text-xs text-gray-500 mb-6">This slide covers task completion output report sheet. It includes task, assigned person, priority status and the task progress bar with percentage.</p>
 
-            <!-- Filters -->
             <div class="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 border rounded-lg items-end">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Filter Type:</label>
@@ -507,8 +499,7 @@
                             <th class="orange-header w-1/4">Progress</th>
                         </tr>
                     </thead>
-                    <tbody id="progressCardBody">
-                    </tbody>
+                    <tbody id="progressCardBody"></tbody>
                 </table>
             </div>
         </div>
@@ -518,17 +509,15 @@
     <div id="scheduleModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeScheduleModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            
             <div class="sched-main-header rounded-t-lg">
                 <i class="fas fa-calendar-alt"></i> Zimmedar Project Schedule
             </div>
-            <div class="sched-sub-header flex justify-between items-center">
+            <div class="sched-sub-header flex justify-between items-center bg-[#9dc3e6]">
                 <div class="flex items-center gap-4">
                     <span>Project Start Date: <span class="bg-white px-2 py-1 rounded text-[#112a2e] text-sm ml-2" id="schedStartDate">--</span></span>
                     <span>Project Lead: <span class="bg-white px-2 py-1 rounded text-[#112a2e] text-sm ml-2" id="schedLead">--</span></span>
                 </div>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse sched-table whitespace-nowrap">
                     <thead>
@@ -542,29 +531,28 @@
                             <th>% DONE</th>
                         </tr>
                     </thead>
-                    <tbody id="scheduleCardBody">
-                    </tbody>
+                    <tbody id="scheduleCardBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- ATTENDANCE SHEET (ONE VIEW) MODAL -->
+    <!-- ATTENDANCE ONE VIEW MODAL -->
     <div id="oneViewModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeOneViewModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <h2 class="text-2xl font-bold text-[#259b94] mb-1">Monthly Attendance Sheet</h2>
+            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance One View</h2>
             <p class="text-xs text-gray-500 mb-6">Comprehensive monthly view of employee attendance, leaves, and absences.</p>
             
-            <div class="flex items-end gap-4 mb-4 bg-[#e6fcf5] p-4 border border-[#b2d8d8] rounded-lg">
+            <div class="flex items-end gap-4 mb-4 bg-teal-50 p-4 border border-teal-100 rounded-lg">
                 <div>
-                    <label class="block text-xs font-bold text-[#2a4d53] uppercase mb-1">Select Month & Year:</label>
-                    <input type="month" id="oneViewMonthPicker" class="border border-[#7db0b1] p-2 rounded text-sm w-48 focus:outline-none focus:ring-2 focus:ring-[#259b94]">
+                    <label class="block text-xs font-bold text-teal-800 uppercase mb-1">Select Month & Year:</label>
+                    <input type="month" id="oneViewMonthPicker" class="border border-teal-200 p-2 rounded text-sm w-48 focus:outline-none focus:ring-2 focus:ring-teal-500">
                 </div>
-                <button onclick="fetchOneViewData()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-5 py-2 rounded shadow font-bold text-sm transition">
-                    Generate Sheet
+                <button onclick="fetchOneViewData()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded shadow font-bold text-sm transition">
+                    Generate Matrix
                 </button>
-                <span id="oneViewLoading" class="hidden text-sm text-[#259b94] italic ml-4 font-semibold animate-pulse">Loading matrix data...</span>
+                <span id="oneViewLoading" class="hidden text-sm text-teal-600 italic ml-4 font-semibold animate-pulse">Loading matrix data...</span>
             </div>
 
             <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0">
@@ -593,7 +581,7 @@
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
-        let globalMonthlyAtt = []; // to store attendance stats for grade calculation
+        let globalMonthlyAtt = []; 
         let monthlyChartInst = null;
 
         function setDateConstraints() {
@@ -685,7 +673,7 @@
                     document.getElementById('login-section').style.display = 'none';
                     document.getElementById('dashboard-section').style.display = 'flex';
                     
-                    document.getElementById('displayUser').innerText = data.actualName; // from backend
+                    document.getElementById('displayUser').innerText = data.actualName;
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
@@ -743,7 +731,6 @@
                 alert("Select Time manually!"); return;
             }
 
-            // Early Punch Out Restriction
             if (action === 'Punch Out') {
                 const shiftStr = document.getElementById('displayOfficeTime').innerText;
                 const parts = shiftStr.toLowerCase().split('to');
@@ -780,6 +767,11 @@
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
+                if(data.status === 'error') {
+                    alert(data.message);
+                    btn.innerText = "Submit Record"; btn.disabled = false;
+                    return;
+                }
                 alert(data.message);
                 btn.innerText = "Submit Record"; btn.disabled = false;
                 
@@ -808,14 +800,14 @@
                 if(data.status === 'success') {
                     globalAllTasks = data.tasks; 
                     globalTeamMembers = data.teamMembers; 
-                    globalMonthlyAtt = data.monthlyAtt || []; // For report card
+                    globalMonthlyAtt = data.monthlyAtt || []; 
                     
                     if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                         populateTeamDropdowns(data.teamMembers);
                         renderTeamAttendance(data.teamAttendance);
                     } else {
                         calculateTimeTracker(data.todayAttendance);
-                        populateLogTaskDropdown(data.tasks); // Populate dropdown for work log
+                        populateLogTaskDropdown(data.tasks); 
                     }
 
                     filterTasksByEmp(); 
@@ -898,6 +890,7 @@
             const tbody = document.getElementById('taskTableBody'); 
             tbody.innerHTML = ''; 
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
+            const isAdmin = role.indexOf('admin') > -1;
 
             let compCount = 0, pendCount = 0;
             let dailyTotal = 0, dailyDone = 0;
@@ -928,29 +921,49 @@
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
                     let tr = document.createElement('tr');
                     
-                    // Highlight logic for HOD: Light green if Emp marked completed but HOD hasn't approved
                     let rowClass = "transition hover:bg-gray-50 border-b";
                     if (isHOD && task.empStatus.toLowerCase() === 'completed' && task.hodStatus.toLowerCase() === 'pending') {
-                        rowClass += " bg-[#e6fcf5]"; // Highlight for HOD to approve
+                        rowClass += " bg-[#e6fcf5]"; 
                     }
                     tr.className = rowClass;
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    let timeSpentHTML = '';
                     let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
 
-                    if (!isHOD) {
+                    let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
+                    let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
+
+                    if (!isHOD && !isAdmin) { // Employee
+                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         empStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer" ${empLocked}>
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
                             </select>`;
-                        let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
+                        let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : (task.hodStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600');
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
-                    } else {
+                    } 
+                    else if (isHOD && !isAdmin) { // HOD
+                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
+                        hodStatusHTML = `
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${hodLocked}>
+                                <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
+                                <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
+                            </select>`;
+                    } 
+                    else if (isAdmin) { // Admin
+                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border border-[#7db0b1] rounded-md px-2 py-1 w-20 text-xs bg-white focus:ring-1 focus:ring-[#259b94] outline-none transition" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
+                        empStatusHTML = `
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
+                                <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option value="Incomplete" ${task.empStatus === 'Incomplete' ? 'selected' : ''}>Incomplete</option>
+                            </select>`;
                         hodStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -980,6 +993,7 @@
             
             const role = document.getElementById('displayRole').innerText;
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
+            const isAdmin = role.indexOf('admin') > -1;
 
             if(!teamData || teamData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-500 italic">No attendance records or requests pending.</td></tr>';
@@ -996,22 +1010,18 @@
                 
                 let stateBadge = '';
                 
-                // If HOD view and it's a pending request, show Approval Dropdown
-                if (isHOD && status === 'Pending') {
-                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]">
-                                    <option value="Pending" selected>Pending Req</option>
-                                    <option value="Approved">Approve</option>
-                                    <option value="Rejected">Reject</option>
+                let reqLocked = (status === 'Approved' && !isAdmin) ? 'disabled' : '';
+
+                if (isHOD && (status === 'Pending' || leave !== '-')) {
+                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
+                                    <option value="Pending" ${status==='Pending'?'selected':''}>Pending Req</option>
+                                    <option value="Approved" ${status==='Approved'?'selected':''}>Approve</option>
+                                    <option value="Rejected" ${status==='Rejected'?'selected':''}>Reject</option>
                                   </select>`;
-                } 
-                else if (leave !== '-') {
-                    let color = status === 'Approved' ? 'bg-green-100 text-green-800' : (status === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
-                    stateBadge = `<span class="${color} px-3 py-1 rounded-full text-xs font-bold shadow-sm">${leave} (${status})</span>`;
                 } else {
                     stateBadge = `<span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">Present</span>`;
                 }
 
-                // Highlight Row if Pending
                 let rowBg = (isHOD && status === 'Pending') ? "bg-[#fffbeb]" : "hover:bg-gray-50";
 
                 tbody.innerHTML += `
@@ -1053,6 +1063,15 @@
             });
         }
 
+        function updateTaskTime(rIdx, val) {
+            const formData = new FormData();
+            formData.append('action', 'updateTaskStatus'); 
+            formData.append('rowIndex', rIdx); 
+            formData.append('type', 'time'); 
+            formData.append('status', val); 
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
+        }
+
         // ================= HOD ASSIGN TASK =================
         function openAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'block'; }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
@@ -1090,12 +1109,8 @@
         }
 
         // ================= EMP LOG DAILY WORK =================
-        function openLogWorkModal() { 
-            document.getElementById('logWorkModal').style.display = 'block'; 
-        }
-        function closeLogWorkModal() { 
-            document.getElementById('logWorkModal').style.display = 'none'; 
-        }
+        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; }
+        function closeLogWorkModal() { document.getElementById('logWorkModal').style.display = 'none'; }
         
         function submitWorkLog() {
             const taskSel = document.getElementById('logTaskSelect');
@@ -1113,7 +1128,7 @@
             const formData = new FormData();
             formData.append('action', 'logWork');
             formData.append('username', username);
-            formData.append('rowIndex', tIdx); // task row index
+            formData.append('rowIndex', tIdx); 
             formData.append('taskName', tName);
             formData.append('timeSpent', mins);
             formData.append('description', desc);
@@ -1148,16 +1163,13 @@
                 return;
             }
 
-            // Calculate stats for target employee
             const empTasks = globalAllTasks.filter(t => t.assignedTo.trim().toLowerCase() === targetEmp.trim().toLowerCase());
             let comp = 0;
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
             
-            // Att perc (rough estimate for email)
-            let attPerc = 100; // Will be properly calculated via main grade logic for simplicity
-            let finalScore = taskPerc;
-            
+            let attPerc = 100; // Will be properly calculated via main grade logic in backend
+            let finalScore = taskPerc; 
             let grade = "D";
             if (finalScore >= 90) grade = "A";
             else if (finalScore >= 80) grade = "B";
@@ -1199,18 +1211,14 @@
             let taskPerc = 0;
             let attPerc = 0;
             
-            // 1. Task Logic
             if(tasks.length > 0) {
                 let comp = 0;
                 tasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
                 taskPerc = Math.round((comp / tasks.length) * 100);
             }
 
-            // 2. Attendance Logic (based on current month)
-            // Assuming 26 working days max for simplicity, or just calculate present/daysPassed
             const today = new Date();
             let daysElapsed = today.getDate(); 
-            // Filter globalMonthlyAtt for present days
             let presentDays = 0;
             if(globalMonthlyAtt && globalMonthlyAtt.length > 0) {
                 globalMonthlyAtt.forEach(r => {
@@ -1221,9 +1229,8 @@
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
 
-            // Combine Score (50% Task, 50% Att)
             let finalScore = Math.round((taskPerc * 0.5) + (attPerc * 0.5));
-            if(tasks.length === 0) finalScore = attPerc; // if no tasks, base on attendance only
+            if(tasks.length === 0) finalScore = attPerc; 
             
             let grade = "D";
             let color = "text-red-500";
@@ -1393,7 +1400,7 @@
                 } else if (t.empStatus.toLowerCase() === 'incomplete') {
                     sLabel = 'In Progress'; statColorClass = 'dot-orange'; progPercent = 50;
                 } else {
-                    progPercent = 0; // Default pending 
+                    progPercent = 0; 
                 }
 
                 let displayTime = t.timeSpent ? t.timeSpent + ' min' : '-';
@@ -1515,7 +1522,7 @@
                 }
             }).catch(err => {
                 document.getElementById('oneViewLoading').style.display = 'none';
-                alert("Failed to load Attendance Sheet Data");
+                alert("Failed to load One View Data");
             });
         }
 
