@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zimmedar - Advanced ERP Dashboard</title>
+    <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -51,7 +51,7 @@
     <!-- LOGIN PAGE -->
     <div id="login-section" class="w-full max-w-md p-8 glassmorphism">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-indigo-600 tracking-tight">Zimmedar</h1>
+            <h1 class="text-4xl font-extrabold text-indigo-600 tracking-tight">Office Zimmedar Task</h1>
             <p class="text-gray-500 mt-2 font-medium">Enterprise Workspace Login</p>
         </div>
         <form id="loginForm" onsubmit="handleLogin(event)">
@@ -71,8 +71,8 @@
     <div id="dashboard-section" class="w-full h-full flex flex-col md:flex-row bg-[#f4f7fe]">
         <!-- Sidebar -->
         <div class="w-full md:w-64 bg-white text-gray-800 p-5 flex flex-col overflow-y-auto border-r border-gray-200 shadow-sm z-10">
-            <h2 class="text-3xl font-extrabold text-indigo-600 mb-8 tracking-tight flex items-center gap-2">
-                <i class="fas fa-layer-group"></i> Zimmedar
+            <h2 class="text-2xl font-extrabold text-indigo-600 mb-8 tracking-tight flex items-center gap-2">
+                <i class="fas fa-layer-group"></i> Office Zimmedar Task
             </h2>
             
             <div class="flex items-center space-x-3 mb-6 bg-indigo-50 p-3 rounded-xl border border-indigo-100">
@@ -231,7 +231,7 @@
                 </button>
             </div>
 
-            <!-- HOD ONLY: Team Attendance Overview (Matching Reference Image Style) -->
+            <!-- HOD ONLY: Team Attendance Overview -->
             <div id="teamAttendanceSection" class="hod-only modern-card overflow-hidden mb-8">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h3 class="text-lg font-bold text-gray-900">Employees Status (Today)</h3>
@@ -336,7 +336,7 @@
         </div>
     </div>
 
-    <!-- NEW MODAL: EMAIL REPORT CARD (ADMIN ONLY) -->
+    <!-- EMAIL REPORT CARD MODAL (ADMIN ONLY) -->
     <div id="emailReportModal" class="modal">
         <div class="modal-content relative max-w-lg shadow-2xl">
             <span onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
@@ -347,7 +347,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
                     <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
-                        <!-- Populated with team members dynamically -->
+                        <!-- Populated dynamically -->
                     </select>
                 </div>
                 <div>
@@ -1254,8 +1254,8 @@
                     
                     if(!s) {
                         let isPast = (year < today.getFullYear()) || 
-                                     (year == today.getFullYear() && month < (today.getMonth()+1)) || 
-                                     (isCurrentMonth && d < currentDay);
+                                      (year == today.getFullYear() && month < (today.getMonth()+1)) || 
+                                      (isCurrentMonth && d < currentDay);
                         if(isPast) s = 'A'; 
                         else s = '-'; 
                     }
