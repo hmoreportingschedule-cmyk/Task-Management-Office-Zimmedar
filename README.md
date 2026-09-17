@@ -40,3 +40,6 @@ The app has:
 - Management-wide view
 
 For production, add rate limiting, audit logs, password reset and stricter server-side authorization before using with sensitive company data.
+
+
+Distributed employee storage: the Users sheet remains the master login/assignment sheet. Each employee is assigned an individual Google Spreadsheet automatically on first system use; Tasks, Attendance and WorkLogs are stored in that employee file. HOD/Admin dashboards aggregate only authorized employee files. Users sheet receives Employee Data Spreadsheet ID and Employee Data Spreadsheet URL columns automatically.

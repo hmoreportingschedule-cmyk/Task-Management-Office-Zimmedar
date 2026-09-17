@@ -432,7 +432,7 @@
             <span onclick="closeAttendanceEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-shield text-[#259b94]"></i> Admin Attendance Correction</h3>
             <p class="text-sm text-gray-500 mb-5">Only Admin can correct an already submitted attendance record.</p>
-            <input type="hidden" id="editAttRowIndex">
+            <input type="hidden" id="editAttRowIndex"><input type="hidden" id="editAttEmployee">
             <div class="grid grid-cols-2 gap-4">
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">In Time</label><input type="text" id="editAttIn" class="w-full border p-3 rounded-lg" placeholder="09:30 AM"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Out Time</label><input type="text" id="editAttOut" class="w-full border p-3 rounded-lg" placeholder="07:00 PM"></div>
@@ -1163,7 +1163,7 @@
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${hodLocked}>
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value, '${encodeURIComponent(task.assignedTo)}')" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${hodLocked}>
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
@@ -1171,13 +1171,13 @@
                     } 
                     else if (isAdmin) { 
                         empStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value, '${encodeURIComponent(task.assignedTo)}')" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
                                 <option value="Incomplete" ${task.empStatus === 'Incomplete' ? 'selected' : ''}>Incomplete</option>
                             </select>`;
                         hodStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value, '${encodeURIComponent(task.assignedTo)}')" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
@@ -1225,7 +1225,7 @@
                 let reqLocked = (status === 'Approved' && !isAdmin) ? 'disabled' : '';
 
                 if (isHOD && (status === 'Pending' || leave !== '-')) {
-                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
+                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value, '${encodeURIComponent(r.user)}')" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
                                     <option value="Pending" ${status==='Pending'?'selected':''}>Pending Req</option>
                                     <option value="Approved" ${status==='Approved'?'selected':''}>Approve</option>
                                     <option value="Rejected" ${status==='Rejected'?'selected':''}>Reject</option>
@@ -1235,7 +1235,7 @@
                 }
 
                 if (isAdmin) {
-                    stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex})" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
+                    stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex}, '${encodeURIComponent(r.user)}')" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
                 }
 
                 let rowBg = (isHOD && status === 'Pending') ? "bg-[#fffbeb]" : "hover:bg-gray-50";
@@ -1255,7 +1255,7 @@
             });
         }
 
-        function updateTaskDB(rIdx, type, val) {
+        function updateTaskDB(rIdx, type, val, encodedOwner) {
             const formData = new FormData();
             formData.append('action', 'updateTaskStatus');
             formData.append('rowIndex', rIdx);
@@ -1272,7 +1272,7 @@
             .catch(() => alert('Update failed. Please try again.'));
         }
 
-        function updateAttStatus(rIdx, val) {
+        function updateAttStatus(rIdx, val, encodedEmployee) {
             const formData = new FormData();
             formData.append('action', 'updateAttStatus');
             formData.append('rowIndex', rIdx);
@@ -1294,8 +1294,8 @@
             return s.startsWith("'") ? s.substring(1) : s;
         }
 
-        function openAttendanceEditModal(rowIndex) {
-            const teamRow = (globalTeamAttendance || []).find(r => Number(r.rowIndex) === Number(rowIndex));
+        function openAttendanceEditModal(rowIndex, encodedEmployee) {
+            const teamRow = (globalTeamAttendance || []).find(r => Number(r.rowIndex) === Number(rowIndex) && (!encodedEmployee || String(r.user).toLowerCase() === decodeURIComponent(encodedEmployee).toLowerCase()));
             let data = null;
             if(teamRow) {
                 data = (globalMonthlyFullAttendance || []).find(a =>
@@ -1305,6 +1305,7 @@
             }
 
             document.getElementById('editAttRowIndex').value = rowIndex;
+            document.getElementById('editAttEmployee').value = teamRow ? teamRow.user : (encodedEmployee ? decodeURIComponent(encodedEmployee) : '');
             document.getElementById('editAttIn').value = data ? cleanDisplayValue(data.InTime) : cleanDisplayValue(teamRow?.inTime);
             document.getElementById('editAttOut').value = data ? cleanDisplayValue(data.OutTime) : cleanDisplayValue(teamRow?.outTime);
             document.getElementById('editAttBreakStart').value = data ? cleanDisplayValue(data.BreakStarts) : '';
