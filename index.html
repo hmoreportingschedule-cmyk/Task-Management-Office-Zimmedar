@@ -139,6 +139,11 @@
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
+
+                <!-- NEW: WHATSAPP SHARE REPORT BUTTON -->
+                <button onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4 flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-lg"></i> Share WhatsApp Report
+                </button>
             </div>
 
             <!-- Admin/HOD Notice -->
@@ -237,8 +242,7 @@
                     <p class="text-3xl font-extrabold text-[#112a2e]" id="statTotal">0</p>
                 </div>
             </div>
-
-            <!-- Employee Only: Daily Work Time Tracker -->
+            <!-- Shift Tracker -->
             <div id="empTimeTracker" class="emp-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-[#2a4d53] to-[#1e3e43] text-white border-0 shadow-lg">
                 <div>
                     <h3 class="text-xl font-bold text-white mb-1"><i class="fas fa-stopwatch text-[#5fd3cc]"></i> Today's Shift Tracker</h3>
@@ -256,7 +260,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- HOD ACTION BAR -->
             <div id="hodActionBar" class="hod-only admin-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
                 <div class="mb-4 md:mb-0">
@@ -267,8 +270,7 @@
                     <i class="fas fa-plus-circle"></i> Assign New Task
                 </button>
             </div>
-
-            <!-- HOD ONLY: Team Attendance Overview -->
+            <!-- Team Attendance Overview -->
             <div id="teamAttendanceSection" class="hod-only admin-only modern-card overflow-hidden mb-8 border-t-4 border-[#f59e0b]">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h3 class="text-lg font-bold text-[#112a2e]"><i class="fas fa-bell text-[#f59e0b] mr-2"></i> Team Activities & Requests</h3>
@@ -284,12 +286,10 @@
                                 <th class="py-4 px-6 text-center">Status / Approval</th>
                             </tr>
                         </thead>
-                        <tbody id="teamAttendanceBody" class="text-gray-700 text-sm bg-white divide-y divide-gray-100">
-                        </tbody>
+                        <tbody id="teamAttendanceBody" class="text-gray-700 text-sm bg-white divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
-
             <!-- Task Table Section -->
             <div class="modern-card overflow-hidden mb-8 border-t-4 border-[#259b94]">
                 <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-white gap-4">
@@ -315,8 +315,7 @@
                                 <th class="py-4 px-6">HOD Approval</th>
                             </tr>
                         </thead>
-                        <tbody id="taskTableBody" class="text-gray-700 text-sm bg-white divide-y divide-gray-100">
-                        </tbody>
+                        <tbody id="taskTableBody" class="text-gray-700 text-sm bg-white divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -1122,6 +1121,43 @@
                 closeLogWorkModal();
             });
         }
+
+        // ================= WHATSAPP REPORT SHARING =================
+        function shareWhatsAppReport() {
+            const username = document.getElementById('displayUser').innerText;
+            const dept = document.getElementById('displayDept').innerText;
+            const grade = document.getElementById('monthlyGrade').innerText;
+            const overall = document.getElementById('monthlyPerc').innerText;
+
+            let reportText = `📊 *ZIMMEDAR OFFICE REPORT*%0A`;
+            reportText += `👤 Employee: ${username}%0A`;
+            reportText += `🏢 Dept: ${dept}%0A`;
+            reportText += `🏆 Monthly Grade: *${grade}* (${overall})%0A%0A`;
+            
+            reportText += `📌 *Assigned Tasks Overview:*%0A`;
+            if (globalAllTasks.length === 0) {
+                reportText += `No tasks found.%0A`;
+            } else {
+                globalAllTasks.forEach((t, idx) => {
+                    reportText += `${idx + 1}. ${t.taskName} [Status: ${t.empStatus} | Time: ${t.timeSpent || 0} mins]%0A`;
+                });
+            }
+
+            reportText += `%0A🕒 *Recent Daily Work Logs:*%0A`;
+            let userLogs = globalWorkLogs.filter(w => w.Employee.trim().toLowerCase() === username.trim().toLowerCase());
+            if (userLogs.length === 0) {
+                reportText += `No logs recorded yet.%0A`;
+            } else {
+                userLogs.slice(-5).forEach((w, idx) => { // Last 5 logs
+                    reportText += `- ${w.Task}: ${w.TimeSpentMins} mins (${w.Description || 'No desc'})%0A`;
+                });
+            }
+
+            // WhatsApp Web / Mobile Intent
+            const waURL = `https://api.whatsapp.com/send?text=${reportText}`;
+            window.open(waURL, '_blank');
+        }
+
         // ================= EMAIL REPORT CARD (ADMIN) =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
@@ -1191,8 +1227,7 @@
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
             let finalScore = Math.round((taskPerc * 0.5) + (attPerc * 0.5));
-            if(tasks.length === 0) finalScore = attPerc; 
-                          let grade = "D";
+            if(tasks.length === 0) finalScore = attPerc;                           let grade = "D";
             let color = "text-red-500";
             if (finalScore >= 90) { grade = "A"; color = "text-[#10b981]"; }
             else if (finalScore >= 80) { grade = "B"; color = "text-[#259b94]"; }
