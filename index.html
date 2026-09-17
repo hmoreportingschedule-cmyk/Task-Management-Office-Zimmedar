@@ -1545,9 +1545,10 @@
             
             let grade = "D";
             let color = "text-red-500";
-            if (finalScore >= 90) { grade = "A"; color = "text-[#10b981]"; }
-            else if (finalScore >= 80) { grade = "B"; color = "text-[#259b94]"; }
-            else if (finalScore >= 70) { grade = "C"; color = "text-[#f59e0b]"; }
+            if (finalScore >= 90) { grade = "A"; color = "text-emerald-600"; }
+            else if (finalScore >= 80) { grade = "B"; color = "text-blue-600"; }
+            else if (finalScore >= 70) { grade = "C"; color = "text-amber-600"; }
+            else { grade = "D"; color = "text-red-600"; }
 
             const mg = document.getElementById('monthlyGrade');
             mg.innerText = `${grade} (${grade === 'A' ? 'Mumtaz' : grade === 'B' ? 'Behtar' : grade === 'C' ? 'Munasib' : 'Kamzor'})`;
@@ -1558,9 +1559,9 @@
             document.getElementById('taskPercText').innerText = `${taskPerc}%`;
             document.getElementById('attPercText').innerText = `${attPerc}%`;
             
-            document.getElementById('indivScore').innerText = finalScore.toFixed(1);
-            document.getElementById('deptScore').innerText = (finalScore * 0.85).toFixed(1); 
-            document.getElementById('metricEfficiency').innerText = `${taskPerc}%`;
+            const indivScoreEl = document.getElementById('indivScore'); if (indivScoreEl) indivScoreEl.innerText = finalScore.toFixed(1);
+            const deptScoreEl = document.getElementById('deptScore'); if (deptScoreEl) deptScoreEl.innerText = (finalScore * 0.85).toFixed(1); 
+            const metricEfficiencyEl = document.getElementById('metricEfficiency'); if (metricEfficiencyEl) metricEfficiencyEl.innerText = `${taskPerc}%`;
         }
 
         // ================= EXCEL EXPORT (SHEETJS) =================
@@ -1830,7 +1831,8 @@
             renderProgressChart();
         }
         function closeAnalysationModal(){document.getElementById('analysationModal').style.display='none';}
-        function getGrade(score){score=Math.max(0,Math.min(100,Math.round(score||0)));if(score>=90)return ['A','Mumtaz'];if(score>=80)return ['B','Behtar'];if(score>=70)return ['C','Munasib'];return ['D','Kamzor'];}
+        function applyGradeColor(el, grade){ if(!el) return; el.classList.remove('text-emerald-600','text-blue-600','text-amber-600','text-red-600','text-[#10b981]','text-[#259b94]','text-[#f59e0b]','text-red-500'); const colors={A:'text-emerald-600',B:'text-blue-600',C:'text-amber-600',D:'text-red-600'}; el.classList.add(colors[grade] || colors.D); }
+         function getGrade(score){score=Math.max(0,Math.min(100,Math.round(score||0)));if(score>=90)return ['A','Mumtaz'];if(score>=80)return ['B','Behtar'];if(score>=70)return ['C','Munasib'];return ['D','Kamzor'];}
         function getTaskScore(tasks, date) {
             const active=tasks.filter(t=>{const s=parseReportDate(t.startDate),e=parseReportDate(t.endDate);return s&&e&&date>=s&&date<=e;});
             if(!active.length)return null;
@@ -1852,7 +1854,7 @@
             const selected=document.getElementById('progressEmpFilter').value, tasks=(globalAllTasks||[]).filter(t=>!selected||String(t.assignedTo).toLowerCase()===String(selected).toLowerCase()), records=(globalMonthlyFullAttendance||[]).filter(a=>!selected||String(a.Employee).toLowerCase()===String(selected).toLowerCase());
             const now=new Date();now.setHours(0,0,0,0);const dayStart=new Date(now),weekStart=new Date(now);weekStart.setDate(weekStart.getDate()-6);const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
             const day=periodScore(tasks,records,dayStart,now,aw/100,tw/100),week=periodScore(tasks,records,weekStart,now,aw/100,tw/100),month=periodScore(tasks,records,monthStart,now,aw/100,tw/100);
-            [['gradeDaily','scoreDaily',day],['gradeWeekly','scoreWeekly',week],['gradeMonthly','scoreMonthly',month]].forEach(x=>{const g=getGrade(x[2].overall);document.getElementById(x[0]).innerText=`${g[0]} (${g[1]})`;document.getElementById(x[1]).innerText=`${Math.round(x[2].overall)}%`;});
+            [['gradeDaily','scoreDaily',day],['gradeWeekly','scoreWeekly',week],['gradeMonthly','scoreMonthly',month]].forEach(x=>{const g=getGrade(x[2].overall);const ge=document.getElementById(x[0]);const se=document.getElementById(x[1]);if(ge){ge.innerText=`${g[0]} (${g[1]})`;applyGradeColor(ge,g[0]);}if(se)se.innerText=`${Math.round(x[2].overall)}%`;});
             const body=document.getElementById('progressScoreBody');body.innerHTML='';[['Today',day],['This Week',week],['This Month',month]].forEach(x=>{const g=getGrade(x[1].overall);body.innerHTML+=`<tr class="border-t"><td class="p-3 font-bold">${x[0]}</td><td class="p-3 text-center">${Math.round(x[1].att)}%</td><td class="p-3 text-center">${Math.round(x[1].task)}%</td><td class="p-3 text-center font-bold">${Math.round(x[1].overall)}%</td><td class="p-3 text-center font-bold">${g[0]} (${g[1]})</td></tr>`;});
             const ctx=document.getElementById('monthlyPerformanceChart').getContext('2d');if(monthlyChartInst)monthlyChartInst.destroy();monthlyChartInst=new Chart(ctx,{type:'bar',data:{labels:['Today','This Week','This Month'],datasets:[{label:'Overall Score',data:[day.overall,week.overall,month.overall],backgroundColor:'#2a4d53',barPercentage:.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100},x:{grid:{display:false}}}}});
         }
