@@ -40,16 +40,3 @@ The app has:
 - Management-wide view
 
 For production, add rate limiting, audit logs, password reset and stricter server-side authorization before using with sensitive company data.
-
-
-## Employee-wise Data Storage
-The updated backend keeps `Users` as the master login/assignment sheet and creates a separate Google Spreadsheet for each employee on first login. Each employee file contains `Tasks`, `Attendance`, and `WorkLogs`. The `Users` sheet automatically gets/uses `Data Spreadsheet ID` and `Data Spreadsheet URL` columns. Existing employee rows from the master `Tasks`, `Attendance`, and `WorkLogs` sheets are migrated once when that employee storage file is first created.
-
-## Dashboard Reports
-The dashboard header now provides three report buttons: `Attendance Report`, `Task Report`, and `Progress Chart`. Task reports show on-time/early, delayed, pending and delay days. Progress Chart supports Attendance/Task weightage totaling 100% and displays Daily, Weekly and Monthly grades: A (Mumtaz), B (Behtar), C (Munasib), D (Kamzor).
-
-## Deployment
-1. Update `backend_code.js` in the Google Apps Script project bound to the master Users spreadsheet.
-2. Deploy the Apps Script as a Web App and use its `/exec` URL in `index.html`.
-3. Deploy `index.html` to Vercel.
-4. The first employee login will ask Google Apps Script for spreadsheet/Drive authorization if required.

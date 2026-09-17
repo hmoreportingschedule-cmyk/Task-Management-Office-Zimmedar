@@ -151,7 +151,7 @@
             <!-- Comprehensive Report Card Sidebar -->
             <div class="bg-[#1e3e43] border border-[#3e6a6e] p-4 rounded-xl mb-4 text-center">
                 <h3 class="text-[#7db0b1] uppercase text-xs font-bold mb-2">Monthly Grade</h3>
-                <div id="monthlyGrade" class="text-3xl font-extrabold leading-tight break-words whitespace-normal overflow-hidden max-w-full px-1 text-[#f59e0b]">-</div>
+                <div id="monthlyGrade" class="text-5xl font-extrabold text-[#f59e0b]">-</div>
                 <div class="mt-2 text-xs text-[#a5cacc] flex justify-between px-2">
                     <span>Task: <b id="taskPercText" class="text-white">0%</b></span>
                     <span>Att: <b id="attPercText" class="text-white">0%</b></span>
@@ -185,14 +185,29 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
-                        <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-calendar-alt"></i> Attendance Report
+                        <!-- EXCEL EXPORT BUTTON -->
+                        <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-file-excel"></i> Export Excel
                         </button>
-                        <button onclick="openTaskReportModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-list-check text-[#259b94]"></i> Task Report
+
+                        <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
                         </button>
-                        <button onclick="openProgressChartModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-chart-line text-orange-500"></i> Progress Chart
+                        <button onclick="openProgressCardModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-tasks text-orange-500"></i> Progress Card
+                        </button>
+                        <button onclick="openScheduleModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
+                        </button>
+                        <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-calendar-alt"></i> Attendance Sheet
+                        </button>
+                        <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fab fa-whatsapp"></i> WhatsApp Report
+                        </button>
+                        <!-- EMAIL BUTTON (ADMIN ONLY) -->
+                        <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-paper-plane text-[#5fd3cc]"></i> Email
                         </button>
                     </div>
                 </div>
@@ -250,7 +265,7 @@
             </div>
 
             <!-- HOD ACTION BAR -->
-            <div id="hodActionBar" class="hod-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
+            <div id="hodActionBar" class="hod-only admin-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
                 <div class="mb-4 md:mb-0">
                     <h3 class="text-xl font-bold text-[#112a2e] mb-1">Manager Controls</h3>
                     <p class="text-sm text-[#2a4d53] font-medium">Assign tasks and approve team requests below.</p>
@@ -418,7 +433,6 @@
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-shield text-[#259b94]"></i> Admin Attendance Correction</h3>
             <p class="text-sm text-gray-500 mb-5">Only Admin can correct an already submitted attendance record.</p>
             <input type="hidden" id="editAttRowIndex">
-            <input type="hidden" id="editAttTargetUser">
             <div class="grid grid-cols-2 gap-4">
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">In Time</label><input type="text" id="editAttIn" class="w-full border p-3 rounded-lg" placeholder="09:30 AM"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Out Time</label><input type="text" id="editAttOut" class="w-full border p-3 rounded-lg" placeholder="07:00 PM"></div>
@@ -446,10 +460,6 @@
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fab fa-whatsapp text-[#25D366]"></i> WhatsApp Report</h3>
             <p id="whatsappReportHint" class="text-sm text-gray-500 mb-5">Report will be copied for sharing. If a group is assigned, it will open automatically.</p>
             <div class="space-y-4">
-                <div id="whatsappEmployeeBox" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Employee:</label>
-                    <select id="whatsappEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none" onchange="generateWhatsAppReportPreview()"></select>
-                </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Report Type:</label>
                     <select id="whatsappReportType" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none" onchange="toggleWhatsAppReportInputs()">
@@ -474,56 +484,38 @@
         </div>
     </div>
 
-    <!-- TASK REPORT MODAL -->
-    <div id="taskReportModal" class="modal">
-        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
-            <span onclick="closeTaskReportModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
-                <div>
-                    <h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-list-check text-[#259b94]"></i> Task Report</h2>
-                    <p class="text-sm text-gray-500 mt-1">On-time, delayed and pending task performance.</p>
-                </div>
-                <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg font-bold text-sm"><i class="fab fa-whatsapp"></i> Share</button>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
-                <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL</div><div id="trTotal" class="text-2xl font-extrabold">0</div></div>
-                <div class="modern-card p-4"><div class="text-xs font-bold text-green-600">ON TIME / EARLY</div><div id="trOnTime" class="text-2xl font-extrabold text-green-600">0</div></div>
-                <div class="modern-card p-4"><div class="text-xs font-bold text-red-600">DELAYED</div><div id="trDelayed" class="text-2xl font-extrabold text-red-600">0</div></div>
-                <div class="modern-card p-4"><div class="text-xs font-bold text-orange-600">PENDING</div><div id="trPending" class="text-2xl font-extrabold text-orange-600">0</div></div>
-                <div class="modern-card p-4"><div class="text-xs font-bold text-[#259b94]">DELAY DAYS</div><div id="trDelayDays" class="text-2xl font-extrabold text-red-600">0</div></div>
-            </div>
-            <div class="overflow-x-auto border rounded-lg">
-                <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead><tr class="bg-[#f0f7f7] text-[#4b6d70] uppercase text-xs font-bold"><th class="p-3">Task</th><th class="p-3">Timeline</th><th class="p-3">Priority</th><th class="p-3">Time</th><th class="p-3">Status</th><th class="p-3">Deadline</th></tr></thead>
-                    <tbody id="taskReportBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- PROGRESS CHART MODAL -->
+    <!-- ANALYSATION MODAL -->
     <div id="analysationModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeAnalysationModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <h2 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-chart-line text-orange-500"></i> Progress Chart</h2>
-            <p class="text-sm text-gray-500 mb-5">Attendance + Task performance with adjustable weightage.</p>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 border rounded-lg mb-5">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressEmpFilter" class="w-full border p-2 rounded-lg"></select></div>
-                <div class="flex items-end"><button onclick="renderProgressChart()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-2 rounded-lg">Apply</button></div>
+            <h2 class="text-2xl font-normal text-gray-800 mb-1">Employee overall performance status score card</h2>
+            <div class="w-full mt-4">
+                <div class="perf-subheader rounded-t-lg">Employee performance card</div>
+                <div class="grid grid-cols-2">
+                    <div class="perf-header border-r border-[#3e6a6e] bg-[#2a4d53]">Performance score</div>
+                    <div class="perf-header bg-[#2a4d53]">Departmental performance score</div>
+                    <div class="text-center py-4 text-3xl font-bold border border-t-0 border-gray-300 bg-gray-50" id="indivScore">88.9</div>
+                    <div class="text-center py-4 text-3xl font-bold border border-t-0 border-l-0 border-gray-300 bg-gray-50" id="deptScore">68.5</div>
+                </div>
+                <table class="w-full perf-table mt-4 rounded-lg overflow-hidden border-collapse">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th class="text-center">Goal</th>
+                            <th class="text-center">Actual performance</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-center">Dept performance</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                        <tr><td>Downtime (Delay/Breaks)</td><td class="text-center font-semibold">9.3%</td><td class="text-center">1.5%</td><td class="text-center">200.0</td><td class="text-center">5.1%</td></tr>
+                        <tr><td>Efficiency (Task Completion)</td><td class="text-center font-semibold">88%</td><td class="text-center font-bold text-green-600" id="metricEfficiency">92.0%</td><td class="text-center">200.0</td><td class="text-center">84.2%</td></tr>
+                    </tbody>
+                </table>
+                <div class="mt-8 relative h-64 w-full">
+                    <canvas id="monthlyPerformanceChart"></canvas>
+                </div>
             </div>
-            <div id="progressWeightError" class="hidden text-red-600 text-sm font-bold mb-3">Attendance + Task weightage must equal 100%.</div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
-                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">TODAY</div><div id="gradeDaily" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreDaily" class="text-sm font-bold text-gray-500">0%</div></div>
-                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">THIS WEEK</div><div id="gradeWeekly" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreWeekly" class="text-sm font-bold text-gray-500">0%</div></div>
-                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">THIS MONTH</div><div id="gradeMonthly" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreMonthly" class="text-sm font-bold text-gray-500">0%</div></div>
-                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">WEIGHTAGE</div><div id="weightageText" class="text-xl font-extrabold">50 / 50</div><div class="text-sm font-bold text-gray-500">Attendance / Task</div></div>
-            </div>
-            <div class="overflow-x-auto border rounded-lg mb-5">
-                <table class="w-full border-collapse text-sm"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Period</th><th class="p-3">Attendance</th><th class="p-3">Tasks</th><th class="p-3">Overall</th><th class="p-3">Grade</th></tr></thead><tbody id="progressScoreBody"></tbody></table>
-            </div>
-            <div class="relative h-72 w-full"><canvas id="monthlyPerformanceChart"></canvas></div>
         </div>
     </div>
 
@@ -624,9 +616,6 @@
                 </div>
                 <button onclick="fetchOneViewData()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded shadow font-bold text-sm transition">
                     Generate Matrix
-                </button>
-                <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-5 py-2 rounded shadow font-bold text-sm transition">
-                    <i class="fab fa-whatsapp"></i> Share Report
                 </button>
                 <span id="oneViewLoading" class="hidden text-sm text-teal-600 italic ml-4 font-semibold animate-pulse">Loading matrix data...</span>
             </div>
@@ -1023,20 +1012,17 @@
             const assignSelect = document.getElementById('newTaskUser');
             const filterSelect = document.getElementById('hodEmpFilter');
             const emailEmpSelect = document.getElementById('emailEmpSelect');
-            const whatsappEmpSelect = document.getElementById('whatsappEmpSelect');
             
             let currentFilter = filterSelect.value;
 
             assignSelect.innerHTML = '';
             filterSelect.innerHTML = '<option value="All">All Employees</option>';
             emailEmpSelect.innerHTML = '';
-            if(whatsappEmpSelect) whatsappEmpSelect.innerHTML = '';
             
             members.forEach(m => {
                 assignSelect.innerHTML += `<option value="${m}">${m}</option>`;
                 filterSelect.innerHTML += `<option value="${m}">${m}</option>`;
                 emailEmpSelect.innerHTML += `<option value="${m}">${m}</option>`;
-                if(whatsappEmpSelect) whatsappEmpSelect.innerHTML += `<option value="${m}">${m}</option>`;
             });
 
             if(members.includes(currentFilter)) filterSelect.value = currentFilter;
@@ -1110,7 +1096,7 @@
             if (diffDays < 0) {
                 return `<span class="text-red-600 font-bold px-2 py-1 rounded-md bg-red-50 text-xs">${diffDays} Days (Delayed)</span>`;
             } else if (diffDays === 0) {
-                return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">0 Days (On Time)</span>`;
+                return `<span class="text-yellow-600 font-bold px-2 py-1 rounded-md bg-yellow-50 text-xs">0 Days (Due Today)</span>`;
             } else {
                 return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">+${diffDays} Days Left</span>`;
             }
@@ -1141,8 +1127,7 @@
             
             if(tasksToRender.length > 0) {
                 let eff = Math.round((compCount / tasksToRender.length) * 100);
-                const metricEfficiencyEl = document.getElementById('metricEfficiency');
-                if (metricEfficiencyEl) metricEfficiencyEl.innerText = `${eff}%`;
+                document.getElementById('metricEfficiency').innerText = `${eff}%`;
             }
 
             if (tasksToRender.length === 0) {
@@ -1178,7 +1163,7 @@
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value, ${JSON.stringify(task.assignedTo)})" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${hodLocked}>
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${hodLocked}>
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
@@ -1186,13 +1171,13 @@
                     } 
                     else if (isAdmin) { 
                         empStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value, ${JSON.stringify(task.assignedTo)})" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
                                 <option value="Incomplete" ${task.empStatus === 'Incomplete' ? 'selected' : ''}>Incomplete</option>
                             </select>`;
                         hodStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value, ${JSON.stringify(task.assignedTo)})" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
+                            <select onchange="updateTaskDB(${task.rowIndex}, 'hod', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.hodStatus === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Approved" ${task.hodStatus === 'Approved' ? 'selected' : ''}>Approve</option>
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
@@ -1240,7 +1225,7 @@
                 let reqLocked = (status === 'Approved' && !isAdmin) ? 'disabled' : '';
 
                 if (isHOD && (status === 'Pending' || leave !== '-')) {
-                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value, ${JSON.stringify(r.user)})" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
+                    stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
                                     <option value="Pending" ${status==='Pending'?'selected':''}>Pending Req</option>
                                     <option value="Approved" ${status==='Approved'?'selected':''}>Approve</option>
                                     <option value="Rejected" ${status==='Rejected'?'selected':''}>Reject</option>
@@ -1250,7 +1235,7 @@
                 }
 
                 if (isAdmin) {
-                    stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex}, ${JSON.stringify(r.user)})" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
+                    stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex})" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
                 }
 
                 let rowBg = (isHOD && status === 'Pending') ? "bg-[#fffbeb]" : "hover:bg-gray-50";
@@ -1270,11 +1255,10 @@
             });
         }
 
-        function updateTaskDB(rIdx, type, val, targetUser) {
+        function updateTaskDB(rIdx, type, val) {
             const formData = new FormData();
             formData.append('action', 'updateTaskStatus');
             formData.append('rowIndex', rIdx);
-            if(targetUser) formData.append('targetUser', targetUser);
             formData.append('type', type);
             formData.append('status', val);
             formData.append('sessionToken', sessionToken);
@@ -1288,11 +1272,10 @@
             .catch(() => alert('Update failed. Please try again.'));
         }
 
-        function updateAttStatus(rIdx, val, targetUser) {
+        function updateAttStatus(rIdx, val) {
             const formData = new FormData();
             formData.append('action', 'updateAttStatus');
             formData.append('rowIndex', rIdx);
-            if(targetUser) formData.append('targetUser', targetUser);
             formData.append('status', val);
             formData.append('sessionToken', sessionToken);
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
@@ -1311,8 +1294,8 @@
             return s.startsWith("'") ? s.substring(1) : s;
         }
 
-        function openAttendanceEditModal(rowIndex, targetUser) {
-            const teamRow = (globalTeamAttendance || []).find(r => Number(r.rowIndex) === Number(rowIndex) && (!targetUser || String(r.user).toLowerCase() === String(targetUser).toLowerCase()));
+        function openAttendanceEditModal(rowIndex) {
+            const teamRow = (globalTeamAttendance || []).find(r => Number(r.rowIndex) === Number(rowIndex));
             let data = null;
             if(teamRow) {
                 data = (globalMonthlyFullAttendance || []).find(a =>
@@ -1322,7 +1305,6 @@
             }
 
             document.getElementById('editAttRowIndex').value = rowIndex;
-            document.getElementById('editAttTargetUser').value = targetUser || (teamRow ? teamRow.user : '');
             document.getElementById('editAttIn').value = data ? cleanDisplayValue(data.InTime) : cleanDisplayValue(teamRow?.inTime);
             document.getElementById('editAttOut').value = data ? cleanDisplayValue(data.OutTime) : cleanDisplayValue(teamRow?.outTime);
             document.getElementById('editAttBreakStart').value = data ? cleanDisplayValue(data.BreakStarts) : '';
@@ -1339,7 +1321,6 @@
             const fd = new FormData();
             fd.append('action','updateAttendanceRecord');
             fd.append('rowIndex',document.getElementById('editAttRowIndex').value);
-            fd.append('targetUser',document.getElementById('editAttTargetUser').value);
             fd.append('inTime',document.getElementById('editAttIn').value);
             fd.append('outTime',document.getElementById('editAttOut').value);
             fd.append('breakStart',document.getElementById('editAttBreakStart').value);
@@ -1539,30 +1520,27 @@
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
 
-            const aw = Number(localStorage.getItem('zim_att_weight') || 50);
-            const tw = Number(localStorage.getItem('zim_task_weight') || 50);
-            let finalScore = Math.round((taskPerc * aw + attPerc * tw) / 100);
+            let finalScore = Math.round((taskPerc * 0.5) + (attPerc * 0.5));
             if(tasks.length === 0) finalScore = attPerc; 
             
             let grade = "D";
             let color = "text-red-500";
-            if (finalScore >= 90) { grade = "A"; color = "text-emerald-600"; }
-            else if (finalScore >= 80) { grade = "B"; color = "text-blue-600"; }
-            else if (finalScore >= 70) { grade = "C"; color = "text-amber-600"; }
-            else { grade = "D"; color = "text-red-600"; }
+            if (finalScore >= 90) { grade = "A"; color = "text-[#10b981]"; }
+            else if (finalScore >= 80) { grade = "B"; color = "text-[#259b94]"; }
+            else if (finalScore >= 70) { grade = "C"; color = "text-[#f59e0b]"; }
 
             const mg = document.getElementById('monthlyGrade');
-            mg.innerText = `${grade} (${grade === 'A' ? 'Mumtaz' : grade === 'B' ? 'Behtar' : grade === 'C' ? 'Munasib' : 'Kamzor'})`;
-            mg.className = `text-3xl font-extrabold leading-tight break-words whitespace-normal overflow-hidden max-w-full px-1 ${color}`;
+            mg.innerText = grade;
+            mg.className = `text-5xl font-extrabold ${color}`;
             const monthlyPercEl = document.getElementById('monthlyPerc');
             if(monthlyPercEl) monthlyPercEl.innerText = `${finalScore}% Overall`;
             
             document.getElementById('taskPercText').innerText = `${taskPerc}%`;
             document.getElementById('attPercText').innerText = `${attPerc}%`;
             
-            const indivScoreEl = document.getElementById('indivScore'); if (indivScoreEl) indivScoreEl.innerText = finalScore.toFixed(1);
-            const deptScoreEl = document.getElementById('deptScore'); if (deptScoreEl) deptScoreEl.innerText = (finalScore * 0.85).toFixed(1); 
-            const metricEfficiencyEl = document.getElementById('metricEfficiency'); if (metricEfficiencyEl) metricEfficiencyEl.innerText = `${taskPerc}%`;
+            document.getElementById('indivScore').innerText = finalScore.toFixed(1);
+            document.getElementById('deptScore').innerText = (finalScore * 0.85).toFixed(1); 
+            document.getElementById('metricEfficiency').innerText = `${taskPerc}%`;
         }
 
         // ================= EXCEL EXPORT (SHEETJS) =================
@@ -1640,8 +1618,7 @@
             // 4. Performance Report
             let username = document.getElementById('displayUser').innerText;
             let grade = document.getElementById('monthlyGrade').innerText;
-            const overallEl = document.getElementById('indivScore');
-            let overall = overallEl ? overallEl.innerText : '-';
+            let overall = document.getElementById('indivScore').innerText;
             let totalTime = (globalWorkLogs || []).reduce((sum,w) => sum + (Number(w.TimeSpentMins) || 0), 0);
             let summaryData = [
                 {"Metric": "Employee", "Value": username},
@@ -1687,12 +1664,6 @@
             const now = new Date();
             document.getElementById('whatsappReportDate').value = now.toISOString().split('T')[0];
             document.getElementById('whatsappReportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-            const role = document.getElementById('displayRole').innerText;
-            const isManager = role.indexOf('hod') > -1 || role.indexOf('admin') > -1;
-            const empBox = document.getElementById('whatsappEmployeeBox');
-            const empSelect = document.getElementById('whatsappEmpSelect');
-            if(empBox) empBox.classList.toggle('hidden', !isManager);
-            if(isManager && empSelect) { const f=document.getElementById('hodEmpFilter').value; if(f && f!=='All') empSelect.value=f; }
             const hint = document.getElementById('whatsappReportHint');
             if (hint) hint.innerText = whatsappGroupLink
                 ? 'Assigned WhatsApp group will open automatically after the report is copied.'
@@ -1714,38 +1685,201 @@
             return h > 0 ? `${h}h ${m}m (${mins} min)` : `${mins} min`;
         }
 
+        // Format Google Sheets time/date values safely for WhatsApp.
+        // Handles normal strings, Date objects, ISO dates such as 1899-12-30T13:53:50.000Z,
+        // numeric spreadsheet time fractions, and multiple values separated by |.
+        function formatWhatsAppTime(value) {
+            if (value === null || value === undefined || value === '') return '-';
+            if (Array.isArray(value)) return value.map(formatWhatsAppTime).join(' | ');
+            const raw = String(value).trim();
+            if (!raw) return '-';
+            if (raw.includes('|')) return raw.split('|').map(v => formatWhatsAppTime(v)).join(' | ');
+
+            // ISO DateTime returned by Apps Script JSON serialization.
+            const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?Z$/);
+            if (iso) {
+                let h = Number(iso[4]);
+                const m = Number(iso[5]);
+                const ap = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+            }
+
+            // Numeric spreadsheet time fraction (e.g. 0.578 = 13:52 approx).
+            if (/^\d*\.\d+$/.test(raw)) {
+                const n = Number(raw);
+                if (n >= 0 && n < 1) {
+                    const total = Math.round(n * 24 * 60);
+                    const h24 = Math.floor(total / 60) % 24;
+                    const min = total % 60;
+                    const ap = h24 >= 12 ? 'PM' : 'AM';
+                    const h12 = h24 % 12 || 12;
+                    return `${String(h12).padStart(2,'0')}:${String(min).padStart(2,'0')} ${ap}`;
+                }
+            }
+
+            // Existing readable time such as 13:53:50, 13:53, 1:53 PM.
+            const tm = raw.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+            if (tm) {
+                let h = Number(tm[1]);
+                const min = Number(tm[2]);
+                const apRaw = (tm[3] || '').toUpperCase();
+                if (apRaw === 'PM' && h < 12) h += 12;
+                if (apRaw === 'AM' && h === 12) h = 0;
+                if (!apRaw && h <= 23) {
+                    const ap = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h % 12 || 12;
+                    return `${String(h12).padStart(2,'0')}:${String(min).padStart(2,'0')} ${ap}`;
+                }
+                if (apRaw) {
+                    const h12 = h % 12 || 12;
+                    return `${String(h12).padStart(2,'0')}:${String(min).padStart(2,'0')} ${apRaw}`;
+                }
+            }
+            return raw;
+        }
+
         function generateWhatsAppReportPreview() {
             const type = document.getElementById('whatsappReportType').value;
-            const role = document.getElementById('displayRole').innerText;
-            const isManager = role.indexOf('hod') > -1 || role.indexOf('admin') > -1;
-            const selectedEmp = isManager && document.getElementById('whatsappEmpSelect') ? document.getElementById('whatsappEmpSelect').value : document.getElementById('displayUser').innerText;
-            const user = selectedEmp || document.getElementById('displayUser').innerText || '-';
-            const dept = document.getElementById('displayDept').innerText || '-';
-            const grade = document.getElementById('monthlyGrade').innerText || '-';
+            const userEl = document.getElementById('displayUser');
+            const deptEl = document.getElementById('displayDept');
+            const gradeEl = document.getElementById('monthlyGrade');
+            const user = userEl ? userEl.innerText.trim() : '-';
+            const dept = deptEl ? deptEl.innerText.trim() : '-';
+            const grade = gradeEl ? gradeEl.innerText.trim() : '-';
             const line = '━━━━━━━━━━━━━━━━━━━━';
-            let text = `📊 ZIMMEDAR OFFICE REPORT\n${line}\n\n👤 Employee: ${user}\n🏢 Dept: ${dept}\n🏆 Monthly Grade: ${grade}\n\n`;
-            if(type === 'daily') {
-                const raw=document.getElementById('whatsappReportDate').value; const p=raw?raw.split('-'):[]; const dateKey=p.length===3?`${p[2]}-${p[1]}-${p[0]}`:'-';
-                text += `📅 Date: ${dateKey}\n\n🕘 ATTENDANCE\n`;
-                const att=(globalMonthlyFullAttendance||[]).find(a=>String(a.Date)===dateKey&&String(a.Employee||'').toLowerCase()===user.toLowerCase());
-                text += `• In Time: ${att&&att.InTime?att.InTime:'-'}\n• Out Time: ${att&&att.OutTime?att.OutTime:'-'}\n• Break Start: ${att&&att.BreakStarts?att.BreakStarts:'-'}\n• Break End: ${att&&att.BreakEnds?att.BreakEnds:'-'}\n• Leave/Weekoff: ${att&&att.Leave?att.Leave:'-'}\n• Reason: ${att&&att.Reason?att.Reason:'-'}\n\n`;
-                const tasks=(globalAllTasks||[]).filter(t=>String(t.assignedTo||'').toLowerCase()===String(user).toLowerCase()&&(()=>{const sd=parseReportDate(t.startDate),ed=parseReportDate(t.endDate),d=parseReportDate(dateKey);return sd&&ed&&d&&d>=sd&&d<=ed;})());
+            let text = `📊 ZIMMEDAR OFFICE REPORT\n${line}\n\n`;
+            text += `👤 Employee: ${user || '-'}\n`;
+            text += `🏢 Dept: ${dept || '-'}\n`;
+            text += `🏆 Monthly Grade: ${grade || '-'}\n\n`;
+
+            if (type === 'daily') {
+                const dateVal = document.getElementById('whatsappReportDate').value;
+                const p = dateVal ? dateVal.split('-') : [];
+                const key = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+                text += `📅 Date: ${key || '-'}\n\n`;
+
+                const att = (globalMonthlyFullAttendance || []).find(a =>
+                    (a.Date || '') === key &&
+                    (a.Employee || '').toString().toLowerCase() === user.toLowerCase()
+                );
+
+                text += `🕘 ATTENDANCE\n`;
+                if (att) {
+                    text += `• In Time: ${formatWhatsAppTime(att.InTime)}\n`;
+                    text += `• Out Time: ${formatWhatsAppTime(att.OutTime)}\n`;
+                    text += `• Break Start: ${formatWhatsAppTime(att.BreakStarts)}\n`;
+                    text += `• Break End: ${formatWhatsAppTime(att.BreakEnds)}\n`;
+                    text += `• Leave/Weekoff: ${att.Leave || '-'}\n`;
+                    text += `• Reason: ${att.Reason || '-'}\n\n`;
+                } else {
+                    text += `• In Time: -\n• Out Time: -\n• Break Start: -\n• Break End: -\n• Leave/Weekoff: -\n• Reason: -\n\n`;
+                }
+
+                // Daily report must contain only the tasks actually worked on/submitted on the selected date.
+                const logs = (globalWorkLogs || []).filter(w =>
+                    (w.WorkDate || '') === key &&
+                    (w.Employee || '').toString().toLowerCase() === user.toLowerCase()
+                );
+                const taskRows = [];
+                logs.forEach(w => {
+                    const row = Number(w.TaskRowIndex);
+                    const t = (globalAllTasks || []).find(x => Number(x.rowIndex) === row);
+                    taskRows.push({
+                        task: t || { taskName: w.Task || '-', empStatus: 'Completed', priority: 'Normal', endDate: '', completedAt: '' },
+                        mins: Number(w.TimeSpentMins) || 0
+                    });
+                });
+
+                // Also include a task completed on the selected date if no work-log row exists for it.
+                if (!taskRows.length) {
+                    (globalAllTasks || []).forEach(t => {
+                        if ((t.completedAt || '') === key) taskRows.push({task:t, mins:Number(t.timeSpent)||0});
+                    });
+                }
+
                 text += `📌 TASKS\n`;
-                if(tasks.length){tasks.forEach((t,i)=>{const info=taskDeadlineInfo(t);text+=`${i+1}. ${t.taskName||'-'}\n   • Status: ${String(t.empStatus||'').toLowerCase()==='completed'?'✅ Completed':'⏳ Pending'}\n   • Priority: ${t.priority||'Normal'}\n   • Time: ${t.timeSpent||0} mins\n   • Deadline: ${info.label}\n\n`;});} else text += `No assigned task for this date.\n\n`;
-                const logs=(globalWorkLogs||[]).filter(w=>String(w.WorkDate||'')===dateKey&&(String(w.Employee||'').toLowerCase()===user.toLowerCase()||!w.Employee)); let total=0;
-                text += `📝 WORK DETAILS\n`; if(logs.length){logs.forEach((w,i)=>{const mins=Number(w.TimeSpentMins)||0;total+=mins;text+=`${i+1}. ${w.Task||'-'} — ${formatMinsForReport(mins)}\n   ↳ ${w.Description||'No description'}\n\n`;});}else text+=`No work log submitted.\n\n`;
+                if (taskRows.length) {
+                    taskRows.forEach((item, i) => {
+                        const t = item.task;
+                        text += `${i + 1}. ${t.taskName || '-'}\n`;
+                        text += `   • Status: ${(t.empStatus || 'Pending').toLowerCase() === 'completed' ? '✅ Completed' : '⏳ Pending'}\n`;
+                        text += `   • Priority: ${t.priority || 'Normal'}\n`;
+                        text += `   • Time: ${formatMinsForReport(item.mins)}\n`;
+                        text += `   • Deadline: ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\n\n`;
+                    });
+                } else {
+                    text += `No task/work submitted for this date.\n\n`;
+                }
+
+                let total = 0;
+                text += `📝 WORK DETAILS\n`;
+                if (logs.length) {
+                    logs.forEach((w, i) => {
+                        const mins = Number(w.TimeSpentMins) || 0;
+                        total += mins;
+                        text += `${i + 1}. ${w.Task || '-'} — ${formatMinsForReport(mins)}\n`;
+                        text += `   ↳ ${w.Description || 'No description'}\n\n`;
+                    });
+                } else {
+                    text += `No work log submitted.\n\n`;
+                }
                 text += `⏱️ Total Work Time: ${formatMinsForReport(total)}\n`;
             } else {
-                const raw=document.getElementById('whatsappReportMonth').value; const p=raw?raw.split('-'):[]; const key=p.length===2?`${p[1]}-${p[0]}`:'';
-                text += `📅 Month: ${key||'-'}\n\n🕘 ATTENDANCE SUMMARY\n`;
-                const rows=(globalMonthlyFullAttendance||[]).filter(a=>{const d=String(a.Date||'').split('-');return d.length===3&&`${d[1]}-${d[2]}`===key&&String(a.Employee||'').toLowerCase()===user.toLowerCase();}); let present=0,leave=0,weekoff=0,absent=0;rows.forEach(a=>{const l=String(a.Leave||'').toLowerCase();if(a.InTime)present++;else if(l.includes('leave'))leave++;else if(l.includes('weekoff'))weekoff++;else absent++;});
-                text += `• Present: ${present}\n• Absent: ${absent}\n• Leave: ${leave}\n• Weekoff: ${weekoff}\n\n📌 TASKS\n`;
-                const tasks=(globalAllTasks||[]).filter(t=>String(t.assignedTo||'').toLowerCase()===String(user).toLowerCase()),completed=tasks.filter(t=>String(t.empStatus||'').toLowerCase()==='completed').length; text+=`• Assigned: ${tasks.length}\n• Completed: ${completed}\n• Pending: ${tasks.length-completed}\n\n`;
-                tasks.forEach((t,i)=>{const info=taskDeadlineInfo(t);text+=`${i+1}. ${t.taskName||'-'}\n   • Status: ${String(t.empStatus||'').toLowerCase()==='completed'?'✅ Completed':'⏳ Pending'}\n   • Priority: ${t.priority||'Normal'}\n   • Time: ${t.timeSpent||0} mins\n   • Deadline: ${info.label}\n\n`;});
-                const logs=(globalWorkLogs||[]).filter(w=>{const d=String(w.WorkDate||'').split('-');return d.length===3&&`${d[1]}-${d[2]}`===key&&(String(w.Employee||'').toLowerCase()===user.toLowerCase()||!w.Employee);});let total=0;text+=`📝 WORK DETAILS\n`;if(logs.length){logs.forEach((w,i)=>{const mins=Number(w.TimeSpentMins)||0;total+=mins;text+=`${i+1}. ${w.WorkDate||'-'} | ${w.Task||'-'} — ${formatMinsForReport(mins)}\n   ↳ ${w.Description||'No description'}\n\n`;});}else text+=`No work logs found.\n\n`;text+=`⏱️ Total Work Time: ${formatMinsForReport(total)}\n`;
+                const monthVal = document.getElementById('whatsappReportMonth').value;
+                const p = monthVal ? monthVal.split('-') : [];
+                const key = p.length === 2 ? `${p[1]}-${p[0]}` : '';
+                text += `📅 Month: ${key || '-'}\n\n`;
+
+                const attRows = (globalMonthlyFullAttendance || []).filter(a => {
+                    const d = (a.Date || '').split('-');
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key &&
+                        (a.Employee || '').toString().toLowerCase() === user.toLowerCase();
+                });
+                let present = 0, leave = 0, weekoff = 0, absent = 0;
+                attRows.forEach(a => {
+                    const l = (a.Leave || '').toString().toLowerCase();
+                    if (a.InTime) present++;
+                    else if (l.includes('leave')) leave++;
+                    else if (l.includes('weekoff')) weekoff++;
+                    else absent++;
+                });
+                text += `🕘 ATTENDANCE SUMMARY\n• Present: ${present}\n• Absent: ${absent}\n• Leave: ${leave}\n• Weekoff: ${weekoff}\n\n`;
+
+                const tasks = globalAllTasks || [];
+                const completed = tasks.filter(t => (t.empStatus || '').toLowerCase() === 'completed').length;
+                text += `📌 TASK SUMMARY\n• Assigned: ${tasks.length}\n• Completed: ${completed}\n• Pending: ${tasks.length - completed}\n\n`;
+                tasks.forEach((t, i) => {
+                    text += `${i + 1}. ${t.taskName || '-'}\n`;
+                    text += `   • Status: ${(t.empStatus || 'Pending').toLowerCase() === 'completed' ? '✅ Completed' : '⏳ Pending'}\n`;
+                    text += `   • Priority: ${t.priority || 'Normal'}\n`;
+                    text += `   • Time: ${formatMinsForReport(Number(t.timeSpent) || 0)}\n`;
+                    text += `   • Deadline: ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\n\n`;
+                });
+
+                const logs = (globalWorkLogs || []).filter(w => {
+                    const d = (w.WorkDate || '').split('-');
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key &&
+                        (w.Employee || '').toString().toLowerCase() === user.toLowerCase();
+                });
+                let total = 0;
+                text += `📝 WORK DETAILS\n`;
+                if (logs.length) {
+                    logs.forEach((w, i) => {
+                        const mins = Number(w.TimeSpentMins) || 0;
+                        total += mins;
+                        text += `${i + 1}. ${w.WorkDate || '-'} | ${w.Task || '-'} — ${formatMinsForReport(mins)}\n`;
+                        text += `   ↳ ${w.Description || 'No description'}\n\n`;
+                    });
+                } else {
+                    text += `No work logs found.\n\n`;
+                }
+                text += `⏱️ Total Work Time: ${formatMinsForReport(total)}\n`;
             }
+
             text += `\n${line}\n📌 Zimmedar Office ERP\n🕒 Generated: ${new Date().toLocaleString()}`;
-            document.getElementById('whatsappReportPreview').value = text;
+            const preview = document.getElementById('whatsappReportPreview');
+            if (preview) preview.value = text;
         }
 
         document.addEventListener('change', function(e) {
@@ -1777,88 +1911,47 @@
             }
         }
 
-        // ================= TASK REPORT =================
-        function openTaskReportModal() {
-            document.getElementById('taskReportModal').style.display = 'block';
-            renderTaskReport(getReportTasks());
+        // ================= ANALYSATION MODAL =================
+        function openAnalysationModal() {
+            document.getElementById('analysationModal').style.display = 'block';
+            renderMonthlyChart();
         }
-        function closeTaskReportModal() { document.getElementById('taskReportModal').style.display = 'none'; }
-        function getReportTasks() {
-            const role = document.getElementById('displayRole').innerText;
-            const isManager = role.indexOf('hod') > -1 || role.indexOf('admin') > -1;
-            if(!isManager) return globalAllTasks || [];
-            const filter = document.getElementById('hodEmpFilter').value;
-            return filter && filter !== 'All' ? (globalAllTasks || []).filter(t => String(t.assignedTo).toLowerCase() === String(filter).toLowerCase()) : (globalAllTasks || []);
-        }
-        function parseReportDate(s) {
-            if(!s || s === '-') return null;
-            const p=String(s).split('-');
-            if(p.length!==3) return null;
-            const d=new Date(Number(p[2]),Number(p[1])-1,Number(p[0])); d.setHours(0,0,0,0); return d;
-        }
-        function taskDeadlineInfo(t) {
-            const due=parseReportDate(t.endDate); if(!due) return {label:'-',className:'text-gray-500'};
-            if(String(t.empStatus||'').toLowerCase()==='completed') {
-                const done=parseReportDate(t.completedAt);
-                if(done){ const n=Math.round((due-done)/86400000); if(n<0)return {label:`${n} Days (Delayed)`,className:'text-red-600'}; if(n===0)return {label:'0 Days (On Time)',className:'text-green-600'}; return {label:`+${n} Days (Early)`,className:'text-green-600'}; }
-                return {label:'Done',className:'text-green-600'};
-            }
-            const today=new Date(); today.setHours(0,0,0,0); const n=Math.round((due-today)/86400000);
-            if(n<0)return {label:`${n} Days (Delayed)`,className:'text-red-600'};
-            if(n===0)return {label:'0 Days (Due Today)',className:'text-green-600'};
-            return {label:`+${n} Days Left`,className:'text-green-600'};
-        }
-        function renderTaskReport(tasks) {
-            let on=0, delayed=0, pending=0, delayDays=0;
-            tasks.forEach(t=>{const info=taskDeadlineInfo(t); if(String(t.empStatus).toLowerCase()==='completed' && info.label.indexOf('Delayed')>-1){delayed++;delayDays+=Math.abs(parseInt(info.label)||0);} else if(info.label.indexOf('Delayed')>-1){delayed++;delayDays+=Math.abs(parseInt(info.label)||0);} else if(String(t.empStatus).toLowerCase()!=='completed') pending++; else on++;});
-            document.getElementById('trTotal').innerText=tasks.length;
-            document.getElementById('trOnTime').innerText=on;
-            document.getElementById('trDelayed').innerText=delayed;
-            document.getElementById('trPending').innerText=pending;
-            document.getElementById('trDelayDays').innerText=delayDays;
-            const body=document.getElementById('taskReportBody'); body.innerHTML='';
-            if(!tasks.length){body.innerHTML='<tr><td colspan="6" class="p-8 text-center text-gray-500 italic">No task data available.</td></tr>';return;}
-            tasks.forEach(t=>{const info=taskDeadlineInfo(t);const status=String(t.empStatus||'').toLowerCase()==='completed'?'✅ Completed':'⏳ Pending';body.innerHTML+=`<tr class="border-t hover:bg-gray-50"><td class="p-3 font-bold">${t.taskName||'-'}${((document.getElementById('displayRole').innerText.indexOf('hod')>-1)||(document.getElementById('displayRole').innerText.indexOf('admin')>-1))?`<br><span class="text-xs text-[#259b94]">${t.assignedTo||''}</span>`:''}</td><td class="p-3 text-xs">${t.startDate||'-'}<br>to<br>${t.endDate||'-'}</td><td class="p-3 font-bold">${t.priority||'Normal'}</td><td class="p-3 font-bold">${t.timeSpent||0} mins</td><td class="p-3">${status}</td><td class="p-3 font-bold ${info.className}">${info.label}</td></tr>`;});
-        }
-
-        // ================= PROGRESS CHART =================
-        function openProgressChartModal() {
-            document.getElementById('analysationModal').style.display='block';
-            const role=document.getElementById('displayRole').innerText, isManager=role.indexOf('hod')>-1||role.indexOf('admin')>-1;
-            const sel=document.getElementById('progressEmpFilter');
-            sel.innerHTML='';
-            if(isManager){(globalTeamMembers||[]).forEach(m=>sel.innerHTML+=`<option value="${m}">${m}</option>`); const f=document.getElementById('hodEmpFilter').value; if(f&&f!=='All')sel.value=f;} else {sel.innerHTML=`<option value="${document.getElementById('displayUser').innerText}">${document.getElementById('displayUser').innerText}</option>`;}
-            const aw=localStorage.getItem('zim_att_weight'); const tw=localStorage.getItem('zim_task_weight');
-            document.getElementById('attendanceWeightage').value=aw||50; document.getElementById('taskWeightage').value=tw||50;
-            renderProgressChart();
-        }
-        function closeAnalysationModal(){document.getElementById('analysationModal').style.display='none';}
-        function applyGradeColor(el, grade){ if(!el) return; el.classList.remove('text-emerald-600','text-blue-600','text-amber-600','text-red-600','text-[#10b981]','text-[#259b94]','text-[#f59e0b]','text-red-500'); const colors={A:'text-emerald-600',B:'text-blue-600',C:'text-amber-600',D:'text-red-600'}; el.classList.add(colors[grade] || colors.D); }
-         function getGrade(score){score=Math.max(0,Math.min(100,Math.round(score||0)));if(score>=90)return ['A','Mumtaz'];if(score>=80)return ['B','Behtar'];if(score>=70)return ['C','Munasib'];return ['D','Kamzor'];}
-        function getTaskScore(tasks, date) {
-            const active=tasks.filter(t=>{const s=parseReportDate(t.startDate),e=parseReportDate(t.endDate);return s&&e&&date>=s&&date<=e;});
-            if(!active.length)return null;
-            let total=0;
-            active.forEach(t=>{const st=String(t.empStatus||'').toLowerCase();if(st==='completed'){const info=taskDeadlineInfo(t);total+=info.label.indexOf('Delayed')>-1?50:100;}});
-            return total/active.length;
-        }
-        function getAttendanceScore(date, records) {
-            const key=String(date.getDate()).padStart(2,'0')+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+date.getFullYear();
-            const r=(records||[]).find(a=>String(a.Date)===key); if(!r)return 0;
-            const leave=String(r.Leave||'').toLowerCase(); if(leave.includes('weekoff')||leave.includes('leave'))return null; return r.InTime?100:0;
-        }
-        function periodScore(tasks, records, start, end, aw, tw) {
-            let a=[],t=[]; for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){const as=getAttendanceScore(d,records);if(as!==null)a.push(as);const ts=getTaskScore(tasks,d);if(ts!==null)t.push(ts);} const att=a.length?a.reduce((x,y)=>x+y,0)/a.length:null, task=t.length?t.reduce((x,y)=>x+y,0)/t.length:null; let overall=0; if(att!==null&&task!==null) overall=(att*aw+task*tw)/100; else if(att!==null) overall=att; else if(task!==null) overall=task; return {att:att===null?0:att,task:task===null?0:task,overall};
-        }
-        function renderProgressChart(){
-            const aw=Number(document.getElementById('attendanceWeightage').value),tw=Number(document.getElementById('taskWeightage').value),err=document.getElementById('progressWeightError');
-            if(!Number.isFinite(aw)||!Number.isFinite(tw)||aw<0||tw<0||aw+tw!==100){err.classList.remove('hidden');return;}err.classList.add('hidden');localStorage.setItem('zim_att_weight',aw);localStorage.setItem('zim_task_weight',tw);document.getElementById('weightageText').innerText=`${aw} / ${tw}`;
-            const selected=document.getElementById('progressEmpFilter').value, tasks=(globalAllTasks||[]).filter(t=>!selected||String(t.assignedTo).toLowerCase()===String(selected).toLowerCase()), records=(globalMonthlyFullAttendance||[]).filter(a=>!selected||String(a.Employee).toLowerCase()===String(selected).toLowerCase());
-            const now=new Date();now.setHours(0,0,0,0);const dayStart=new Date(now),weekStart=new Date(now);weekStart.setDate(weekStart.getDate()-6);const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
-            const day=periodScore(tasks,records,dayStart,now,aw/100,tw/100),week=periodScore(tasks,records,weekStart,now,aw/100,tw/100),month=periodScore(tasks,records,monthStart,now,aw/100,tw/100);
-            [['gradeDaily','scoreDaily',day],['gradeWeekly','scoreWeekly',week],['gradeMonthly','scoreMonthly',month]].forEach(x=>{const g=getGrade(x[2].overall);const ge=document.getElementById(x[0]);const se=document.getElementById(x[1]);if(ge){ge.innerText=`${g[0]} (${g[1]})`;applyGradeColor(ge,g[0]);}if(se)se.innerText=`${Math.round(x[2].overall)}%`;});
-            const body=document.getElementById('progressScoreBody');body.innerHTML='';[['Today',day],['This Week',week],['This Month',month]].forEach(x=>{const g=getGrade(x[1].overall);body.innerHTML+=`<tr class="border-t"><td class="p-3 font-bold">${x[0]}</td><td class="p-3 text-center">${Math.round(x[1].att)}%</td><td class="p-3 text-center">${Math.round(x[1].task)}%</td><td class="p-3 text-center font-bold">${Math.round(x[1].overall)}%</td><td class="p-3 text-center font-bold">${g[0]} (${g[1]})</td></tr>`;});
-            const ctx=document.getElementById('monthlyPerformanceChart').getContext('2d');if(monthlyChartInst)monthlyChartInst.destroy();monthlyChartInst=new Chart(ctx,{type:'bar',data:{labels:['Today','This Week','This Month'],datasets:[{label:'Overall Score',data:[day.overall,week.overall,month.overall],backgroundColor:'#2a4d53',barPercentage:.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100},x:{grid:{display:false}}}}});
+        function closeAnalysationModal() { document.getElementById('analysationModal').style.display = 'none'; }
+        function renderMonthlyChart() {
+            const ctx = document.getElementById('monthlyPerformanceChart').getContext('2d');
+            if(monthlyChartInst) monthlyChartInst.destroy();
+            const dataScores = [55.6, 60.3, 68.2, 70.0, 74.6, 80.8, 84.4, 88.5, 90.8, 77.1, 0, 0];
+            monthlyChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Monthly Performance',
+                        data: dataScores,
+                        backgroundColor: '#2a4d53', 
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 }, x: { grid: { display: false } } },
+                    animation: {
+                        onComplete: function() {
+                            var ctx = this.chart.ctx;
+                            ctx.font = "bold 11px Arial"; ctx.fillStyle = "#259b94";
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                            this.data.datasets.forEach(function(dataset, i) {
+                                var meta = this.chart.getDatasetMeta(i);
+                                meta.data.forEach(function(bar, index) {
+                                    var data = dataset.data[index];
+                                    if(data > 0) ctx.fillText(data, bar.x, bar.y - 5);
+                                });
+                            }, this);
+                        }
+                    }
+                }
+            });
         }
 
         // ================= PROGRESS CARD MODAL =================
