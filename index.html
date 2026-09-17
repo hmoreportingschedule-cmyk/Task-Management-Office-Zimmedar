@@ -185,6 +185,9 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fab fa-whatsapp"></i> WhatsApp Report
+                        </button>
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> Attendance Report
                         </button>
@@ -193,6 +196,9 @@
                         </button>
                         <button onclick="openProgressChartModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-chart-line text-orange-500"></i> Progress Chart
+                        </button>
+                        <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-file-excel"></i> Export Excel
                         </button>
                     </div>
                 </div>
@@ -1719,153 +1725,215 @@
             let s = String(value).trim();
             if (!s) return '-';
 
-            // Handle multiple stored time values.
             if (s.includes('|')) {
                 return s.split('|').map(v => formatWhatsAppTime(v)).join(' | ');
             }
 
-            // Google Sheets / Apps Script Date serialized as ISO, including 1899-12-30.
-            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) {
-                const m = s.match(/T(\d{2}):(\d{2})/);
-                if (m) {
-                    let h = Number(m[1]), min = Number(m[2]);
-                    const ap = h >= 12 ? 'PM' : 'AM';
-                    h = h % 12 || 12;
-                    return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')} ${ap}`;
-                }
+            // Google Sheets / Apps Script Date serialized value, including 1899-12-30 time-only values.
+            const iso = s.match(/^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})/);
+            if (iso) {
+                let h = Number(iso[1]), m = Number(iso[2]);
+                const ap = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
             }
 
-            // Numeric fraction of a day (Google Sheets time value).
+            // Google Sheets may return a time as fraction of a day.
             if (/^\d*\.?\d+$/.test(s)) {
                 const n = Number(s);
                 if (n >= 0 && n < 1) {
-                    let total = Math.round(n * 24 * 60) % 1440;
-                    let h = Math.floor(total / 60), min = total % 60;
+                    const total = Math.round(n * 1440) % 1440;
+                    let h = Math.floor(total / 60), m = total % 60;
                     const ap = h >= 12 ? 'PM' : 'AM';
                     h = h % 12 || 12;
-                    return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')} ${ap}`;
+                    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
                 }
             }
 
-            // Already readable 24h/12h time.
-            let m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
-            if (m) {
-                let h = Number(m[1]), min = Number(m[2]), ap = m[3] ? m[3].toUpperCase() : null;
-                if (!ap) ap = h >= 12 ? 'PM' : 'AM';
-                else if (ap === 'PM' && h < 12) h += 12;
-                else if (ap === 'AM' && h === 12) h = 0;
+            const tm = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
+            if (tm) {
+                let h = Number(tm[1]), m = Number(tm[2]);
+                const ap = tm[3] ? tm[3].toUpperCase() : (h >= 12 ? 'PM' : 'AM');
                 h = h % 12 || 12;
-                return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')} ${ap}`;
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
             }
 
             return s;
         }
 
+        function getWhatsAppDailyGrade(user, dateKey) {
+            const d = parseReportDate(dateKey);
+            if (!d) return '-';
+
+            const awRaw = Number(localStorage.getItem('zim_att_weight'));
+            const twRaw = Number(localStorage.getItem('zim_task_weight'));
+            const aw = Number.isFinite(awRaw) && Number.isFinite(twRaw) && awRaw + twRaw === 100 ? awRaw / 100 : 0.5;
+            const tw = Number.isFinite(awRaw) && Number.isFinite(twRaw) && awRaw + twRaw === 100 ? twRaw / 100 : 0.5;
+
+            const tasks = (globalAllTasks || []).filter(t =>
+                String(t.assignedTo || '').trim().toLowerCase() === String(user).trim().toLowerCase()
+            );
+            const records = (globalMonthlyFullAttendance || []).filter(a =>
+                String(a.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase()
+            );
+
+            const att = getAttendanceScore(d, records);
+            const task = getTaskScore(tasks, d);
+
+            if (att === null && task === null) return '-';
+            let score;
+            if (att !== null && task !== null) score = att * aw + task * tw;
+            else if (att !== null) score = att;
+            else score = task;
+
+            const g = getGrade(score);
+            return `${g[0]} (${g[1]})`;
+        }
+
+        function getWhatsAppMonthlyGrade(user) {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const awRaw = Number(localStorage.getItem('zim_att_weight'));
+            const twRaw = Number(localStorage.getItem('zim_task_weight'));
+            const aw = Number.isFinite(awRaw) && Number.isFinite(twRaw) && awRaw + twRaw === 100 ? awRaw / 100 : 0.5;
+            const tw = Number.isFinite(awRaw) && Number.isFinite(twRaw) && awRaw + twRaw === 100 ? twRaw / 100 : 0.5;
+
+            const tasks = (globalAllTasks || []).filter(t =>
+                String(t.assignedTo || '').trim().toLowerCase() === String(user).trim().toLowerCase()
+            );
+            const records = (globalMonthlyFullAttendance || []).filter(a =>
+                String(a.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase()
+            );
+
+            const result = periodScore(tasks, records, start, end, aw, tw);
+            const g = getGrade(result.overall);
+            return `${g[0]} (${g[1]})`;
+        }
+
         function generateWhatsAppReportPreview() {
             const type = document.getElementById('whatsappReportType').value;
-            const roleEl = document.getElementById('displayRole');
-            const isManager = roleEl && /hod|admin/i.test(roleEl.innerText || '');
+            const role = document.getElementById('displayRole').innerText.toLowerCase();
+            const isManager = role.indexOf('hod') > -1 || role.indexOf('admin') > -1;
             const empSelect = document.getElementById('whatsappEmpSelect');
-            const user = (isManager && empSelect ? empSelect.value : (document.getElementById('displayUser')?.innerText || '-')) || '-';
-            const dept = document.getElementById('displayDept')?.innerText || '-';
-            const grade = document.getElementById('monthlyGrade')?.innerText || '-';
+            const selectedEmp = isManager && empSelect ? empSelect.value : document.getElementById('displayUser').innerText;
+            const user = selectedEmp || document.getElementById('displayUser').innerText || '-';
+            const dept = document.getElementById('displayDept').innerText || '-';
             const line = '━━━━━━━━━━━━━━━━━━━━';
-            let text = `📊 ZIMMEDAR OFFICE REPORT\n${line}\n\n👤 Employee: ${user}\n🏢 Dept: ${dept}\n🏆 Monthly Grade: ${grade}\n\n`;
+
+            let text = `📊 ZIMMEDAR OFFICE REPORT\n${line}\n\n`;
+            text += `👤 Employee: ${user}\n`;
+            text += `🏢 Dept: ${dept}\n`;
 
             if (type === 'daily') {
-                const raw = document.getElementById('whatsappReportDate')?.value || '';
-                const p = raw.split('-');
+                const raw = document.getElementById('whatsappReportDate').value;
+                const p = raw ? raw.split('-') : [];
                 const dateKey = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '-';
-                text += `📅 Date: ${dateKey}\n\n🕘 ATTENDANCE\n`;
+                const dailyGrade = getWhatsAppDailyGrade(user, dateKey);
+
+                text += `🏆 Daily Grade: ${dailyGrade}\n\n`;
+                text += `📅 Date: ${dateKey}\n\n`;
 
                 const att = (globalMonthlyFullAttendance || []).find(a =>
                     String(a.Date || '') === dateKey &&
-                    String(a.Employee || '').toLowerCase() === String(user).toLowerCase()
+                    String(a.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase()
                 );
 
-                text += `• In Time: ${formatWhatsAppTime(att?.InTime)}\n`;
-                text += `• Out Time: ${formatWhatsAppTime(att?.OutTime)}\n`;
-                text += `• Break Start: ${formatWhatsAppTime(att?.BreakStarts)}\n`;
-                text += `• Break End: ${formatWhatsAppTime(att?.BreakEnds)}\n`;
-                text += `• Leave/Weekoff: ${att?.Leave || '-'}\n`;
-                text += `• Reason: ${att?.Reason || '-'}\n\n`;
+                text += `🕘 ATTENDANCE\n`;
+                text += `• In Time: ${formatWhatsAppTime(att && att.InTime)}\n`;
+                text += `• Out Time: ${formatWhatsAppTime(att && att.OutTime)}\n`;
+                text += `• Break Start: ${formatWhatsAppTime(att && att.BreakStarts)}\n`;
+                text += `• Break End: ${formatWhatsAppTime(att && att.BreakEnds)}\n`;
+                text += `• Leave/Weekoff: ${att && att.Leave ? att.Leave : '-'}\n`;
+                text += `• Reason: ${att && att.Reason ? att.Reason : '-'}\n\n`;
 
-                // Daily task report: show tasks actually worked/completed on the selected date,
-                // not every task whose assignment range happens to contain that date.
-                const dayLogs = (globalWorkLogs || []).filter(w =>
+                // Selected-date work logs only.
+                const logs = (globalWorkLogs || []).filter(w =>
                     String(w.WorkDate || '') === dateKey &&
-                    String(w.Employee || '').toLowerCase() === String(user).toLowerCase()
+                    String(w.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase()
                 );
 
-                const taskMap = {};
-                dayLogs.forEach(w => {
-                    const name = String(w.Task || '-');
-                    if (!taskMap[name]) taskMap[name] = { mins: 0, descriptions: [] };
-                    taskMap[name].mins += Number(w.TimeSpentMins) || 0;
-                    if (w.Description) taskMap[name].descriptions.push(String(w.Description));
+                // Tasks active on the selected date.
+                const activeTasks = (globalAllTasks || []).filter(t => {
+                    if (String(t.assignedTo || '').trim().toLowerCase() !== String(user).trim().toLowerCase()) return false;
+                    const sd = parseReportDate(t.startDate);
+                    const ed = parseReportDate(t.endDate);
+                    const d = parseReportDate(dateKey);
+                    return sd && ed && d && d >= sd && d <= ed;
                 });
 
-                // Also include a task completed on this exact date when no daily work-log
-                // exists for that task, while keeping the report date-specific.
-                (globalAllTasks || []).forEach(t => {
-                    const assigned = String(t.assignedTo || '').toLowerCase() === String(user).toLowerCase();
-                    const completedOnDate = parseReportDate(t.completedAt)?.getTime() === parseReportDate(dateKey)?.getTime();
-                    const name = String(t.taskName || '-');
-                    if (assigned && completedOnDate && !taskMap[name]) {
-                        taskMap[name] = { mins: Number(t.timeSpent) || 0, descriptions: [] };
-                    }
-                });
+                // A task is "cleared" for this selected date only when it was completed on that date.
+                const completedToday = activeTasks.filter(t =>
+                    String(t.empStatus || '').toLowerCase() === 'completed' &&
+                    String(t.completedAt || '') === dateKey
+                );
 
-                const dailyTasks = Object.keys(taskMap).map(name => {
-                    const task = (globalAllTasks || []).find(t =>
-                        String(t.taskName || '').toLowerCase() === name.toLowerCase() &&
-                        String(t.assignedTo || '').toLowerCase() === String(user).toLowerCase()
-                    );
-                    return { name, data: taskMap[name], task };
-                });
+                const workedTaskNames = new Set(
+                    logs.map(w => String(w.Task || '').trim().toLowerCase()).filter(Boolean)
+                );
+                const workedToday = activeTasks.filter(t =>
+                    workedTaskNames.has(String(t.taskName || '').trim().toLowerCase())
+                );
+                const pendingToday = activeTasks.filter(t =>
+                    !completedToday.some(c => String(c.taskName || '').trim().toLowerCase() === String(t.taskName || '').trim().toLowerCase())
+                );
+
+                text += `📌 TASK SUMMARY\n`;
+                text += `• Total Tasks: ${activeTasks.length}\n`;
+                text += `• Clear/Completed: ${completedToday.length}\n`;
+                text += `• Pending: ${pendingToday.length}\n`;
+                text += `• Tasks Worked: ${workedToday.length}\n\n`;
 
                 text += `📌 TASKS\n`;
-                if (dailyTasks.length) {
-                    dailyTasks.forEach((item, i) => {
-                        const t = item.task || {};
-                        const status = String(t.empStatus || '').toLowerCase() === 'completed'
-                            ? '✅ Completed' : '⏳ In Progress';
-                        const info = t.taskName ? taskDeadlineInfo(t) : { label: '-' };
-                        text += `${i + 1}. ${item.name}\n`;
+                if (activeTasks.length) {
+                    activeTasks.forEach((t, i) => {
+                        const nameKey = String(t.taskName || '').trim().toLowerCase();
+                        const done = completedToday.some(c => String(c.taskName || '').trim().toLowerCase() === nameKey);
+                        const worked = workedTaskNames.has(nameKey);
+                        const status = done ? '✅ Completed' : (worked ? '🔄 Worked' : '⏳ Pending');
+                        const minsToday = logs
+                            .filter(w => String(w.Task || '').trim().toLowerCase() === nameKey)
+                            .reduce((sum, w) => sum + (Number(w.TimeSpentMins) || 0), 0);
+                        const info = taskDeadlineInfo(t);
+
+                        text += `${i + 1}. ${t.taskName || '-'}\n`;
                         text += `   • Status: ${status}\n`;
                         text += `   • Priority: ${t.priority || 'Normal'}\n`;
-                        text += `   • Time: ${formatMinsForReport(item.data.mins)}\n`;
+                        text += `   • Time Today: ${formatMinsForReport(minsToday)}\n`;
                         text += `   • Deadline: ${info.label}\n\n`;
                     });
                 } else {
-                    text += `No task/work recorded for this date.\n\n`;
+                    text += `No task assigned for this date.\n\n`;
                 }
 
                 text += `📝 WORK DETAILS\n`;
-                let total = 0;
-                if (dayLogs.length) {
-                    dayLogs.forEach((w, i) => {
+                let totalMinutes = 0;
+                if (logs.length) {
+                    logs.forEach((w, i) => {
                         const mins = Number(w.TimeSpentMins) || 0;
-                        total += mins;
+                        totalMinutes += mins;
                         text += `${i + 1}. ${w.Task || '-'} — ${formatMinsForReport(mins)}\n`;
                         text += `   ↳ ${w.Description || 'No description'}\n\n`;
                     });
                 } else {
-                    text += `No work log submitted for this date.\n\n`;
+                    text += `No office work log submitted for this date.\n\n`;
                 }
 
-                text += `⏱️ Total Work Time: ${formatMinsForReport(total)}\n`;
+                text += `⏱️ Total Office Work: ${formatMinsForReport(totalMinutes)}\n`;
             } else {
-                const raw = document.getElementById('whatsappReportMonth')?.value || '';
-                const p = raw.split('-');
+                const raw = document.getElementById('whatsappReportMonth').value;
+                const p = raw ? raw.split('-') : [];
                 const key = p.length === 2 ? `${p[1]}-${p[0]}` : '';
-                text += `📅 Month: ${key || '-'}\n\n🕘 ATTENDANCE SUMMARY\n`;
+                const monthlyGrade = getWhatsAppMonthlyGrade(user);
+
+                text += `🏆 Monthly Grade: ${monthlyGrade}\n\n`;
+                text += `📅 Month: ${key || '-'}\n\n`;
 
                 const rows = (globalMonthlyFullAttendance || []).filter(a => {
                     const d = String(a.Date || '').split('-');
                     return d.length === 3 &&
                         `${d[1]}-${d[2]}` === key &&
-                        String(a.Employee || '').toLowerCase() === String(user).toLowerCase();
+                        String(a.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase();
                 });
 
                 let present = 0, leave = 0, weekoff = 0, absent = 0;
@@ -1877,14 +1945,23 @@
                     else absent++;
                 });
 
-                text += `• Present: ${present}\n• Absent: ${absent}\n• Leave: ${leave}\n• Weekoff: ${weekoff}\n\n📌 TASKS\n`;
+                text += `🕘 ATTENDANCE SUMMARY\n`;
+                text += `• Present: ${present}\n`;
+                text += `• Absent: ${absent}\n`;
+                text += `• Leave: ${leave}\n`;
+                text += `• Weekoff: ${weekoff}\n\n`;
 
                 const tasks = (globalAllTasks || []).filter(t =>
-                    String(t.assignedTo || '').toLowerCase() === String(user).toLowerCase()
+                    String(t.assignedTo || '').trim().toLowerCase() === String(user).trim().toLowerCase()
                 );
                 const completed = tasks.filter(t => String(t.empStatus || '').toLowerCase() === 'completed').length;
-                text += `• Assigned: ${tasks.length}\n• Completed: ${completed}\n• Pending: ${tasks.length - completed}\n\n`;
 
+                text += `📌 TASK SUMMARY\n`;
+                text += `• Total Tasks: ${tasks.length}\n`;
+                text += `• Clear/Completed: ${completed}\n`;
+                text += `• Pending: ${tasks.length - completed}\n\n`;
+
+                text += `📌 TASKS\n`;
                 tasks.forEach((t, i) => {
                     const info = taskDeadlineInfo(t);
                     text += `${i + 1}. ${t.taskName || '-'}\n`;
@@ -1898,7 +1975,7 @@
                     const d = String(w.WorkDate || '').split('-');
                     return d.length === 3 &&
                         `${d[1]}-${d[2]}` === key &&
-                        String(w.Employee || '').toLowerCase() === String(user).toLowerCase();
+                        String(w.Employee || '').trim().toLowerCase() === String(user).trim().toLowerCase();
                 });
 
                 let total = 0;
@@ -1913,7 +1990,8 @@
                 } else {
                     text += `No work logs found.\n\n`;
                 }
-                text += `⏱️ Total Work Time: ${formatMinsForReport(total)}\n`;
+
+                text += `⏱️ Total Office Work: ${formatMinsForReport(total)}\n`;
             }
 
             text += `\n${line}\n📌 Zimmedar Office ERP\n🕒 Generated: ${new Date().toLocaleString()}`;
