@@ -48,38 +48,236 @@
         .sched-table th { background-color: #2a4d53; color: white; padding: 8px; font-size: 0.8rem; text-align: center; border: 1px solid #fff;}
         .sched-table td { padding: 8px; border-bottom: 1px solid #e1ebea; border-right: 1px solid #e1ebea; font-size: 0.85rem; }
         .sched-grey-cell { background-color: #e1ebea; font-weight: bold; text-align: center;}
+    
+        /* LOGIN PAGE - DESIGN ONLY */
+        #login-section.login-modern {
+            position: relative;
+            background: #e4e4e4 !important;
+            overflow: hidden;
+        }
+        #login-section.login-modern .login-close {
+            position: absolute;
+            top: 22px;
+            right: 42px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2528;
+            font-size: 30px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 5;
+            line-height: 1;
+        }
+        #login-section.login-modern .login-card-wrap {
+            position: relative;
+            width: 310px;
+            min-height: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        #login-section.login-modern .login-card {
+            position: relative;
+            width: 308px;
+            min-height: 320px;
+            margin-top: 55px;
+            background: #ffffff;
+            border-radius: 34px 34px 28px 28px;
+            box-shadow: 0 2px 0 rgba(0,0,0,.03);
+            padding: 118px 42px 70px;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        #login-section.login-modern .login-avatar {
+            position: absolute;
+            top: -59px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #0b4b64;
+            border: 8px solid #ffffff;
+            box-shadow: 0 0 0 1px #e8e8e8;
+            overflow: hidden;
+        }
+        #login-section.login-modern .login-avatar:before {
+            content: '';
+            position: absolute;
+            width: 51px;
+            height: 51px;
+            border-radius: 50%;
+            background: #ffffff;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #login-section.login-modern .login-avatar:after {
+            content: '';
+            position: absolute;
+            width: 94px;
+            height: 62px;
+            border-radius: 48px 48px 0 0;
+            background: #4d8094;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #login-section.login-modern .login-field {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        #login-section.login-modern .login-field i {
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0b4b64;
+            font-size: 20px;
+            width: 20px;
+            text-align: center;
+        }
+        #login-section.login-modern .login-field input {
+            width: 100%;
+            height: 35px;
+            border: 0 !important;
+            outline: 0 !important;
+            border-radius: 22px;
+            background: #6093a2 !important;
+            color: #ffffff !important;
+            padding: 0 15px !important;
+            font-size: 16px !important;
+            font-style: italic;
+            box-sizing: border-box;
+            box-shadow: none !important;
+        }
+        #login-section.login-modern .login-field input::placeholder {
+            color: #f2f4f5;
+            opacity: .95;
+        }
+        #login-section.login-modern .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 22px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+            color: #0b4b64;
+            font-style: italic;
+            white-space: nowrap;
+        }
+        #login-section.login-modern .remember {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        #login-section.login-modern .remember input {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #0b4b64;
+            border-radius: 3px;
+            margin: 0;
+            position: relative;
+            cursor: pointer;
+            background: #fff;
+        }
+        #login-section.login-modern .remember input:checked:after {
+            content: '✓';
+            position: absolute;
+            color: #0b4b64;
+            font-size: 17px;
+            font-weight: 900;
+            left: 0px;
+            top: -7px;
+        }
+        #login-section.login-modern .forgot {
+            color: #0b4b64;
+            text-decoration: none;
+        }
+        #login-section.login-modern .login-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -53px;
+            height: 70px;
+            border-radius: 0 0 32px 32px;
+            background: #0b4b64;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 14px;
+            box-sizing: border-box;
+        }
+        #login-section.login-modern #loginBtn {
+            position: absolute;
+            left: 42px;
+            right: 42px;
+            bottom: -52px;
+            z-index: 3;
+            height: 62px;
+            background: transparent !important;
+            color: #ffffff !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            font-size: 25px !important;
+            letter-spacing: 0 !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+        }
+        #login-section.login-modern .login-signup {
+            position: absolute;
+            bottom: -105px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #4b4b4b;
+            font-size: 12px;
+            font-style: italic;
+            text-decoration: underline;
+        }
+        @media (max-width: 480px) {
+            #login-section.login-modern .login-close { right: 20px; }
+            #login-section.login-modern .login-card-wrap { transform: scale(.92); }
+        }
+
     </style>
 </head>
 <body class="h-screen w-full text-gray-800 overflow-hidden">
     <!-- LOGIN PAGE -->
-    <div id="login-section" class="w-full h-full flex items-center justify-center bg-gradient-to-tr from-[#259b94] to-[#5fd3cc]">
-        <div class="p-4 bg-[#4bbab6] shadow-[0_0_60px_rgba(0,0,0,0.5)] relative">
-            <div class="bg-[#2a4d53] p-10 w-full sm:w-[380px] border border-[#3e6a6e]">
-                <div class="flex justify-center mb-6">
-                    <div class="w-20 h-20 rounded-full border-[1.5px] border-[#7db0b1] flex items-center justify-center">
-                        <i class="fas fa-camera text-[#7db0b1] text-3xl"></i>
-                    </div>
-                </div>
-                <h2 class="text-center text-xl font-light text-[#a5cacc] tracking-[0.2em] mb-10 uppercase">User Login</h2>
+    <div id="login-section" class="login-modern w-full h-full flex items-center justify-center">
+        <div class="login-close" aria-hidden="true">×</div>
+        <div class="login-card-wrap">
+            <div class="login-card">
+                <div class="login-avatar" aria-hidden="true"></div>
                 <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="relative mb-8">
-                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                            <i class="fas fa-envelope text-[#7db0b1] text-sm"></i>
-                        </div>
-                        <input type="text" id="username" class="w-full bg-transparent border-b border-[#5a8789] text-white pl-8 py-2 text-sm focus:outline-none focus:border-white transition-colors placeholder-[#7db0b1]" placeholder="Username" required>
+                    <div class="login-field">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <input type="text" id="username" placeholder="Email" autocomplete="username" required>
                     </div>
-                    <div class="relative mb-8">
-                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-[#7db0b1] text-sm"></i>
-                        </div>
-                        <input type="password" id="password" class="w-full bg-transparent border-b border-[#5a8789] text-white pl-8 py-2 text-sm focus:outline-none focus:border-white transition-colors placeholder-[#7db0b1]" placeholder="Password" required>
+                    <div class="login-field">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" id="loginBtn" class="w-full bg-[#0d1a1c] hover:bg-[#050a0a] text-white font-bold py-3 text-sm tracking-widest uppercase transition duration-300 shadow-md">Login</button>
+                    <div class="login-options">
+                        <label class="remember">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                        <a class="forgot" href="javascript:void(0)" onclick="return false;">Forgot Password?</a>
+                    </div>
+                    <div class="login-bottom" aria-hidden="true"></div>
+                    <button type="submit" id="loginBtn">Login</button>
                 </form>
             </div>
+            <div class="login-signup">don't have an account yet? sign up now</div>
         </div>
     </div>
-
     <!-- DASHBOARD PAGE -->
     <div id="dashboard-section" class="w-full h-full flex-col md:flex-row bg-[#ecf3f3] hidden">
         <!-- Sidebar -->
