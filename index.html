@@ -84,8 +84,8 @@
     <div id="dashboard-section" class="w-full h-full flex-col md:flex-row bg-[#ecf3f3] hidden">
         <!-- Sidebar -->
         <div class="w-full md:w-64 bg-[#2a4d53] text-white p-5 flex flex-col overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.1)] z-10">
-            <h2 class="text-2xl font-extrabold text-[#5fd3cc] mb-8 tracking-tight flex items-center gap-2">
-                <i class="fas fa-layer-group"></i> Office Zimmedar
+            <h2 class="text-2xl font-extrabold text-white mb-8 tracking-tight flex items-center gap-2" style="font-family: Arial Black, Arial, sans-serif;">
+                <i class="fas fa-layer-group"></i> Office Task Reporting
             </h2>
             
             <div class="flex items-center space-x-3 mb-6 bg-[#1e3e43] p-3 rounded-xl border border-[#3e6a6e]">
@@ -177,11 +177,23 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-3">
-                    <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
+                    <div class="flex items-center gap-3 relative">
+                        <div class="relative">
+                            <button id="notificationBtn" aria-label="Notifications" onclick="toggleNotifications()" class="w-12 h-12 rounded-full bg-white border border-[#b2d8d8] shadow-sm text-[#259b94] hover:bg-[#e6fcf5] transition relative flex items-center justify-center">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationCount" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold items-center justify-center">0</span>
+                            </button>
+                            <div id="notificationPanel" class="hidden absolute right-0 top-14 z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden text-left">
+                                <div class="px-4 py-3 bg-[#f0f7f7] border-b flex items-center justify-between"><span class="font-bold text-[#112a2e]">Notifications</span><button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-700" aria-label="Close notifications"><i class="fas fa-times"></i></button></div>
+                                <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
                         <div>
                             <p id="currentDate" class="text-xs font-bold text-gray-500 uppercase tracking-wider">DD-MM-YYYY</p>
                             <p id="currentTime" class="text-xl font-extrabold text-[#112a2e]">HH:MM:SS AM</p>
                         </div>
+                    </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
@@ -304,8 +316,10 @@
                         <thead>
                             <tr class="bg-[#f0f7f7] text-[#4b6d70] uppercase text-xs font-bold tracking-wider">
                                 <th class="py-4 px-6">Task Name</th>
-                                <th class="py-4 px-6 hod-only-col hidden">Employee</th>
-                                <th class="py-4 px-6">Timeline</th>
+                                 <th class="py-4 px-6 hod-only-col hidden">Employee</th>
+                                 <th class="py-4 px-6">Assigned By</th>
+                                 <th class="py-4 px-6">Weightage</th>
+                                 <th class="py-4 px-6">Timeline</th>
                                 <th class="py-4 px-6">Deadline Status</th>
                                 <th class="py-4 px-6">Priority</th>
                                 <th class="py-4 px-6">Time Spent</th>
@@ -374,6 +388,10 @@
                     </div>
                 </div>
                 <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Task Weightage (%):</label>
+                        <input type="number" id="newTaskWeightage" min="0" max="85" value="10" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
+                    </div>
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Priority:</label>
                         <select id="newTaskPriority" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition">
@@ -514,8 +532,8 @@
             <h2 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-chart-line text-orange-500"></i> Progress Chart</h2>
             <p class="text-sm text-gray-500 mb-5">Attendance + Task performance with adjustable weightage.</p>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 border rounded-lg mb-5">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="15" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="85" class="w-full border p-2 rounded-lg"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressEmpFilter" class="w-full border p-2 rounded-lg"></select></div>
                 <div class="flex items-end"><button onclick="renderProgressChart()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-2 rounded-lg">Apply</button></div>
             </div>
@@ -524,7 +542,7 @@
                 <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">TODAY</div><div id="gradeDaily" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreDaily" class="text-sm font-bold text-gray-500">0%</div></div>
                 <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">THIS WEEK</div><div id="gradeWeekly" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreWeekly" class="text-sm font-bold text-gray-500">0%</div></div>
                 <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">THIS MONTH</div><div id="gradeMonthly" class="text-xl font-extrabold text-[#259b94]">D (Kamzor)</div><div id="scoreMonthly" class="text-sm font-bold text-gray-500">0%</div></div>
-                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">WEIGHTAGE</div><div id="weightageText" class="text-xl font-extrabold">50 / 50</div><div class="text-sm font-bold text-gray-500">Attendance / Task</div></div>
+                <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">WEIGHTAGE</div><div id="weightageText" class="text-xl font-extrabold">15 / 85</div><div class="text-sm font-bold text-gray-500">Attendance / Task</div></div>
             </div>
             <div class="overflow-x-auto border rounded-lg mb-5">
                 <table class="w-full border-collapse text-sm"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Period</th><th class="p-3">Attendance</th><th class="p-3">Tasks</th><th class="p-3">Overall</th><th class="p-3">Grade</th></tr></thead><tbody id="progressScoreBody"></tbody></table>
@@ -1064,6 +1082,7 @@
             if(select.options.length === 1) {
                 select.innerHTML = '<option value="">-- No task available for today --</option>';
             }
+            updateCompletionCheckboxState();
         }
 
         function filterTasksByEmp() {
@@ -1207,8 +1226,10 @@
 
                     tr.innerHTML = `
                         <td class="py-4 px-6 font-bold text-[#112a2e]">${task.taskName}</td>
-                        ${isHOD ? `<td class="py-4 px-6 text-[#259b94] font-bold">${task.assignedTo}</td>` : ''}
-                        <td class="py-4 px-6 text-xs text-[#4b6d70] font-semibold leading-tight"><i class="far fa-calendar text-[#7db0b1]"></i> ${task.startDate} <br><span class="text-[#7db0b1]">to</span><br> <i class="far fa-calendar-check text-[#7db0b1]"></i> ${task.endDate}</td>
+                         ${isHOD ? `<td class="py-4 px-6 text-[#259b94] font-bold">${task.assignedTo}</td>` : ''}
+                         <td class="py-4 px-6 text-[#4b6d70] font-semibold">${task.assignedBy || '-'}</td>
+                         <td class="py-4 px-6 font-bold text-[#2a4d53]">${isHOD ? `<input type="number" min="0" max="85" value="${Number(task.weightage)||0}" onchange="updateTaskWeightage(${task.rowIndex}, this.value, ${JSON.stringify(task.assignedTo)})" class="w-20 border border-[#b2d8d8] rounded-md px-2 py-1 text-sm font-bold" title="Task weightage (%)">` : `${Number(task.weightage)||0}%`}</td>
+                         <td class="py-4 px-6 text-xs text-[#4b6d70] font-semibold leading-tight"><i class="far fa-calendar text-[#7db0b1]"></i> ${task.startDate} <br><span class="text-[#7db0b1]">to</span><br> <i class="far fa-calendar-check text-[#7db0b1]"></i> ${task.endDate}</td>
                         <td class="py-4 px-6">${deadlineHTML}</td>
                         <td class="py-4 px-6 font-bold ${prioColor}">${task.priority} <br><span class="text-xs text-gray-400 font-medium">${task.frequency}</span></td>
                         <td class="py-4 px-6">${timeSpentHTML}</td>
@@ -1274,6 +1295,12 @@
                     </tr>
                 `;
             });
+        }
+
+        function updateTaskWeightage(rIdx, value, targetUser) {
+            const w=Number(value); if(!Number.isFinite(w)||w<0||w>85){alert('Task weightage must be between 0 and 85%.');fetchDashboardDataSilently();return;}
+            const fd=new FormData(); fd.append('action','updateTaskWeightage'); fd.append('rowIndex',rIdx); fd.append('weightage',w); if(targetUser)fd.append('targetUser',targetUser); fd.append('sessionToken',sessionToken);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{if(data.status==='error')alert(data.message||'Weightage update rejected.');fetchDashboardDataSilently();}).catch(()=>alert('Weightage update failed.'));
         }
 
         function updateTaskDB(rIdx, type, val, targetUser) {
@@ -1415,7 +1442,12 @@
         }
 
         // ================= EMP LOG DAILY WORK =================
-        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; }
+        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; updateCompletionCheckboxState(); }
+        function updateCompletionCheckboxState(){
+            const sel=document.getElementById('logTaskSelect'),cb=document.getElementById('markTaskCompleted'); if(!sel||!cb)return;
+            const task=(globalAllTasks||[]).find(t=>String(t.rowIndex)===String(sel.value)); if(!task){cb.disabled=true;cb.checked=false;return;}
+            const due=parseReportDate(task.endDate),today=new Date();today.setHours(0,0,0,0);const can=!!due&&today.getTime()>=due.getTime();cb.disabled=!can;cb.title=can?'Completion can be marked today.':'Completion can be marked only on the closing date. Add request/details in the description for early completion.';if(!can)cb.checked=false;
+        }
         function closeLogWorkModal() { document.getElementById('logWorkModal').style.display = 'none'; }
         
         function submitWorkLog() {
@@ -1545,8 +1577,8 @@
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
 
-            const aw = Number(localStorage.getItem('zim_att_weight') || 50);
-            const tw = Number(localStorage.getItem('zim_task_weight') || 50);
+            const aw = Number(localStorage.getItem('zim_att_weight') || 15);
+            const tw = Number(localStorage.getItem('zim_task_weight') || 85);
             let finalScore = Math.round((taskPerc * aw + attPerc * tw) / 100);
             if(tasks.length === 0) finalScore = attPerc; 
             
@@ -2001,6 +2033,7 @@
 
         document.addEventListener('change', function(e) {
             if(e.target && (e.target.id === 'whatsappReportDate' || e.target.id === 'whatsappReportMonth')) generateWhatsAppReportPreview();
+            if(e.target && e.target.id === 'logTaskSelect') updateCompletionCheckboxState();
         });
 
         async function shareWhatsAppReport() {
@@ -2027,6 +2060,21 @@
                 alert('Report copied. WhatsApp opened. Select the required employee/group and press Send.');
             }
         }
+
+        // ================= NOTIFICATIONS =================
+        function closeNotifications(){const p=document.getElementById('notificationPanel');if(p)p.classList.add('hidden');}
+        function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
+        function notificationItems(){
+            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[];
+            if(role.includes('hod')||role.includes('admin')){
+                tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task'});});
+                atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance'});});
+            }else{
+                tasks.forEach(t=>{const s=String(t.hodStatus||'').toLowerCase();if(s==='approved')items.push({title:'Task approved',text:t.taskName||'Task',action:'task'});else if(s==='rejected')items.push({title:'Task request rejected',text:t.taskName||'Task',action:'task'});else if(String(t.empStatus||'').toLowerCase()==='completion requested')items.push({title:'Early completion request pending',text:t.taskName||'Task',action:'task'});});
+            } return items.slice(0,20);
+        }
+        function renderNotifications(){const list=document.getElementById('notificationList'),count=document.getElementById('notificationCount');if(!list||!count)return;const items=notificationItems();list.innerHTML='';count.innerText=items.length;count.classList.toggle('hidden',items.length===0);count.classList.toggle('flex',items.length>0);if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No new notifications.</div>';return;}items.forEach(n=>{const row=document.createElement('button');row.type='button';row.className='w-full text-left px-4 py-3 border-b hover:bg-[#f0f7f7] transition';row.innerHTML=`<div class="font-bold text-sm text-[#112a2e]"><i class="fas fa-bell text-[#259b94] mr-2"></i>${n.title}</div><div class="text-xs text-gray-500 mt-1">${n.text}</div>`;row.onclick=()=>{closeNotifications();if(n.action==='task')openTaskReportModal();else openOneViewModal();};list.appendChild(row);});}
+        document.addEventListener('click',function(e){const b=document.getElementById('notificationBtn'),p=document.getElementById('notificationPanel');if(p&&!p.classList.contains('hidden')&&b&&!b.contains(e.target)&&!p.contains(e.target))closeNotifications();});
 
         // ================= TASK REPORT =================
         function openTaskReportModal() {
@@ -2080,7 +2128,7 @@
             sel.innerHTML='';
             if(isManager){(globalTeamMembers||[]).forEach(m=>sel.innerHTML+=`<option value="${m}">${m}</option>`); const f=document.getElementById('hodEmpFilter').value; if(f&&f!=='All')sel.value=f;} else {sel.innerHTML=`<option value="${document.getElementById('displayUser').innerText}">${document.getElementById('displayUser').innerText}</option>`;}
             const aw=localStorage.getItem('zim_att_weight'); const tw=localStorage.getItem('zim_task_weight');
-            document.getElementById('attendanceWeightage').value=aw||50; document.getElementById('taskWeightage').value=tw||50;
+            document.getElementById('attendanceWeightage').value=aw||15; document.getElementById('taskWeightage').value=tw||85;
             renderProgressChart();
         }
         function closeAnalysationModal(){document.getElementById('analysationModal').style.display='none';}
