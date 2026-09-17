@@ -460,6 +460,10 @@
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fab fa-whatsapp text-[#25D366]"></i> WhatsApp Report</h3>
             <p id="whatsappReportHint" class="text-sm text-gray-500 mb-5">Report will be copied for sharing. If a group is assigned, it will open automatically.</p>
             <div class="space-y-4">
+                <div id="whatsappTargetBox" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Share Report For:</label>
+                    <select id="whatsappTargetEmployee" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none" onchange="onWhatsAppTargetChange()"></select>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Report Type:</label>
                     <select id="whatsappReportType" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none" onchange="toggleWhatsAppReportInputs()">
@@ -476,8 +480,8 @@
                     <input type="month" id="whatsappReportMonth" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none">
                 </div>
                 <textarea id="whatsappReportPreview" class="w-full border border-gray-300 p-3 rounded-lg text-xs bg-gray-50" rows="12" readonly></textarea>
-                <button onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3 rounded-lg shadow-lg transition">
-                    <i class="fab fa-whatsapp"></i> Copy & Open WhatsApp Group
+                <button id="shareWhatsAppBtn" onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3 rounded-lg shadow-lg transition">
+                    <i class="fab fa-whatsapp"></i> Copy & Open WhatsApp
                 </button>
                 <p class="text-xs text-gray-500 text-center">For security, the report is prepared in the browser. WhatsApp group messages still require your final Send action.</p>
             </div>
@@ -645,6 +649,7 @@
         let globalMonthlyFullAttendance = []; 
         let globalWorkLogs = [];
         let globalTeamAttendance = [];
+        let globalTeamMemberDetails = [];
         let monthlyChartInst = null;
         let dashboardSyncInProgress = false;
         let sessionToken = "";
@@ -975,6 +980,7 @@
                 globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
                 globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : [];
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
+                globalTeamMemberDetails = Array.isArray(data.teamMemberDetails) ? data.teamMemberDetails : [];
 
                 if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                     populateTeamDropdowns(globalTeamMembers);
@@ -1659,15 +1665,60 @@
 
 
         // ================= WHATSAPP REPORT =================
+        function getWhatsAppTargetName() {
+            const target = document.getElementById('whatsappTargetEmployee');
+            return target && target.value ? target.value : document.getElementById('displayUser').innerText.trim();
+        }
+
+        function getWhatsAppTargetDetails() {
+            const name = getWhatsAppTargetName();
+            if(name.toLowerCase() === document.getElementById('displayUser').innerText.trim().toLowerCase()) {
+                return { name:name, department:document.getElementById('displayDept').innerText.trim(), whatsappGroupLink:whatsappGroupLink || '' };
+            }
+            return (globalTeamMemberDetails || []).find(m => (m.name || '').toLowerCase() === name.toLowerCase()) || { name:name, department:'', whatsappGroupLink:'' };
+        }
+
+        function populateWhatsAppTargets() {
+            const role = (document.getElementById('displayRole').innerText || '').toLowerCase();
+            const box = document.getElementById('whatsappTargetBox');
+            const select = document.getElementById('whatsappTargetEmployee');
+            if(!box || !select) return;
+            const isManager = role.includes('hod') || role.includes('admin');
+            if(!isManager) {
+                box.classList.add('hidden');
+                return;
+            }
+            box.classList.remove('hidden');
+            const self = document.getElementById('displayUser').innerText.trim();
+            select.innerHTML = `<option value="${escapeHtmlAttr(self)}">My Report — ${escapeHtml(self)}</option>`;
+            (globalTeamMemberDetails || []).forEach(m => {
+                if((m.name || '').toLowerCase() !== self.toLowerCase()) {
+                    select.innerHTML += `<option value="${escapeHtmlAttr(m.name)}">${escapeHtml(m.name)} — ${escapeHtml(m.department || '')}</option>`;
+                }
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>'"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]; });
+        }
+        function escapeHtmlAttr(value) { return escapeHtml(value); }
+
+        function onWhatsAppTargetChange() {
+            const d = getWhatsAppTargetDetails();
+            const hint = document.getElementById('whatsappReportHint');
+            if(hint) hint.innerText = d.whatsappGroupLink
+                ? `Assigned WhatsApp group for ${d.name} will open after the report is copied.`
+                : `No WhatsApp group is assigned for ${d.name}. You can still share through WhatsApp.`;
+            generateWhatsAppReportPreview();
+        }
+
         function openWhatsAppReportModal() {
             document.getElementById('whatsappReportModal').style.display = 'block';
             const now = new Date();
             document.getElementById('whatsappReportDate').value = now.toISOString().split('T')[0];
             document.getElementById('whatsappReportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-            const hint = document.getElementById('whatsappReportHint');
-            if (hint) hint.innerText = whatsappGroupLink
-                ? 'Assigned WhatsApp group will open automatically after the report is copied.'
-                : 'No group is assigned yet. You can still share the report through WhatsApp.';
+            populateWhatsAppTargets();
+            onWhatsAppTargetChange();
             toggleWhatsAppReportInputs();
             generateWhatsAppReportPreview();
         }
@@ -1685,100 +1736,163 @@
             return h > 0 ? `${h}h ${m}m (${mins} min)` : `${mins} min`;
         }
 
+        function getDateKeyFromInput(dateVal) {
+            const p = (dateVal || '').split('-');
+            return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+        }
+
+        function getMonthKeyFromInput(monthVal) {
+            const p = (monthVal || '').split('-');
+            return p.length === 2 ? `${p[1]}-${p[0]}` : '';
+        }
+
+        function getTargetTasks(targetName) {
+            const n = (targetName || '').toLowerCase();
+            return (globalAllTasks || []).filter(t => (t.assignedTo || '').toLowerCase() === n);
+        }
+
+        function getTargetAttendance(targetName) {
+            const n = (targetName || '').toLowerCase();
+            return (globalMonthlyFullAttendance || []).filter(a => (a.Employee || '').toString().toLowerCase() === n);
+        }
+
+        function getTargetLogs(targetName) {
+            const n = (targetName || '').toLowerCase();
+            return (globalWorkLogs || []).filter(w => (w.Employee || '').toString().toLowerCase() === n);
+        }
+
+        function attendanceForDate(targetName, key) {
+            return getTargetAttendance(targetName).find(a => a.Date === key) || null;
+        }
+
+        function taskIsActiveOnDate(t, key) {
+            const s = (t.startDate || '').split('-');
+            const e = (t.endDate || '').split('-');
+            const toIso = p => p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+            const sd = toIso(s), ed = toIso(e);
+            return sd && ed && key >= sd && key <= ed;
+        }
+
         function generateWhatsAppReportPreview() {
             const type = document.getElementById('whatsappReportType').value;
-            const user = document.getElementById('displayUser').innerText;
-            let text = `*ZIMMEDAR OFFICE ERP - ${type === 'daily' ? 'DAILY' : 'MONTHLY'} REPORT*\\n`;
-            text += `Employee: ${user}\\n`;
+            const target = getWhatsAppTargetDetails();
+            const user = target.name || document.getElementById('displayUser').innerText.trim();
+            const dept = target.department || document.getElementById('displayDept').innerText.trim();
+            const tasks = getTargetTasks(user);
+            const attendance = getTargetAttendance(user);
+            const logs = getTargetLogs(user);
+            const gradeEl = user.toLowerCase() === document.getElementById('displayUser').innerText.trim().toLowerCase()
+                ? document.getElementById('monthlyGrade').innerText
+                : '-';
+            let text = '';
+
+            text += `📊 *ZIMMEDAR OFFICE REPORT*\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `👤 *Employee:* ${user}\n`;
+            text += `🏢 *Dept:* ${dept || '-'}\n`;
+            text += `🏆 *Monthly Grade:* ${gradeEl || '-'}\n`;
 
             if(type === 'daily') {
                 const dateVal = document.getElementById('whatsappReportDate').value;
-                const p = dateVal ? dateVal.split('-') : [];
-                const key = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
-                text += `Date: ${key || '-'}\\n\\n`;
+                const key = getDateKeyFromInput(dateVal);
+                const att = attendanceForDate(user, key);
+                const activeTasks = tasks.filter(t => taskIsActiveOnDate(t, key));
+                const dayLogs = logs.filter(w => (w.WorkDate || '') === key);
+                let total = 0;
 
-                const att = (globalMonthlyFullAttendance || []).find(a => a.Date === key && (a.Employee || '').toString().toLowerCase() === user.toLowerCase());
-                if(att) {
-                    text += `*Attendance*\\nIn: ${att.InTime || '-'} | Out: ${att.OutTime || '-'}\\n`;
-                    text += `Break Start: ${att.BreakStarts || '-'} | Break End: ${att.BreakEnds || '-'}\\n`;
-                    text += `Leave/Weekoff: ${att.Leave || '-'}\\nReason: ${att.Reason || '-'}\\n\\n`;
-                } else {
-                    text += `*Attendance*: No record found\\n\\n`;
-                }
+                text += `📅 *Date:* ${key || '-'}\n\n`;
+                text += `🕘 *ATTENDANCE*\n`;
+                text += `• In Time: ${att && att.InTime ? att.InTime : '-'}\n`;
+                text += `• Out Time: ${att && att.OutTime ? att.OutTime : '-'}\n`;
+                text += `• Break Start: ${att && att.BreakStarts ? att.BreakStarts : '-'}\n`;
+                text += `• Break End: ${att && att.BreakEnds ? att.BreakEnds : '-'}\n`;
+                text += `• Leave/Weekoff: ${att && att.Leave ? att.Leave : '-'}\n`;
+                text += `• Reason: ${att && att.Reason ? att.Reason : '-'}\n\n`;
 
-                const activeTasks = (globalAllTasks || []).filter(t => {
-                    const s = (t.startDate || '').split('-');
-                    const e = (t.endDate || '').split('-');
-                    const toIso = p => p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
-                    const sd = toIso(s), ed = toIso(e);
-                    return sd && ed && key >= sd && key <= ed;
-                });
-                text += `*Assigned Tasks*\\n`;
+                text += `📌 *TASKS*\n`;
                 if(activeTasks.length) {
                     activeTasks.forEach((t,i) => {
-                        text += `${i+1}. ${t.taskName} | ${t.empStatus} | ${t.timeSpent || 0} min\\n`;
+                        const status = (t.empStatus || 'Pending').toLowerCase() === 'completed' ? '✅ Completed' : '⏳ Pending';
+                        const mins = Number(t.timeSpent) || 0;
+                        text += `${i+1}. *${t.taskName}*\n`;
+                        text += `   • Status: ${status}\n`;
+                        text += `   • Priority: ${t.priority || '-'}\n`;
+                        text += `   • Time: ${formatMinsForReport(mins)}\n`;
+                        text += `   • Deadline: ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\n`;
                     });
-                } else {
-                    text += `No assigned task for this date.\\n`;
-                }
+                } else text += `• No task assigned for this date.\n`;
+                text += `\n`;
 
-                const logs = (globalWorkLogs || []).filter(w => (w.WorkDate || '') === key);
-                let total = 0;
-                text += `*Work Details*\\n`;
-                if(logs.length) {
-                    logs.forEach((w,i) => {
-                        total += Number(w.TimeSpentMins) || 0;
-                        text += `${i+1}. ${w.Task} - ${w.TimeSpentMins} min\\n   ${w.Description || 'No description'}\\n`;
+                text += `📝 *WORK DETAILS*\n`;
+                if(dayLogs.length) {
+                    dayLogs.forEach((w,i) => {
+                        const mins = Number(w.TimeSpentMins) || 0;
+                        total += mins;
+                        text += `${i+1}. *${w.Task || '-'}* — ${formatMinsForReport(mins)}\n`;
+                        text += `   ↳ ${w.Description || 'No description provided'}\n`;
                     });
-                } else {
-                    text += `No work log submitted.\\n`;
-                }
-                text += `\\nTotal Work Time: *${formatMinsForReport(total)}*\\n`;
+                } else text += `• No work log submitted.\n`;
+                text += `\n⏱️ *Total Work Time:* ${formatMinsForReport(total)}\n`;
             } else {
                 const monthVal = document.getElementById('whatsappReportMonth').value;
-                const p = monthVal ? monthVal.split('-') : [];
-                const key = p.length === 2 ? `${p[1]}-${p[0]}` : '';
-                text += `Month: ${key || '-'}\\n\\n`;
-
-                const attRows = (globalMonthlyFullAttendance || []).filter(a => {
+                const key = getMonthKeyFromInput(monthVal);
+                const attRows = attendance.filter(a => {
                     const d = (a.Date || '').split('-');
-                    return d.length === 3 && `${d[1]}-${d[2]}` === key && (a.Employee || '').toString().toLowerCase() === user.toLowerCase();
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key;
+                });
+                const monthLogs = logs.filter(w => {
+                    const d = (w.WorkDate || '').split('-');
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key;
+                });
+                const monthTasks = tasks.filter(t => {
+                    const d1 = (t.startDate || '').split('-');
+                    const d2 = (t.endDate || '').split('-');
+                    if(d1.length !== 3 || d2.length !== 3) return false;
+                    const start = `${d1[1]}-${d1[2]}`;
+                    const end = `${d2[1]}-${d2[2]}`;
+                    return start <= key && end >= key;
                 });
                 let present=0, leave=0, weekoff=0, absent=0;
                 attRows.forEach(a => {
                     const l = (a.Leave || '').toString().toLowerCase();
-                    if(a.InTime) present++;
-                    else if(l.includes('leave')) leave++;
-                    else if(l.includes('weekoff')) weekoff++;
-                    else absent++;
-                });
-                text += `*Attendance Summary*\\nPresent: ${present}\\nAbsent: ${absent}\\nLeave: ${leave}\\nWeekoff: ${weekoff}\\n\\n`;
-
-                const tasks = globalAllTasks || [];
-                const completed = tasks.filter(t => (t.empStatus || '').toLowerCase() === 'completed').length;
-                text += `*Task Summary*\\nAssigned: ${tasks.length}\\nCompleted: ${completed}\\nPending: ${tasks.length-completed}\\n`;
-                tasks.forEach((t,i) => {
-                    text += `${i+1}. ${t.taskName} | ${t.empStatus} | ${t.timeSpent || 0} min | ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\\n`;
-                });
-                text += `\\n`;
-
-                const logs = (globalWorkLogs || []).filter(w => {
-                    const d = (w.WorkDate || '').split('-');
-                    return d.length === 3 && `${d[1]}-${d[2]}` === key;
+                    if(a.InTime) present++; else if(l.includes('leave')) leave++; else if(l.includes('weekoff')) weekoff++; else absent++;
                 });
                 let total=0;
-                text += `*Work Details*\\n`;
-                if(logs.length) {
-                    logs.forEach((w,i) => {
-                        total += Number(w.TimeSpentMins) || 0;
-                        text += `${i+1}. ${w.WorkDate} | ${w.Task} | ${w.TimeSpentMins} min\\n   ${w.Description || 'No description'}\\n`;
+                monthLogs.forEach(w => total += Number(w.TimeSpentMins) || 0);
+                const completed = monthTasks.filter(t => (t.empStatus || '').toLowerCase() === 'completed').length;
+
+                text += `📅 *Month:* ${key || '-'}\n\n`;
+                text += `🕘 *ATTENDANCE SUMMARY*\n`;
+                text += `• Present: ${present}\n• Absent: ${absent}\n• Leave: ${leave}\n• Weekoff: ${weekoff}\n\n`;
+                text += `📌 *TASK SUMMARY*\n`;
+                text += `• Assigned: ${monthTasks.length}\n• Completed: ${completed}\n• Pending: ${monthTasks.length - completed}\n\n`;
+                if(monthTasks.length) {
+                    monthTasks.forEach((t,i) => {
+                        const status = (t.empStatus || '').toLowerCase() === 'completed' ? '✅ Completed' : '⏳ Pending';
+                        text += `${i+1}. *${t.taskName}*\n`;
+                        text += `   • ${status} | ${t.priority || '-'}\n`;
+                        text += `   • Time: ${formatMinsForReport(Number(t.timeSpent) || 0)}\n`;
+                        text += `   • Deadline: ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\n`;
                     });
-                } else text += `No work logs found.\\n`;
-                text += `\\nTotal Logged Work: *${formatMinsForReport(total)}*\\n`;
+                    text += `\n`;
+                }
+                text += `📝 *WORK DETAILS*\n`;
+                if(monthLogs.length) {
+                    monthLogs.forEach((w,i) => {
+                        text += `${i+1}. *${w.WorkDate || '-'}* — ${w.Task || '-'} — ${formatMinsForReport(Number(w.TimeSpentMins)||0)}\n`;
+                        text += `   ↳ ${w.Description || 'No description provided'}\n`;
+                    });
+                } else text += `• No work logs found.\n`;
+                text += `\n⏱️ *Total Logged Work:* ${formatMinsForReport(total)}\n`;
             }
 
-            text += `\\nGenerated: ${new Date().toLocaleString()}`;
+            text += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `📌 *Zimmedar Office ERP*\n`;
+            text += `🕒 Generated: ${new Date().toLocaleString()}`;
             document.getElementById('whatsappReportPreview').value = text;
+
+            const btn = document.getElementById('shareWhatsAppBtn');
+            if(btn) btn.innerHTML = `<i class="fab fa-whatsapp"></i> Copy & Open WhatsApp`;
         }
 
         document.addEventListener('change', function(e) {
@@ -1787,6 +1901,7 @@
 
         async function shareWhatsAppReport() {
             const text = document.getElementById('whatsappReportPreview').value || '';
+            const target = getWhatsAppTargetDetails();
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
@@ -1798,15 +1913,16 @@
             } catch(err) {
                 const box = document.getElementById('whatsappReportPreview');
                 box.focus(); box.select();
+                try { document.execCommand('copy'); } catch(e) {}
             }
 
-            if (whatsappGroupLink) {
-                window.open(whatsappGroupLink, '_blank', 'noopener,noreferrer');
-                alert('Report copied. WhatsApp group opened. Paste the report and press Send.');
+            if (target.whatsappGroupLink) {
+                window.open(target.whatsappGroupLink, '_blank', 'noopener,noreferrer');
+                alert(`Report copied for ${target.name}. WhatsApp group opened. Paste the report and press Send.`);
             } else {
                 const shareUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
                 window.open(shareUrl, '_blank', 'noopener,noreferrer');
-                alert('Report copied. WhatsApp opened. Select the required employee/group and press Send.');
+                alert(`Report copied for ${target.name}. WhatsApp opened. Select the required employee/group and press Send.`);
             }
         }
 
