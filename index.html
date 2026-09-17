@@ -859,7 +859,7 @@
         function fetchDashboardData(username, role, dept) {
             const tbody = document.getElementById('taskTableBody');
             tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
-            fetchDataAPI(username, role, dept);
+            fetchDataAPI(username, role, dept, false, 0);
         }
 
         function fetchDashboardDataSilently() {
@@ -869,44 +869,79 @@
             const username = document.getElementById('displayUser').innerText;
             const role = document.getElementById('displayRole').innerText;
             const dept = document.getElementById('displayDept').innerText;
-            fetchDataAPI(username, role, dept, true);
+            fetchDataAPI(username, role, dept, true, 0);
         }
 
-        function fetchDataAPI(username, role, dept, silent = false) {
-            if(!sessionToken || dashboardSyncInProgress) return;
+        // Dashboard sync: never leave the table stuck on "Loading".
+        // A slow/failed Apps Script response is retried once and then shown to the user.
+        function fetchDataAPI(username, role, dept, silent = false, retryCount = 0) {
+            if(dashboardSyncInProgress) return;
+            if(!sessionToken) {
+                dashboardSyncInProgress = false;
+                if(!silent) {
+                    document.getElementById('taskTableBody').innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-600 font-semibold">Session expired. Please logout and login again.</td></tr>';
+                }
+                return;
+            }
+
             dashboardSyncInProgress = true;
             const formData = new FormData();
-            formData.append('action', 'getDashboardData'); 
+            formData.append('action', 'getDashboardData');
             formData.append('username', username);
             formData.append('role', role);
             formData.append('department', dept);
-             formData.append('sessionToken', sessionToken);
+            formData.append('sessionToken', sessionToken);
 
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    globalAllTasks = data.tasks; 
-                    globalTeamMembers = data.teamMembers; 
-                    globalMonthlyFullAttendance = data.monthlyFullAttendance || []; 
-                    globalWorkLogs = data.workLogs || [];
-                    
-                    if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
-                        populateTeamDropdowns(data.teamMembers);
-                        renderTeamAttendance(data.teamAttendance);
-                    } else {
-                        calculateTimeTracker(data.todayAttendance);
-                        populateLogTaskDropdown(data.tasks); 
-                    }
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-                    filterTasksByEmp(); 
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData, signal: controller.signal, cache: 'no-store' })
+            .then(res => {
+                if(!res.ok) throw new Error('Server returned HTTP ' + res.status);
+                return res.text();
+            })
+            .then(raw => {
+                let data;
+                try { data = JSON.parse(raw); }
+                catch(e) { throw new Error('Invalid response from Google Apps Script. Please redeploy backend_code.js as a Web App.'); }
+
+                if(data.status !== 'success') {
+                    throw new Error(data.message || 'Dashboard data could not be loaded.');
                 }
+
+                globalAllTasks = Array.isArray(data.tasks) ? data.tasks : [];
+                globalTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : [];
+                globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
+                globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : [];
+                globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
+
+                if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
+                    populateTeamDropdowns(globalTeamMembers);
+                    renderTeamAttendance(globalTeamAttendance);
+                } else {
+                    calculateTimeTracker(data.todayAttendance);
+                    populateLogTaskDropdown(globalAllTasks);
+                }
+
+                filterTasksByEmp();
+            })
+            .catch(err => {
+                console.error('Dashboard sync error:', err);
+                if(retryCount < 1) {
+                    setTimeout(() => fetchDataAPI(username, role, dept, silent, retryCount + 1), 800);
+                    return;
+                }
+
+                if(!silent) {
+                    const message = err && err.name === 'AbortError'
+                        ? 'Dashboard loading timed out. Please check the Google Apps Script Web App deployment and try Sync again.'
+                        : (err.message || 'Unable to load dashboard data.');
+                    document.getElementById('taskTableBody').innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-600 font-semibold">${message}<br><button onclick="fetchDashboardDataSilently()" class="mt-3 bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg text-sm">Retry Sync</button></td></tr>`;
+                }
+            })
+            .finally(() => {
+                clearTimeout(timeoutId);
                 dashboardSyncInProgress = false;
-                const syncIcon = document.getElementById('syncIcon');
-                if(syncIcon) syncIcon.classList.remove('fa-spin');
-            }).catch(err => {
-                dashboardSyncInProgress = false;
-                console.log(err);
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             });
