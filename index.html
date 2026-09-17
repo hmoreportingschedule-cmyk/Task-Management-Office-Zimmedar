@@ -6,7 +6,6 @@
     <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Robust SheetJS library for Excel Export from cdnjs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -132,7 +131,6 @@
                         <option value="Traffic">Traffic</option>
                         <option value="Other">Other</option>
                     </select>
-                    
                     <textarea id="actionReasonOther" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg mb-3 text-xs hidden focus:outline-none focus:border-[#5fd3cc]" rows="2" placeholder="Write details here..."></textarea>
                     
                     <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold text-sm py-2 rounded-lg shadow-md transition">Submit Record</button>
@@ -143,13 +141,13 @@
                 </button>
             </div>
 
-            <!-- HOD Only: Notice Box -->
+            <!-- Admin/HOD Notice -->
             <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
                 <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
-                <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
+                <p class="text-xs text-[#a5cacc] mt-1">Manage team tasks, approve requests & export reports.</p>
             </div>
 
-            <!-- Comprehensive Report Card Sidebar -->
+            <!-- Report Card Sidebar -->
             <div class="bg-[#1e3e43] border border-[#3e6a6e] p-4 rounded-xl mb-4 text-center">
                 <h3 class="text-[#7db0b1] uppercase text-xs font-bold mb-2">Monthly Grade</h3>
                 <div id="monthlyGrade" class="text-5xl font-extrabold text-[#f59e0b]">-</div>
@@ -330,7 +328,7 @@
         <div class="modal-content relative max-w-md shadow-2xl">
             <span onclick="closeLogWorkModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2">Log Daily Work</h3>
-            <p class="text-sm text-gray-500 mb-6">Enter how much time you spent on a task today.</p>
+            <p class="text-sm text-gray-500 mb-6">Enter how much time you spent on a task today. (Max once per task per day)</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Task:</label>
@@ -363,7 +361,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
                 </div>
-                
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
@@ -374,7 +371,6 @@
                         <input type="date" id="newTaskEnd" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Priority:</label>
@@ -405,15 +401,14 @@
             <span onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-gray-900 mb-2"><i class="fas fa-envelope-open-text text-[#259b94]"></i> Email Performance Report</h3>
             <p class="text-sm text-gray-500 mb-6">Send an employee's current progress report directly to their HOD.</p>
-            
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
-                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required></select>
+                    <select id="emailEmpSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required></select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">HOD Email Address:</label>
-                    <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="hod@company.com" required>
+                    <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="hod@company.com" required>
                 </div>
                 <button id="sendEmailBtn" onclick="sendReportCardEmail()" class="w-full bg-[#1e3e43] hover:bg-[#112a2e] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Send Email Report</button>
             </div>
@@ -653,7 +648,7 @@
             let [hours, minutes] = time.split(':');
             if(!hours || !minutes) return 0;
             if (hours === '12') hours = '00';
-            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+            if (modifier && modifier.toUpperCase() === 'PM') hours = parseInt(hours, 10) + 12;
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
         }
 
@@ -737,7 +732,6 @@
             if(['Punch In', 'Punch Out', 'Break Start', 'Break End'].includes(action) && !rawManualTime) {
                 alert("Select Time manually!"); return;
             }
-
             if (action === 'Punch Out') {
                 const shiftStr = document.getElementById('displayOfficeTime').innerText.toLowerCase();
                 if (shiftStr && shiftStr !== '--' && shiftStr.includes('to')) {
@@ -745,8 +739,7 @@
                     if (parts.length > 1) {
                         const endTimeStr = parts[1].trim(); 
                         const endMins = timeToMins(endTimeStr);
-                        
-                        let outMins;
+                                                 let outMins;
                         if (rawManualTime) {
                             outMins = timeToMins(formatTime12h(rawManualTime));
                         } else {
@@ -760,9 +753,7 @@
                     }
                 }
             }
-
             const manualTime12h = formatTime12h(rawManualTime);
-
             btn.innerText = "Saving..."; btn.disabled = true;
             const formData = new FormData();
             formData.append('action', 'attendance');
@@ -771,7 +762,6 @@
             formData.append('reason', reason);
             formData.append('manualTime', manualTime12h);
             formData.append('selectedDate', selectedDate);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
@@ -782,15 +772,12 @@
                 }
                 alert(data.message);
                 btn.innerText = "Submit Record"; btn.disabled = false;
-                
-                document.getElementById('actionReasonSelect').value = '';
+                                  document.getElementById('actionReasonSelect').value = '';
                 document.getElementById('actionReasonOther').value = '';
                 document.getElementById('actionReasonOther').classList.add('hidden');
-                
-                fetchDashboardDataSilently();
+                                  fetchDashboardDataSilently();
             }).catch(err => { alert("Saved!"); btn.innerText = "Submit Record"; btn.disabled = false; });
         }
-
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
             if(isFirstLoad) {
@@ -799,24 +786,20 @@
             }
             fetchDataAPI(username, role, dept, false);
         }
-
         function fetchDashboardDataSilently() {
             const syncIcon = document.getElementById('syncIcon');
             if(syncIcon) syncIcon.classList.add('fa-spin');
-            
-            const username = document.getElementById('displayUser').innerText;
+                          const username = document.getElementById('displayUser').innerText;
             const role = document.getElementById('displayRole').innerText;
             const dept = document.getElementById('displayDept').innerText;
             fetchDataAPI(username, role, dept, true);
         }
-
         function fetchDataAPI(username, role, dept, silent = false) {
             const formData = new FormData();
             formData.append('action', 'getDashboardData'); 
             formData.append('username', username);
             formData.append('role', role);
             formData.append('department', dept);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
@@ -825,15 +808,13 @@
                     globalTeamMembers = data.teamMembers; 
                     globalMonthlyFullAttendance = data.monthlyFullAttendance || []; 
                     globalWorkLogs = data.workLogs || [];
-                    
-                    if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
+                                          if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                         populateTeamDropdowns(data.teamMembers);
                         renderTeamAttendance(data.teamAttendance);
                     } else {
                         calculateTimeTracker(data.todayAttendance);
                         populateLogTaskDropdown(data.tasks); 
                     }
-
                     filterTasksByEmp(); 
                 }
                 isFirstLoad = false;
@@ -849,27 +830,21 @@
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             });
         }
-
         function populateTeamDropdowns(members) {
             const assignSelect = document.getElementById('newTaskUser');
             const filterSelect = document.getElementById('hodEmpFilter');
             const emailEmpSelect = document.getElementById('emailEmpSelect');
-            
-            let currentFilter = filterSelect.value;
-
+                          let currentFilter = filterSelect.value;
             assignSelect.innerHTML = '';
             filterSelect.innerHTML = '<option value="All">All Employees</option>';
             emailEmpSelect.innerHTML = '';
-            
-            members.forEach(m => {
+                          members.forEach(m => {
                 assignSelect.innerHTML += `<option value="${m}">${m}</option>`;
                 filterSelect.innerHTML += `<option value="${m}">${m}</option>`;
                 emailEmpSelect.innerHTML += `<option value="${m}">${m}</option>`;
             });
-
             if(members.includes(currentFilter)) filterSelect.value = currentFilter;
         }
-
         function populateLogTaskDropdown(tasks) {
             const select = document.getElementById('logTaskSelect');
             select.innerHTML = '<option value="">-- Select Active Task --</option>';
@@ -879,12 +854,10 @@
                 }
             });
         }
-
         function filterTasksByEmp() {
             const role = document.getElementById('displayRole').innerText;
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
             let tasksToRender = globalAllTasks;
-
             if(isHOD) {
                 const selectedEmp = document.getElementById('hodEmpFilter').value;
                 if(selectedEmp !== 'All') {
@@ -894,25 +867,20 @@
             renderTasks(tasksToRender, role);
             calculateReportCard(tasksToRender);
         }
-
         function getDeadlineHTML(endDateStr, empStatus) {
             if (!endDateStr || endDateStr === '-') return `<span class="text-gray-500">-</span>`;
             if (empStatus.toLowerCase() === 'completed') {
                  return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs"><i class="fas fa-check"></i> Done</span>`;
             }
-            
-            let parts = endDateStr.split('-');
+                          let parts = endDateStr.split('-');
             if (parts.length !== 3) return `<span class="text-gray-500">${endDateStr}</span>`;
-            
-            let endD = new Date(parts[2], parts[1]-1, parts[0]);
+                          let endD = new Date(parts[2], parts[1]-1, parts[0]);
             let today = new Date();
             endD.setHours(0,0,0,0);
             today.setHours(0,0,0,0);
-            
-            let diffTime = endD - today;
+                          let diffTime = endD - today;
             let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 0) {
+                          if (diffDays < 0) {
                 return `<span class="text-red-600 font-bold px-2 py-1 rounded-md bg-red-50 text-xs">${diffDays} Days (Delayed)</span>`;
             } else if (diffDays === 0) {
                 return `<span class="text-yellow-600 font-bold px-2 py-1 rounded-md bg-yellow-50 text-xs">Due Today</span>`;
@@ -920,16 +888,13 @@
                 return `<span class="text-[#259b94] font-bold px-2 py-1 rounded-md bg-[#e6fcf5] text-xs">+${diffDays} Days Left</span>`;
             }
         }
-
         function renderTasks(tasksToRender, role) {
             const tbody = document.getElementById('taskTableBody'); 
             tbody.innerHTML = ''; 
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
             const isAdmin = role.indexOf('admin') > -1;
-
             let compCount = 0, pendCount = 0;
             let dailyTotal = 0, dailyDone = 0;
-
             tasksToRender.forEach(t => {
                 let eStat = t.empStatus.toLowerCase();
                 if(eStat === 'completed') compCount++; else pendCount++;
@@ -938,38 +903,31 @@
                     if(eStat === 'completed') dailyDone++;
                 }
             });
-
             document.getElementById('statTotal').innerText = tasksToRender.length;
             document.getElementById('statCompleted').innerText = compCount;
             document.getElementById('statPending').innerText = pendCount;
             document.getElementById('statDaily').innerText = `${dailyDone} / ${dailyTotal}`;
-            
-            if(tasksToRender.length > 0) {
+                          if(tasksToRender.length > 0) {
                 let eff = Math.round((compCount / tasksToRender.length) * 100);
                 document.getElementById('metricEfficiency').innerText = `${eff}%`;
             }
-
             if (tasksToRender.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${isHOD?8:7}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
                     let tr = document.createElement('tr');
-                    
-                    let rowClass = "transition hover:bg-gray-50 border-b";
+                                          let rowClass = "transition hover:bg-gray-50 border-b";
                     if (isHOD && task.empStatus.toLowerCase() === 'completed' && task.hodStatus.toLowerCase() === 'pending') {
                         rowClass += " bg-[#e6fcf5]"; 
                     }
                     tr.className = rowClass;
-
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
                     let timeSpentHTML = '';
                     let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
-
                     let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
                     let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
-
                     if (!isHOD && !isAdmin) { // Employee
                         timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         empStatusHTML = `
@@ -1006,7 +964,6 @@
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
                             </select>`;
                     }
-
                     tr.innerHTML = `
                         <td class="py-4 px-6 font-bold text-[#112a2e]">${task.taskName}</td>
                         ${isHOD ? `<td class="py-4 px-6 text-[#259b94] font-bold">${task.assignedTo}</td>` : ''}
@@ -1021,20 +978,16 @@
                 });
             }
         }
-
         function renderTeamAttendance(teamData) {
             const tbody = document.getElementById('teamAttendanceBody');
             tbody.innerHTML = '';
-            
-            const role = document.getElementById('displayRole').innerText;
+                          const role = document.getElementById('displayRole').innerText;
             const isHOD = (role.indexOf('hod') > -1 || role.indexOf('admin') > -1);
             const isAdmin = role.indexOf('admin') > -1;
-
             if(!teamData || teamData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-500 italic">No attendance records or requests pending.</td></tr>';
                 return;
             }
-
             teamData.forEach(r => {
                 const clean = (s) => (s && s.startsWith("'")) ? s.substring(1) : (s || '-');
                 let inT = clean(r.inTime);
@@ -1042,11 +995,8 @@
                 let breaks = clean(r.breaks);
                 let status = clean(r.status);
                 let leave = clean(r.leave);
-                
-                let stateBadge = '';
-                
-                let reqLocked = (status === 'Approved' && !isAdmin) ? 'disabled' : '';
-
+                                  let stateBadge = '';
+                                  let reqLocked = (status === 'Approved' && !isAdmin) ? 'disabled' : '';
                 if (isHOD && (status === 'Pending' || leave !== '-')) {
                     stateBadge = `<select onchange="updateAttStatus(${r.rowIndex}, this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 text-xs font-bold text-[#2a4d53] outline-none cursor-pointer focus:ring-1 focus:ring-[#259b94]" ${reqLocked}>
                                     <option value="Pending" ${status==='Pending'?'selected':''}>Pending Req</option>
@@ -1056,9 +1006,7 @@
                 } else {
                     stateBadge = `<span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">Present</span>`;
                 }
-
                 let rowBg = (isHOD && status === 'Pending') ? "bg-[#fffbeb]" : "hover:bg-gray-50";
-
                 tbody.innerHTML += `
                     <tr class="transition ${rowBg} border-b">
                         <td class="py-4 px-6 font-bold text-gray-800 flex items-center gap-3">
@@ -1073,20 +1021,17 @@
                 `;
             });
         }
-
         function updateTaskDB(rIdx, type, val) {
             const formData = new FormData();
             formData.append('action', 'updateTaskStatus'); 
             formData.append('rowIndex', rIdx); 
             formData.append('type', type); 
             formData.append('status', val);
-            
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+                          fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(()=> { 
                 fetchDashboardDataSilently();
             });
         }
-
         function updateAttStatus(rIdx, val) {
             const formData = new FormData();
             formData.append('action', 'updateAttStatus'); 
@@ -1097,7 +1042,6 @@
                 fetchDashboardDataSilently();
             });
         }
-
         function updateTaskTime(rIdx, val) {
             const formData = new FormData();
             formData.append('action', 'updateTaskStatus'); 
@@ -1106,12 +1050,10 @@
             formData.append('status', val); 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
         }
-
         // ================= HOD ASSIGN TASK =================
         function openAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'block'; }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
-        
-        function submitNewTask() {
+                  function submitNewTask() {
             const tUser = document.getElementById('newTaskUser').value;
             const tName = document.getElementById('newTaskName').value;
             const tPrio = document.getElementById('newTaskPriority').value;
@@ -1119,9 +1061,7 @@
             const tStart = document.getElementById('newTaskStart').value;
             const tEnd = document.getElementById('newTaskEnd').value;
             const dept = document.getElementById('displayDept').innerText;
-
             if(!tUser || !tName || !tStart || !tEnd) { alert("Fill all required fields including dates!"); return; }
-
             document.getElementById('saveTaskBtn').innerText = "Assigning...";
             const formData = new FormData();
             formData.append('action', 'assignNewTask');
@@ -1132,7 +1072,6 @@
             formData.append('frequency', tFreq);
             formData.append('startDate', tStart);
             formData.append('endDate', tEnd);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
@@ -1142,24 +1081,19 @@
                 fetchDashboardDataSilently();
             }).catch(e => alert("Assigned!"));
         }
-
         // ================= EMP LOG DAILY WORK =================
         function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; }
         function closeLogWorkModal() { document.getElementById('logWorkModal').style.display = 'none'; }
-        
-        function submitWorkLog() {
+                  function submitWorkLog() {
             const taskSel = document.getElementById('logTaskSelect');
             const tIdx = taskSel.value;
             const tName = taskSel.options[taskSel.selectedIndex].text;
             const mins = document.getElementById('logTimeMins').value;
             const desc = document.getElementById('logDesc').value;
             const username = document.getElementById('displayUser').innerText;
-
             if(!tIdx || !mins) { alert("Please select task and enter time!"); return; }
-
             document.getElementById('saveLogBtn').innerText = "Saving...";
             document.getElementById('saveLogBtn').disabled = true;
-
             const formData = new FormData();
             formData.append('action', 'logWork');
             formData.append('username', username);
@@ -1167,10 +1101,15 @@
             formData.append('taskName', tName);
             formData.append('timeSpent', mins);
             formData.append('description', desc);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
+                if(data.status === 'error') {
+                    alert(data.message);
+                    document.getElementById('saveLogBtn').innerText = "Save Log";
+                    document.getElementById('saveLogBtn').disabled = false;
+                    return;
+                }
                 alert(data.message);
                 document.getElementById('saveLogBtn').innerText = "Save Log";
                 document.getElementById('saveLogBtn').disabled = false;
@@ -1183,33 +1122,27 @@
                 closeLogWorkModal();
             });
         }
-
-        // ================= EMAIL REPORT CARD =================
+        // ================= EMAIL REPORT CARD (ADMIN) =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
-        
-        function sendReportCardEmail() {
+                  function sendReportCardEmail() {
             const targetEmp = document.getElementById('emailEmpSelect').value;
             const hodEmail = document.getElementById('hodEmailAddress').value;
             const btn = document.getElementById('sendEmailBtn');
-
             if(!targetEmp || !hodEmail) {
                 alert("Please select employee and provide HOD email.");
                 return;
             }
-
             const empTasks = globalAllTasks.filter(t => t.assignedTo.trim().toLowerCase() === targetEmp.trim().toLowerCase());
             let comp = 0;
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
-            
-            let attPerc = 100; 
+                          let attPerc = 100; 
             let finalScore = taskPerc; 
             let grade = "D";
             if (finalScore >= 90) grade = "A";
             else if (finalScore >= 80) grade = "B";
             else if (finalScore >= 70) grade = "C";
-
             const reportData = {
                 total: empTasks.length,
                 completed: comp,
@@ -1217,16 +1150,13 @@
                 completionRate: finalScore,
                 grade: grade
             };
-
             btn.innerText = "Sending...";
             btn.disabled = true;
-
             const formData = new FormData();
             formData.append('action', 'emailReport');
             formData.append('empName', targetEmp);
             formData.append('hodEmail', hodEmail);
             formData.append('reportData', JSON.stringify(reportData));
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
@@ -1240,18 +1170,15 @@
                 btn.disabled = false;
             });
         }
-
         // ================= COMPREHENSIVE MONTHLY GRADE =================
         function calculateReportCard(tasks) {
             let taskPerc = 0;
             let attPerc = 0;
-            
-            if(tasks.length > 0) {
+                          if(tasks.length > 0) {
                 let comp = 0;
                 tasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
                 taskPerc = Math.round((comp / tasks.length) * 100);
             }
-
             const today = new Date();
             let daysElapsed = today.getDate(); 
             let presentDays = 0;
@@ -1263,29 +1190,23 @@
             if(daysElapsed > 0) {
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
-
             let finalScore = Math.round((taskPerc * 0.5) + (attPerc * 0.5));
             if(tasks.length === 0) finalScore = attPerc; 
-            
-            let grade = "D";
+                          let grade = "D";
             let color = "text-red-500";
             if (finalScore >= 90) { grade = "A"; color = "text-[#10b981]"; }
             else if (finalScore >= 80) { grade = "B"; color = "text-[#259b94]"; }
             else if (finalScore >= 70) { grade = "C"; color = "text-[#f59e0b]"; }
-
             const mg = document.getElementById('monthlyGrade');
             mg.innerText = grade;
             mg.className = `text-5xl font-extrabold ${color}`;
             document.getElementById('monthlyPerc').innerText = `${finalScore}% Overall`;
-            
-            document.getElementById('taskPercText').innerText = `${taskPerc}%`;
+                          document.getElementById('taskPercText').innerText = `${taskPerc}%`;
             document.getElementById('attPercText').innerText = `${attPerc}%`;
-            
-            document.getElementById('indivScore').innerText = finalScore.toFixed(1);
+                          document.getElementById('indivScore').innerText = finalScore.toFixed(1);
             document.getElementById('deptScore').innerText = (finalScore * 0.85).toFixed(1); 
             document.getElementById('metricEfficiency').innerText = `${taskPerc}%`;
         }
-
         // ================= EXCEL EXPORT (SHEETJS) =================
         function exportToExcel() {
             if(typeof XLSX === 'undefined') {
@@ -1294,8 +1215,7 @@
             }
             try {
                 let wb = XLSX.utils.book_new();
-                
-                let tasksForExport = globalAllTasks.map(t => ({
+                                  let tasksForExport = globalAllTasks.map(t => ({
                     "Task Name": t.taskName || "-",
                     "Assigned To": t.assignedTo || "-",
                     "Department": t.department || "-",
@@ -1309,8 +1229,7 @@
                 }));
                 let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
                 XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
-                
-                let attForExport = globalMonthlyFullAttendance.map(a => ({
+                                  let attForExport = globalMonthlyFullAttendance.map(a => ({
                     "Date": a.Date || "-",
                     "Employee": a.Employee || "-",
                     "In Time": a.InTime || "-",
@@ -1321,8 +1240,7 @@
                 }));
                 let wsAtt = XLSX.utils.json_to_sheet(attForExport);
                 XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
-                
-                let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs.map(w => ({
+                                  let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs.map(w => ({
                     "Date": w.Date || "-",
                     "Employee": w.Employee || "-",
                     "Task Name": w.Task || "-",
@@ -1330,8 +1248,7 @@
                     "Description": w.Description || "-"
                 })));
                 XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
-                
-                let username = document.getElementById('displayUser').innerText;
+                                  let username = document.getElementById('displayUser').innerText;
                 let grade = document.getElementById('monthlyGrade').innerText;
                 let overall = document.getElementById('monthlyPerc').innerText;
                 let summaryData = [
@@ -1343,14 +1260,12 @@
                 ];
                 let wsSummary = XLSX.utils.json_to_sheet(summaryData);
                 XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
-
                 XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
             } catch(e) {
                 alert("Error exporting Excel: " + e.message);
                 console.error(e);
             }
         }
-
         // ================= ANALYSATION MODAL =================
         function openAnalysationModal() {
             document.getElementById('analysationModal').style.display = 'block';
@@ -1393,7 +1308,6 @@
                 }
             });
         }
-
         // ================= PROGRESS CARD MODAL =================
         function openProgressCardModal() {
             document.getElementById('progressCardModal').style.display = 'block';
@@ -1447,7 +1361,6 @@
                 let prioColorClass = 'dot-green'; let pLabel = 'Normal';
                 if(t.priority.toLowerCase() === 'high') { prioColorClass = 'dot-red'; pLabel = 'High'; }
                 if(t.priority.toLowerCase() === 'urgent') { prioColorClass = 'dot-red'; pLabel = 'Urgent'; }
-
                 let sLabel = 'In Progress'; let statColorClass = 'dot-orange'; let progPercent = 40; 
                 if (t.empStatus.toLowerCase() === 'completed') {
                     sLabel = 'Done'; statColorClass = 'dot-green'; progPercent = 100;
@@ -1456,7 +1369,6 @@
                 } else {
                     progPercent = 0; 
                 }
-
                 let displayTime = t.timeSpent ? t.timeSpent + ' min' : '-';
                 tbody.innerHTML += `
                     <tr class="transition hover:bg-gray-50">
@@ -1477,7 +1389,6 @@
                 `;
             });
         }
-
         // ================= PROJECT SCHEDULE MODAL =================
         function parseDDMMYYYY(dateStr) {
             if(!dateStr || dateStr === '-') return new Date();
@@ -1524,7 +1435,6 @@
             });
         }
         function closeScheduleModal() { document.getElementById('scheduleModal').style.display = 'none'; }
-
         // ================= ATTENDANCE ONE VIEW =================
         function openOneViewModal() {
             document.getElementById('oneViewModal').style.display = 'block';
@@ -1535,15 +1445,12 @@
             fetchOneViewData();
         }
         function closeOneViewModal() { document.getElementById('oneViewModal').style.display = 'none'; }
-        
-        function fetchOneViewData() {
+                  function fetchOneViewData() {
             document.getElementById('oneViewLoading').style.display = 'inline';
             const username = document.getElementById('displayUser').innerText;
             const role = document.getElementById('displayRole').innerText;
             const dept = document.getElementById('displayDept').innerText;
-            const monthYear = document.getElementById('oneViewMonthPicker').value; 
-            
-            if(!monthYear) {
+            const monthYear = document.getElementById('oneViewMonthPicker').value;                           if(!monthYear) {
                 alert('Please select a month');
                 document.getElementById('oneViewLoading').style.display = 'none';
                 return;
@@ -1554,7 +1461,6 @@
             formData.append('role', role);
             formData.append('department', dept);
             formData.append('monthYear', monthYear);
-
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
@@ -1567,78 +1473,62 @@
                 alert("Failed to load One View Data");
             });
         }
-
         function renderOneViewTable(members, records, monthYear) {
             const [yStr, mStr] = monthYear.split('-');
             const year = parseInt(yStr, 10);
             const month = parseInt(mStr, 10);
             const daysInMonth = new Date(year, month, 0).getDate();
-
             let theadHtml = `<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
             for(let d = 1; d <= daysInMonth; d++) {
                 theadHtml += `<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
             }
             theadHtml += `<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
             document.getElementById('oneViewThead').innerHTML = passedHeaders = theadHtml;
-
             let matrix = {};
             members.forEach(m => matrix[m] = {});
-
             records.forEach(r => {
                 if(!matrix[r.user]) return;
                 let parts = r.date.split('-');
                 let d = parseInt(parts[0], 10);
-                
-                let status = '';
+                                  let status = '';
                 if (r.inTime) status = 'P'; 
                 else if (r.leave && r.leave.toLowerCase().includes('leave')) status = 'L';
                 else if (r.leave && r.leave.toLowerCase().includes('weekoff')) status = 'W';
                 else if (r.leave && r.leave.toLowerCase().includes('adjustment')) status = 'Adj';
-
                 if (status === 'P' || !matrix[r.user][d]) {
                     matrix[r.user][d] = status; 
                 }
             });
-
             const tbody = document.getElementById('oneViewTbody');
             tbody.innerHTML = '';
-            
-            const today = new Date();
+                          const today = new Date();
             const isCurrentMonth = (today.getFullYear() === year && (today.getMonth()+1) === month);
             const currentDay = today.getDate();
-
             members.forEach((m, idx) => {
                 let pCount = 0; let aCount = 0; let lCount = 0; let wCount = 0;
                 let rowHtml = `<tr class="hover:bg-[#e6fcf5] transition"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border font-bold text-gray-800 ov-light-teal">${m}</td>`;
-
                 for(let d = 1; d <= daysInMonth; d++) {
                     let s = matrix[m][d];
-                    
-                    if(!s) {
+                                          if(!s) {
                         let isPast = (year < today.getFullYear()) || 
                                       (year == today.getFullYear() && month < (today.getMonth()+1)) || 
                                       (isCurrentMonth && d < currentDay);
                         if(isPast) s = 'A'; 
                         else s = '-'; 
                     }
-
                     if(s === 'P') pCount++;
                     if(s === 'A') aCount++;
                     if(s === 'L') lCount++;
                     if(s === 'W') wCount++;
-
                     let color = 'text-gray-400';
                     if(s==='P') color = 'text-[#259b94] font-extrabold';
                     if(s==='A') color = 'text-red-500 font-extrabold bg-red-50';
                     if(s==='L') color = 'text-yellow-600 font-extrabold bg-yellow-50';
                     if(s==='W') color = 'text-blue-500 font-extrabold bg-blue-50';
-
                     rowHtml += `<td class="p-1 border text-center text-xs ${color}">${s}</td>`;
                 }
-
                 let workingDays = pCount + aCount; 
                 let perc = workingDays > 0 ? Math.round((pCount / workingDays) * 100) : 0;
-
                 rowHtml += `
                     <td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${pCount}</td>
                     <td class="p-2 border text-center font-bold text-red-500 bg-red-50">${aCount}</td>
@@ -1646,10 +1536,8 @@
                     <td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${wCount}</td>
                     <td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td>
                 </tr>`;
-                
-                tbody.innerHTML += rowHtml;
+                                  tbody.innerHTML += rowHtml;
             });
-
             if (members.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${daysInMonth + 7}" class="text-center p-8 text-gray-500 italic font-medium">No employees found in your department.</td></tr>`;
             }
