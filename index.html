@@ -458,7 +458,7 @@
         <div class="modal-content relative max-w-lg shadow-2xl">
             <span onclick="closeWhatsAppReportModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fab fa-whatsapp text-[#25D366]"></i> WhatsApp Report</h3>
-            <p class="text-sm text-gray-500 mb-5">Your assigned WhatsApp group will open and the report text will be copied for quick sharing.</p>
+            <p id="whatsappReportHint" class="text-sm text-gray-500 mb-5">Report will be copied for sharing. If a group is assigned, it will open automatically.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Report Type:</label>
@@ -853,6 +853,67 @@
                 
                 fetchDashboardDataSilently();
             }).catch(err => { alert("Saved!"); btn.innerText = "Submit Record"; btn.disabled = false; });
+        }
+
+        // ================= TODAY SHIFT TRACKER =================
+        function calculateTimeTracker(att) {
+            const breakEl = document.getElementById('todayBreakTime');
+            const netEl = document.getElementById('todayNetWork');
+            if (!breakEl || !netEl) return;
+
+            const toMins = (v) => {
+                if (v === null || v === undefined || v === '') return null;
+                if (v instanceof Date) return v.getHours() * 60 + v.getMinutes();
+                const n = Number(v);
+                if (!isNaN(n) && n >= 0 && n <= 1440) return n;
+                const m = String(v).trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+                if (!m) return null;
+                let h = Number(m[1]), min = Number(m[2]);
+                const ap = (m[3] || '').toUpperCase();
+                if (ap === 'PM' && h < 12) h += 12;
+                if (ap === 'AM' && h === 12) h = 0;
+                return h * 60 + min;
+            };
+
+            if (!att) {
+                breakEl.innerText = '0 Min';
+                netEl.innerText = '0h 0m';
+                return;
+            }
+
+            const inM = toMins(att.inTime);
+            let outM = toMins(att.outTime);
+            let breakM = 0;
+            const bs = toMins(att.breakStarts);
+            const be = toMins(att.breakEnds);
+            if (bs !== null && be !== null) breakM += Math.max(0, be - bs);
+
+            // Support multiple break pairs stored as "time | time" values.
+            const bsRaw = String(att.breakStarts || '');
+            const beRaw = String(att.breakEnds || '');
+            const bsParts = bsRaw.split('|').map(x => toMins(x)).filter(x => x !== null);
+            const beParts = beRaw.split('|').map(x => toMins(x)).filter(x => x !== null);
+            if (bsParts.length > 1 || beParts.length > 1) {
+                breakM = 0;
+                const count = Math.min(bsParts.length, beParts.length);
+                for (let i = 0; i < count; i++) breakM += Math.max(0, beParts[i] - bsParts[i]);
+            }
+
+            breakEl.innerText = `${breakM} Min`;
+            if (inM === null) {
+                netEl.innerText = '0h 0m';
+                return;
+            }
+
+            if (outM === null) {
+                const now = new Date();
+                outM = now.getHours() * 60 + now.getMinutes();
+            }
+            if (outM < inM) outM += 24 * 60;
+            const net = Math.max(0, (outM - inM) - breakM);
+            const h = Math.floor(net / 60);
+            const m = net % 60;
+            netEl.innerText = `${h}h ${m}m`;
         }
 
         // ================= FETCH ALL DATA =================
@@ -1599,14 +1660,14 @@
 
         // ================= WHATSAPP REPORT =================
         function openWhatsAppReportModal() {
-            if(!whatsappGroupLink) {
-                alert("No WhatsApp group link is assigned to this employee. Admin can add it in Users sheet column G: WhatsApp Group Link.");
-                return;
-            }
             document.getElementById('whatsappReportModal').style.display = 'block';
             const now = new Date();
             document.getElementById('whatsappReportDate').value = now.toISOString().split('T')[0];
             document.getElementById('whatsappReportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const hint = document.getElementById('whatsappReportHint');
+            if (hint) hint.innerText = whatsappGroupLink
+                ? 'Assigned WhatsApp group will open automatically after the report is copied.'
+                : 'No group is assigned yet. You can still share the report through WhatsApp.';
             toggleWhatsAppReportInputs();
             generateWhatsAppReportPreview();
         }
@@ -1725,20 +1786,28 @@
         });
 
         async function shareWhatsAppReport() {
-            if(!whatsappGroupLink) {
-                alert("WhatsApp group link is not assigned.");
-                return;
-            }
-            const text = document.getElementById('whatsappReportPreview').value;
+            const text = document.getElementById('whatsappReportPreview').value || '';
             try {
-                await navigator.clipboard.writeText(text);
-                alert("Report copied. WhatsApp group will open; paste the report and press Send.");
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const box = document.getElementById('whatsappReportPreview');
+                    box.focus(); box.select();
+                    document.execCommand('copy');
+                }
             } catch(err) {
                 const box = document.getElementById('whatsappReportPreview');
                 box.focus(); box.select();
-                alert("Please copy the selected report text, then WhatsApp group will open.");
             }
-            window.open(whatsappGroupLink, '_blank', 'noopener,noreferrer');
+
+            if (whatsappGroupLink) {
+                window.open(whatsappGroupLink, '_blank', 'noopener,noreferrer');
+                alert('Report copied. WhatsApp group opened. Paste the report and press Send.');
+            } else {
+                const shareUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
+                window.open(shareUrl, '_blank', 'noopener,noreferrer');
+                alert('Report copied. WhatsApp opened. Select the required employee/group and press Send.');
+            }
         }
 
         // ================= ANALYSATION MODAL =================
