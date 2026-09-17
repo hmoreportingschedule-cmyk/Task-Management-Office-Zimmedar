@@ -6,7 +6,7 @@
     <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Robust SheetJS library for Excel Export from cdnjs -->
+    <!-- Add SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -39,9 +39,9 @@
 
         .oneview-table th { border: 1px solid #cbd5e1; }
         .oneview-table td { border: 1px solid #e2e8f0; }
-        .ov-teal { background-color: #0d9488; color: white; }
+        .ov-teal { background-color: #259b94; color: white; }
         .ov-yellow { background-color: #fbbf24; color: #78350f; }
-        .ov-light-teal { background-color: #ccfbf1; }
+        .ov-light-teal { background-color: #e6fcf5; }
 
         .sched-main-header { background-color: #259b94; color: white; padding: 15px; font-size: 1.5rem; }
         .sched-sub-header { background-color: #7db0b1; color: #112a2e; padding: 10px; font-weight: bold; }
@@ -140,17 +140,12 @@
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
-
-                <!-- NEW: WHATSAPP SHARE REPORT BUTTON -->
-                <button onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4 flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-lg"></i> Share WhatsApp Report
-                </button>
             </div>
 
-            <!-- Admin/HOD Notice -->
+            <!-- Notice Box -->
             <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
                 <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
-                <p class="text-xs text-[#a5cacc] mt-1">Manage team tasks, approve requests & export reports.</p>
+                <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
             </div>
 
             <!-- Comprehensive Report Card Sidebar -->
@@ -190,9 +185,11 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <!-- EXCEL EXPORT BUTTON -->
                         <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </button>
+
                         <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
                         </button>
@@ -203,7 +200,10 @@
                             <i class="fas fa-calendar-week text-blue-500"></i> Project Schedule
                         </button>
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-calendar-alt"></i> One View
+                            <i class="fas fa-calendar-alt"></i> Attendance Sheet
+                        </button>
+                        <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fab fa-whatsapp"></i> WhatsApp Report
                         </button>
                         <!-- EMAIL BUTTON (ADMIN ONLY) -->
                         <button onclick="openEmailModal()" class="admin-only bg-[#1e3e43] hover:bg-[#112a2e] text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
@@ -335,7 +335,7 @@
         <div class="modal-content relative max-w-md shadow-2xl">
             <span onclick="closeLogWorkModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2">Log Daily Work</h3>
-            <p class="text-sm text-gray-500 mb-6">Enter how much time you spent on a task today. (Max once per task per day)</p>
+            <p class="text-sm text-gray-500 mb-6">Enter how much time you spent on a task today.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Task:</label>
@@ -349,6 +349,10 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">What did you do? (Description):</label>
                     <textarea id="logDesc" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" rows="3" placeholder="Called 15 clients, updated sheet..."></textarea>
                 </div>
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-orange-50 border border-orange-100 cursor-pointer">
+                    <input type="checkbox" id="markTaskCompleted" class="w-4 h-4 accent-orange-500">
+                    <span class="text-sm font-semibold text-gray-700">Mark this task as Completed</span>
+                </label>
                 <button id="saveLogBtn" onclick="submitWorkLog()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Save Log</button>
             </div>
         </div>
@@ -368,7 +372,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
                 </div>
-                
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
@@ -379,7 +382,6 @@
                         <input type="date" id="newTaskEnd" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Priority:</label>
@@ -410,7 +412,6 @@
             <span onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-gray-900 mb-2"><i class="fas fa-envelope-open-text text-[#259b94]"></i> Email Performance Report</h3>
             <p class="text-sm text-gray-500 mb-6">Send an employee's current progress report directly to their HOD.</p>
-            
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
@@ -421,6 +422,64 @@
                     <input type="email" id="hodEmailAddress" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="hod@company.com" required>
                 </div>
                 <button id="sendEmailBtn" onclick="sendReportCardEmail()" class="w-full bg-[#1e3e43] hover:bg-[#112a2e] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Send Email Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN ATTENDANCE EDIT MODAL -->
+    <div id="attendanceEditModal" class="modal">
+        <div class="modal-content relative max-w-lg shadow-2xl">
+            <span onclick="closeAttendanceEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-shield text-[#259b94]"></i> Admin Attendance Correction</h3>
+            <p class="text-sm text-gray-500 mb-5">Only Admin can correct an already submitted attendance record.</p>
+            <input type="hidden" id="editAttRowIndex">
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">In Time</label><input type="text" id="editAttIn" class="w-full border p-3 rounded-lg" placeholder="09:30 AM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Out Time</label><input type="text" id="editAttOut" class="w-full border p-3 rounded-lg" placeholder="07:00 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Break Start</label><input type="text" id="editAttBreakStart" class="w-full border p-3 rounded-lg" placeholder="02:00 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Break End</label><input type="text" id="editAttBreakEnd" class="w-full border p-3 rounded-lg" placeholder="02:30 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Leave / Weekoff</label><input type="text" id="editAttLeave" class="w-full border p-3 rounded-lg" placeholder="Leave"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Approval Status</label>
+                    <select id="editAttStatus" class="w-full border p-3 rounded-lg">
+                        <option>Pending</option><option>Approved</option><option>Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-gray-600 mb-1">Reason</label>
+                <textarea id="editAttReason" class="w-full border p-3 rounded-lg" rows="3"></textarea>
+            </div>
+            <button id="saveAttEditBtn" onclick="saveAttendanceCorrection()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg">Save Correction</button>
+        </div>
+    </div>
+
+    <!-- WHATSAPP REPORT MODAL -->
+    <div id="whatsappReportModal" class="modal">
+        <div class="modal-content relative max-w-lg shadow-2xl">
+            <span onclick="closeWhatsAppReportModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fab fa-whatsapp text-[#25D366]"></i> WhatsApp Report</h3>
+            <p class="text-sm text-gray-500 mb-5">Your assigned WhatsApp group will open and the report text will be copied for quick sharing.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Report Type:</label>
+                    <select id="whatsappReportType" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none" onchange="toggleWhatsAppReportInputs()">
+                        <option value="daily">Daily Report</option>
+                        <option value="monthly">Monthly Report</option>
+                    </select>
+                </div>
+                <div id="whatsappDailyBox">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Date:</label>
+                    <input type="date" id="whatsappReportDate" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none">
+                </div>
+                <div id="whatsappMonthlyBox" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Month:</label>
+                    <input type="month" id="whatsappReportMonth" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none">
+                </div>
+                <textarea id="whatsappReportPreview" class="w-full border border-gray-300 p-3 rounded-lg text-xs bg-gray-50" rows="12" readonly></textarea>
+                <button onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3 rounded-lg shadow-lg transition">
+                    <i class="fab fa-whatsapp"></i> Copy & Open WhatsApp Group
+                </button>
+                <p class="text-xs text-gray-500 text-center">For security, the report is prepared in the browser. WhatsApp group messages still require your final Send action.</p>
             </div>
         </div>
     </div>
@@ -547,7 +606,7 @@
     <div id="oneViewModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeOneViewModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance One View</h2>
+            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance Sheet</h2>
             <p class="text-xs text-gray-500 mb-6">Comprehensive monthly view of employee attendance, leaves, and absences.</p>
             
             <div class="flex items-end gap-4 mb-4 bg-teal-50 p-4 border border-teal-100 rounded-lg">
@@ -585,8 +644,11 @@
         let globalTeamMembers = [];
         let globalMonthlyFullAttendance = []; 
         let globalWorkLogs = [];
+        let globalTeamAttendance = [];
         let monthlyChartInst = null;
-        let isFirstLoad = true;
+        let dashboardSyncInProgress = false;
+        let sessionToken = "";
+        let whatsappGroupLink = "";
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -611,7 +673,7 @@
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12 || 12;
+            h = h % 12; h = h ? h : 12;
             const formattedTime = `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
             
             document.getElementById('currentDate').innerText = `${day}-${month}-${year}`;
@@ -658,7 +720,7 @@
             let [hours, minutes] = time.split(':');
             if(!hours || !minutes) return 0;
             if (hours === '12') hours = '00';
-            if (modifier && modifier.toUpperCase() === 'PM') hours = parseInt(hours, 10) + 12;
+            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
         }
 
@@ -684,6 +746,8 @@
                     document.getElementById('login-section').style.display = 'none';
                     document.getElementById('dashboard-section').style.display = 'flex';
                     
+                    sessionToken = data.sessionToken || "";
+                    whatsappGroupLink = data.whatsappGroupLink || "";
                     document.getElementById('displayUser').innerText = data.actualName;
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
@@ -716,7 +780,6 @@
                         document.getElementById('empTimeTracker').style.display = 'flex';
                     }
 
-                    isFirstLoad = true;
                     fetchDashboardData(data.actualName, role, data.department);
                 } else {
                     alert(data.message || "Invalid Credentials");
@@ -744,24 +807,19 @@
             }
 
             if (action === 'Punch Out') {
-                const shiftStr = document.getElementById('displayOfficeTime').innerText.toLowerCase();
-                if (shiftStr && shiftStr !== '--' && shiftStr.includes('to')) {
-                    const parts = shiftStr.split('to');
-                    if (parts.length > 1) {
-                        const endTimeStr = parts[1].trim(); 
-                        const endMins = timeToMins(endTimeStr);
-                        
-                        let outMins;
-                        if (rawManualTime) {
-                            outMins = timeToMins(formatTime12h(rawManualTime));
-                        } else {
-                            const now = new Date();
-                            outMins = now.getHours() * 60 + now.getMinutes();
-                        }
-                        if (outMins < endMins) {
-                            alert(`Closing time is ${endTimeStr.toUpperCase()}. You cannot Punch Out early! Please use 'Leave' or 'Time Adjustment' with HOD approval if you are leaving early.`);
-                            return;
-                        }
+                const shiftStr = document.getElementById('displayOfficeTime').innerText;
+                const parts = shiftStr.toLowerCase().split('to');
+                if (parts.length > 1) {
+                    const endTimeStr = parts[1].trim();
+                    const endMins = timeToMins(endTimeStr);
+                    const now = new Date();
+                    const currentMins = now.getHours() * 60 + now.getMinutes();
+
+                    // Compare actual current time, never the manually entered time.
+                    if (endMins >= 0 && currentMins < endMins) {
+                        const now12 = formatTime12h(String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0'));
+                        alert(`Closing time is ${endTimeStr.toUpperCase()}. Punch Out is not allowed before closing time. Current time is ${now12}.`);
+                        return;
                     }
                 }
             }
@@ -776,6 +834,7 @@
             formData.append('reason', reason);
             formData.append('manualTime', manualTime12h);
             formData.append('selectedDate', selectedDate);
+            formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -798,11 +857,9 @@
 
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
-            if(isFirstLoad) {
-                const tbody = document.getElementById('taskTableBody');
-                tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
-            }
-            fetchDataAPI(username, role, dept, false);
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
+            fetchDataAPI(username, role, dept);
         }
 
         function fetchDashboardDataSilently() {
@@ -816,18 +873,21 @@
         }
 
         function fetchDataAPI(username, role, dept, silent = false) {
+            if(!sessionToken || dashboardSyncInProgress) return;
+            dashboardSyncInProgress = true;
             const formData = new FormData();
             formData.append('action', 'getDashboardData'); 
             formData.append('username', username);
             formData.append('role', role);
             formData.append('department', dept);
+             formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    globalAllTasks = data.tasks || []; 
-                    globalTeamMembers = data.teamMembers || []; 
+                    globalAllTasks = data.tasks; 
+                    globalTeamMembers = data.teamMembers; 
                     globalMonthlyFullAttendance = data.monthlyFullAttendance || []; 
                     globalWorkLogs = data.workLogs || [];
                     
@@ -841,15 +901,12 @@
 
                     filterTasksByEmp(); 
                 }
-                isFirstLoad = false;
+                dashboardSyncInProgress = false;
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             }).catch(err => {
+                dashboardSyncInProgress = false;
                 console.log(err);
-                if (isFirstLoad) {
-                    const tbody = document.getElementById('taskTableBody');
-                    tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-red-500 font-semibold">Error loading data. Check Web App URL.</td></tr>';
-                }
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             });
@@ -878,11 +935,19 @@
         function populateLogTaskDropdown(tasks) {
             const select = document.getElementById('logTaskSelect');
             select.innerHTML = '<option value="">-- Select Active Task --</option>';
+            const todayKey = new Date().toLocaleDateString('en-GB').split('/').join('-');
+            const loggedToday = new Set(
+                (globalWorkLogs || []).filter(w => (w.WorkDate || '').toString() === todayKey)
+                    .map(w => String(w.TaskRowIndex || ''))
+            );
             tasks.forEach(t => {
-                if(t.empStatus.toLowerCase() !== 'completed') {
+                if(t.empStatus.toLowerCase() !== 'completed' && !loggedToday.has(String(t.rowIndex))) {
                     select.innerHTML += `<option value="${t.rowIndex}">${t.taskName}</option>`;
                 }
             });
+            if(select.options.length === 1) {
+                select.innerHTML = '<option value="">-- No task available for today --</option>';
+            }
         }
 
         function filterTasksByEmp() {
@@ -900,29 +965,44 @@
             calculateReportCard(tasksToRender);
         }
 
-        function getDeadlineHTML(endDateStr, empStatus) {
+        function getDeadlineHTML(endDateStr, empStatus, completedAt) {
             if (!endDateStr || endDateStr === '-') return `<span class="text-gray-500">-</span>`;
-            if (empStatus.toLowerCase() === 'completed') {
-                 return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs"><i class="fas fa-check"></i> Done</span>`;
-            }
-            
-            let parts = endDateStr.split('-');
-            if (parts.length !== 3) return `<span class="text-gray-500">${endDateStr}</span>`;
-            
-            let endD = new Date(parts[2], parts[1]-1, parts[0]);
-            let today = new Date();
+
+            const endParts = endDateStr.split('-');
+            if (endParts.length !== 3) return `<span class="text-gray-500">${endDateStr}</span>`;
+
+            const endD = new Date(Number(endParts[2]), Number(endParts[1]) - 1, Number(endParts[0]));
             endD.setHours(0,0,0,0);
+
+            if (empStatus.toLowerCase() === 'completed') {
+                if (!completedAt || completedAt === '-') {
+                    return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs"><i class="fas fa-check"></i> Done</span>`;
+                }
+                const cParts = completedAt.split('-');
+                if (cParts.length !== 3) return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">Done</span>`;
+                const completionD = new Date(Number(cParts[2]), Number(cParts[1]) - 1, Number(cParts[0]));
+                completionD.setHours(0,0,0,0);
+
+                // Positive = completed before due date, 0 = on time, negative = delayed.
+                const completionVsDue = Math.round((endD - completionD) / (1000 * 60 * 60 * 24));
+                if (completionVsDue < 0) {
+                    return `<span class="text-red-600 font-bold px-2 py-1 rounded-md bg-red-50 text-xs">${completionVsDue} Days (Delayed)</span>`;
+                }
+                if (completionVsDue === 0) {
+                    return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">0 Days (On Time)</span>`;
+                }
+                return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">+${completionVsDue} Days (Early)</span>`;
+            }
+
+            const today = new Date();
             today.setHours(0,0,0,0);
-            
-            let diffTime = endD - today;
-            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+            const diffDays = Math.round((endD - today) / (1000 * 60 * 60 * 24));
             if (diffDays < 0) {
                 return `<span class="text-red-600 font-bold px-2 py-1 rounded-md bg-red-50 text-xs">${diffDays} Days (Delayed)</span>`;
             } else if (diffDays === 0) {
-                return `<span class="text-yellow-600 font-bold px-2 py-1 rounded-md bg-yellow-50 text-xs">Due Today</span>`;
+                return `<span class="text-yellow-600 font-bold px-2 py-1 rounded-md bg-yellow-50 text-xs">0 Days (Due Today)</span>`;
             } else {
-                return `<span class="text-[#259b94] font-bold px-2 py-1 rounded-md bg-[#e6fcf5] text-xs">+${diffDays} Days Left</span>`;
+                return `<span class="text-green-600 font-bold px-2 py-1 rounded-md bg-green-50 text-xs">+${diffDays} Days Left</span>`;
             }
         }
 
@@ -955,7 +1035,7 @@
             }
 
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?8:7}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -969,24 +1049,21 @@
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = '';
-                    let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
+                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus, task.completedAt);
 
                     let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
                     let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
 
-                    if (!isHOD && !isAdmin) { // Employee
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
-                        empStatusHTML = `
-                            <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer" ${empLocked}>
-                                <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Completed" ${task.empStatus === 'Completed' ? 'selected' : ''}>Completed</option>
-                            </select>`;
+                    if (!isHOD && !isAdmin) {
+                        const eBadge = task.empStatus === 'Completed'
+                            ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded'
+                            : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
+                        empStatusHTML = `<span class="${eBadge}">${task.empStatus === 'Completed' ? 'Completed & Locked' : 'Pending — complete via Log Daily Work'}</span>`;
                         let hBadge = task.hodStatus === 'Approved' ? 'bg-green-100 text-green-700' : (task.hodStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600');
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
                     } 
-                    else if (isHOD && !isAdmin) { // HOD
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
+                    else if (isHOD && !isAdmin) { 
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
@@ -996,8 +1073,7 @@
                                 <option value="Rejected" ${task.hodStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
                             </select>`;
                     } 
-                    else if (isAdmin) { // Admin
-                        timeSpentHTML = `<input type="number" placeholder="Mins" class="border border-[#7db0b1] rounded-md px-2 py-1 w-20 text-xs bg-white focus:ring-1 focus:ring-[#259b94] outline-none transition" value="${task.timeSpent}" onchange="updateTaskTime(${task.rowIndex}, this.value)">`;
+                    else if (isAdmin) { 
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -1062,6 +1138,10 @@
                     stateBadge = `<span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">Present</span>`;
                 }
 
+                if (isAdmin) {
+                    stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex})" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
+                }
+
                 let rowBg = (isHOD && status === 'Pending') ? "bg-[#fffbeb]" : "hover:bg-gray-50";
 
                 tbody.innerHTML += `
@@ -1081,25 +1161,93 @@
 
         function updateTaskDB(rIdx, type, val) {
             const formData = new FormData();
-            formData.append('action', 'updateTaskStatus'); 
-            formData.append('rowIndex', rIdx); 
-            formData.append('type', type); 
+            formData.append('action', 'updateTaskStatus');
+            formData.append('rowIndex', rIdx);
+            formData.append('type', type);
             formData.append('status', val);
-            
+            formData.append('sessionToken', sessionToken);
+
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(()=> { 
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'error') alert(data.message || 'Update rejected.');
                 fetchDashboardDataSilently();
-            });
+            })
+            .catch(() => alert('Update failed. Please try again.'));
         }
 
         function updateAttStatus(rIdx, val) {
             const formData = new FormData();
-            formData.append('action', 'updateAttStatus'); 
-            formData.append('rowIndex', rIdx); 
+            formData.append('action', 'updateAttStatus');
+            formData.append('rowIndex', rIdx);
             formData.append('status', val);
+            formData.append('sessionToken', sessionToken);
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(()=> { 
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'error') alert(data.message || 'Attendance update rejected.');
                 fetchDashboardDataSilently();
+            })
+            .catch(() => alert('Attendance update failed.'));
+        }
+
+        // ================= ADMIN ATTENDANCE CORRECTION =================
+        function cleanDisplayValue(v) {
+            if(v === null || v === undefined) return '';
+            const s = String(v);
+            return s.startsWith("'") ? s.substring(1) : s;
+        }
+
+        function openAttendanceEditModal(rowIndex) {
+            const teamRow = (globalTeamAttendance || []).find(r => Number(r.rowIndex) === Number(rowIndex));
+            let data = null;
+            if(teamRow) {
+                data = (globalMonthlyFullAttendance || []).find(a =>
+                    String(a.Date) === String(teamRow.date) &&
+                    String(a.Employee || '').toLowerCase() === String(teamRow.user || '').toLowerCase()
+                );
+            }
+
+            document.getElementById('editAttRowIndex').value = rowIndex;
+            document.getElementById('editAttIn').value = data ? cleanDisplayValue(data.InTime) : cleanDisplayValue(teamRow?.inTime);
+            document.getElementById('editAttOut').value = data ? cleanDisplayValue(data.OutTime) : cleanDisplayValue(teamRow?.outTime);
+            document.getElementById('editAttBreakStart').value = data ? cleanDisplayValue(data.BreakStarts) : '';
+            document.getElementById('editAttBreakEnd').value = data ? cleanDisplayValue(data.BreakEnds) : '';
+            document.getElementById('editAttLeave').value = data ? cleanDisplayValue(data.Leave) : cleanDisplayValue(teamRow?.leave);
+            document.getElementById('editAttReason').value = data ? cleanDisplayValue(data.Reason) : cleanDisplayValue(teamRow?.reason);
+            document.getElementById('editAttStatus').value = cleanDisplayValue(data ? data.Status : teamRow?.status) || 'Pending';
+            document.getElementById('attendanceEditModal').style.display = 'block';
+        }
+        function closeAttendanceEditModal() { document.getElementById('attendanceEditModal').style.display = 'none'; }
+
+        function saveAttendanceCorrection() {
+            const btn = document.getElementById('saveAttEditBtn');
+            const fd = new FormData();
+            fd.append('action','updateAttendanceRecord');
+            fd.append('rowIndex',document.getElementById('editAttRowIndex').value);
+            fd.append('inTime',document.getElementById('editAttIn').value);
+            fd.append('outTime',document.getElementById('editAttOut').value);
+            fd.append('breakStart',document.getElementById('editAttBreakStart').value);
+            fd.append('breakEnd',document.getElementById('editAttBreakEnd').value);
+            fd.append('leave',document.getElementById('editAttLeave').value);
+            fd.append('reason',document.getElementById('editAttReason').value);
+            fd.append('approvalStatus',document.getElementById('editAttStatus').value);
+            fd.append('sessionToken',sessionToken);
+
+            btn.disabled = true; btn.innerText = 'Saving...';
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd})
+            .then(r=>r.json())
+            .then(data=>{
+                alert(data.message || 'Attendance updated.');
+                btn.disabled=false; btn.innerText='Save Correction';
+                if(data.status==='success') {
+                    closeAttendanceEditModal();
+                    fetchDashboardDataSilently();
+                }
+            })
+            .catch(()=>{
+                btn.disabled=false; btn.innerText='Save Correction';
+                alert('Attendance correction failed.');
             });
         }
 
@@ -1128,15 +1276,21 @@
             formData.append('frequency', tFreq);
             formData.append('startDate', tStart);
             formData.append('endDate', tEnd);
+            formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                alert("Task Assigned!");
+                alert(data.message || (data.status === 'success' ? 'Task Assigned!' : 'Task assignment failed.'));
                 document.getElementById('saveTaskBtn').innerText = "Assign Task";
-                closeAssignTaskModal();
-                fetchDashboardDataSilently();
-            }).catch(e => alert("Assigned!"));
+                if(data.status === 'success') {
+                    closeAssignTaskModal();
+                    fetchDashboardDataSilently();
+                }
+            }).catch(e => {
+                alert("Task assignment failed. Please try again.");
+                document.getElementById('saveTaskBtn').innerText = "Assign Task";
+            });
         }
 
         // ================= EMP LOG DAILY WORK =================
@@ -1163,66 +1317,33 @@
             formData.append('taskName', tName);
             formData.append('timeSpent', mins);
             formData.append('description', desc);
+            formData.append('markCompleted', document.getElementById('markTaskCompleted').checked ? 'true' : 'false');
+            formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if(data.status === 'error') {
-                    alert(data.message);
+                alert(data.message || 'Work log processed.');
+                if(data.status === 'success') {
                     document.getElementById('saveLogBtn').innerText = "Save Log";
                     document.getElementById('saveLogBtn').disabled = false;
-                    return;
+                    document.getElementById('logTimeMins').value = '';
+                    document.getElementById('logDesc').value = '';
+                    document.getElementById('markTaskCompleted').checked = false;
+                    closeLogWorkModal();
+                    fetchDashboardDataSilently();
+                } else {
+                    document.getElementById('saveLogBtn').innerText = "Save Log";
+                    document.getElementById('saveLogBtn').disabled = false;
                 }
-                alert(data.message);
+            }).catch(e => {
+                alert("Unable to save work log. Please try again.");
                 document.getElementById('saveLogBtn').innerText = "Save Log";
                 document.getElementById('saveLogBtn').disabled = false;
-                document.getElementById('logTimeMins').value = '';
-                document.getElementById('logDesc').value = '';
-                closeLogWorkModal();
-                fetchDashboardDataSilently();
-            }).catch(e => {
-                alert("Saved!"); 
-                closeLogWorkModal();
             });
         }
 
-        // ================= WHATSAPP REPORT SHARING =================
-        function shareWhatsAppReport() {
-            const username = document.getElementById('displayUser').innerText;
-            const dept = document.getElementById('displayDept').innerText;
-            const grade = document.getElementById('monthlyGrade').innerText;
-            const overall = document.getElementById('monthlyPerc').innerText;
-
-            let reportText = `📊 *ZIMMEDAR OFFICE REPORT*%0A`;
-            reportText += `👤 Employee: ${username}%0A`;
-            reportText += `🏢 Dept: ${dept}%0A`;
-            reportText += `🏆 Monthly Grade: *${grade}* (${overall})%0A%0A`;
-            
-            reportText += `📌 *Assigned Tasks Overview:*%0A`;
-            if (globalAllTasks.length === 0) {
-                reportText += `No tasks found.%0A`;
-            } else {
-                globalAllTasks.forEach((t, idx) => {
-                    reportText += `${idx + 1}. ${t.taskName} [Status: ${t.empStatus} | Time: ${t.timeSpent || 0} mins]%0A`;
-                });
-            }
-
-            reportText += `%0A🕒 *Recent Daily Work Logs:*%0A`;
-            let userLogs = globalWorkLogs.filter(w => w.Employee.trim().toLowerCase() === username.trim().toLowerCase());
-            if (userLogs.length === 0) {
-                reportText += `No logs recorded yet.%0A`;
-            } else {
-                userLogs.slice(-5).forEach((w, idx) => { // Last 5 logs
-                    reportText += `- ${w.Task}: ${w.TimeSpentMins} mins (${w.Description || 'No desc'})%0A`;
-                });
-            }
-
-            // WhatsApp Web / Mobile Intent
-            const waURL = `https://api.whatsapp.com/send?text=${reportText}`;
-            window.open(waURL, '_blank');
-        }
-
-        // ================= EMAIL REPORT CARD (ADMIN) =================
+        // ================= EMAIL REPORT CARD =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
         
@@ -1241,7 +1362,7 @@
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
             
-            let attPerc = 100; // Simplified for email
+            let attPerc = 100; // Will be properly calculated via main grade logic in backend
             let finalScore = taskPerc; 
             let grade = "D";
             if (finalScore >= 90) grade = "A";
@@ -1264,6 +1385,7 @@
             formData.append('empName', targetEmp);
             formData.append('hodEmail', hodEmail);
             formData.append('reportData', JSON.stringify(reportData));
+            formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -1314,7 +1436,8 @@
             const mg = document.getElementById('monthlyGrade');
             mg.innerText = grade;
             mg.className = `text-5xl font-extrabold ${color}`;
-            document.getElementById('monthlyPerc').innerText = `${finalScore}% Overall`;
+            const monthlyPercEl = document.getElementById('monthlyPerc');
+            if(monthlyPercEl) monthlyPercEl.innerText = `${finalScore}% Overall`;
             
             document.getElementById('taskPercText').innerText = `${taskPerc}%`;
             document.getElementById('attPercText').innerText = `${attPerc}%`;
@@ -1325,62 +1448,262 @@
         }
 
         // ================= EXCEL EXPORT (SHEETJS) =================
+        function autoFitWorksheet(ws) {
+            const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+            const widths = [];
+            for(let c = range.s.c; c <= range.e.c; c++) {
+                let max = 10;
+                for(let r = range.s.r; r <= range.e.r; r++) {
+                    const cell = ws[XLSX.utils.encode_cell({r:r,c:c})];
+                    if(cell && cell.v !== undefined) max = Math.max(max, String(cell.v).length + 2);
+                }
+                widths.push({wch: Math.min(max, 45)});
+            }
+            ws['!cols'] = widths;
+        }
+
         function exportToExcel() {
             if(typeof XLSX === 'undefined') {
                 alert("Excel library is loading, please try again in a few seconds.");
                 return;
             }
-            
+
             let wb = XLSX.utils.book_new();
-            
-            // 1. Tasks Sheet
+
+            // 1. Complete Assigned Tasks
             let tasksForExport = globalAllTasks.map(t => ({
+                "Task ID": t.taskId,
                 "Task Name": t.taskName,
                 "Assigned To": t.assignedTo,
                 "Department": t.department,
                 "Start Date": t.startDate,
                 "End Date": t.endDate,
+                "Deadline Status": getDeadlineExportText(t.endDate, t.empStatus, t.completedAt),
                 "Priority": t.priority,
                 "Frequency": t.frequency,
                 "Time Spent (Mins)": t.timeSpent,
                 "Employee Status": t.empStatus,
-                "HOD Approval": t.hodStatus
+                "HOD Approval": t.hodStatus,
+                "Completed At": t.completedAt || ""
             }));
             let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
+            autoFitWorksheet(wsTasks);
             XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
-            
-            // 2. Attendance Sheet
+
+            // 2. Complete Monthly Attendance
             let attForExport = globalMonthlyFullAttendance.map(a => ({
                 "Date": a.Date,
                 "Employee": a.Employee,
                 "In Time": a.InTime,
                 "Out Time": a.OutTime,
+                "Break Start": a.BreakStarts,
+                "Break End": a.BreakEnds,
                 "Leave/Weekoff": a.Leave,
                 "Reason": a.Reason,
                 "HOD Status": a.Status
             }));
             let wsAtt = XLSX.utils.json_to_sheet(attForExport);
+            autoFitWorksheet(wsAtt);
             XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
-            
-            // 3. Work Logs
-            let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs);
+
+            // 3. Daily Work Logs - time + task details
+            let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs.map(w => ({
+                "Date/Time": w.Date,
+                "Work Date": w.WorkDate,
+                "Employee": w.Employee,
+                "Task": w.Task,
+                "Time Spent (Mins)": w.TimeSpentMins,
+                "Description": w.Description,
+                "Task Row": w.TaskRowIndex
+            })));
+            autoFitWorksheet(wsLogs);
             XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
-            
-            // 4. Progress Summary
+
+            // 4. Performance Report
             let username = document.getElementById('displayUser').innerText;
             let grade = document.getElementById('monthlyGrade').innerText;
-            let overall = document.getElementById('monthlyPerc').innerText;
+            let overall = document.getElementById('indivScore').innerText;
+            let totalTime = (globalWorkLogs || []).reduce((sum,w) => sum + (Number(w.TimeSpentMins) || 0), 0);
             let summaryData = [
                 {"Metric": "Employee", "Value": username},
+                {"Metric": "Overall Score", "Value": overall + "%"},
                 {"Metric": "Overall Grade", "Value": grade},
-                {"Metric": "Performance", "Value": overall},
-                {"Metric": "Total Tasks", "Value": globalAllTasks.length},
-                {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
+                {"Metric": "Total Assigned Tasks", "Value": globalAllTasks.length},
+                {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length},
+                {"Metric": "Pending Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() !== 'completed').length},
+                {"Metric": "Total Logged Work (Mins)", "Value": totalTime},
+                {"Metric": "WhatsApp Group", "Value": whatsappGroupLink || "Not Assigned"}
             ];
             let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            autoFitWorksheet(wsSummary);
             XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
 
-            XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
+            XLSX.writeFile(wb, "Zimmedar_Report_" + username.replace(/[^a-z0-9_-]/gi, "_") + ".xlsx");
+        }
+
+        function getDeadlineExportText(endDateStr, empStatus, completedAt) {
+            if(!endDateStr || endDateStr === '-') return '-';
+            const p = endDateStr.split('-');
+            if(p.length !== 3) return endDateStr;
+            const due = new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
+            due.setHours(0,0,0,0);
+            if((empStatus || '').toLowerCase() === 'completed' && completedAt) {
+                const c = completedAt.split('-');
+                if(c.length === 3) {
+                    const done = new Date(Number(c[2]), Number(c[1])-1, Number(c[0]));
+                    done.setHours(0,0,0,0);
+                    const n = Math.round((due-done)/(1000*60*60*24));
+                    return n < 0 ? n + " Days (Delayed)" : (n === 0 ? "0 Days (On Time)" : "+" + n + " Days (Early)");
+                }
+            }
+            const today = new Date(); today.setHours(0,0,0,0);
+            const n = Math.round((due-today)/(1000*60*60*24));
+            return n < 0 ? n + " Days (Delayed)" : (n === 0 ? "0 Days (Due Today)" : "+" + n + " Days Left");
+        }
+
+
+        // ================= WHATSAPP REPORT =================
+        function openWhatsAppReportModal() {
+            if(!whatsappGroupLink) {
+                alert("No WhatsApp group link is assigned to this employee. Admin can add it in Users sheet column G: WhatsApp Group Link.");
+                return;
+            }
+            document.getElementById('whatsappReportModal').style.display = 'block';
+            const now = new Date();
+            document.getElementById('whatsappReportDate').value = now.toISOString().split('T')[0];
+            document.getElementById('whatsappReportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            toggleWhatsAppReportInputs();
+            generateWhatsAppReportPreview();
+        }
+        function closeWhatsAppReportModal() { document.getElementById('whatsappReportModal').style.display = 'none'; }
+        function toggleWhatsAppReportInputs() {
+            const type = document.getElementById('whatsappReportType').value;
+            document.getElementById('whatsappDailyBox').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('whatsappMonthlyBox').classList.toggle('hidden', type !== 'monthly');
+            generateWhatsAppReportPreview();
+        }
+
+        function formatMinsForReport(mins) {
+            mins = Number(mins) || 0;
+            const h = Math.floor(mins / 60), m = mins % 60;
+            return h > 0 ? `${h}h ${m}m (${mins} min)` : `${mins} min`;
+        }
+
+        function generateWhatsAppReportPreview() {
+            const type = document.getElementById('whatsappReportType').value;
+            const user = document.getElementById('displayUser').innerText;
+            let text = `*ZIMMEDAR OFFICE ERP - ${type === 'daily' ? 'DAILY' : 'MONTHLY'} REPORT*\\n`;
+            text += `Employee: ${user}\\n`;
+
+            if(type === 'daily') {
+                const dateVal = document.getElementById('whatsappReportDate').value;
+                const p = dateVal ? dateVal.split('-') : [];
+                const key = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+                text += `Date: ${key || '-'}\\n\\n`;
+
+                const att = (globalMonthlyFullAttendance || []).find(a => a.Date === key && (a.Employee || '').toString().toLowerCase() === user.toLowerCase());
+                if(att) {
+                    text += `*Attendance*\\nIn: ${att.InTime || '-'} | Out: ${att.OutTime || '-'}\\n`;
+                    text += `Break Start: ${att.BreakStarts || '-'} | Break End: ${att.BreakEnds || '-'}\\n`;
+                    text += `Leave/Weekoff: ${att.Leave || '-'}\\nReason: ${att.Reason || '-'}\\n\\n`;
+                } else {
+                    text += `*Attendance*: No record found\\n\\n`;
+                }
+
+                const activeTasks = (globalAllTasks || []).filter(t => {
+                    const s = (t.startDate || '').split('-');
+                    const e = (t.endDate || '').split('-');
+                    const toIso = p => p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+                    const sd = toIso(s), ed = toIso(e);
+                    return sd && ed && key >= sd && key <= ed;
+                });
+                text += `*Assigned Tasks*\\n`;
+                if(activeTasks.length) {
+                    activeTasks.forEach((t,i) => {
+                        text += `${i+1}. ${t.taskName} | ${t.empStatus} | ${t.timeSpent || 0} min\\n`;
+                    });
+                } else {
+                    text += `No assigned task for this date.\\n`;
+                }
+
+                const logs = (globalWorkLogs || []).filter(w => (w.WorkDate || '') === key);
+                let total = 0;
+                text += `*Work Details*\\n`;
+                if(logs.length) {
+                    logs.forEach((w,i) => {
+                        total += Number(w.TimeSpentMins) || 0;
+                        text += `${i+1}. ${w.Task} - ${w.TimeSpentMins} min\\n   ${w.Description || 'No description'}\\n`;
+                    });
+                } else {
+                    text += `No work log submitted.\\n`;
+                }
+                text += `\\nTotal Work Time: *${formatMinsForReport(total)}*\\n`;
+            } else {
+                const monthVal = document.getElementById('whatsappReportMonth').value;
+                const p = monthVal ? monthVal.split('-') : [];
+                const key = p.length === 2 ? `${p[1]}-${p[0]}` : '';
+                text += `Month: ${key || '-'}\\n\\n`;
+
+                const attRows = (globalMonthlyFullAttendance || []).filter(a => {
+                    const d = (a.Date || '').split('-');
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key && (a.Employee || '').toString().toLowerCase() === user.toLowerCase();
+                });
+                let present=0, leave=0, weekoff=0, absent=0;
+                attRows.forEach(a => {
+                    const l = (a.Leave || '').toString().toLowerCase();
+                    if(a.InTime) present++;
+                    else if(l.includes('leave')) leave++;
+                    else if(l.includes('weekoff')) weekoff++;
+                    else absent++;
+                });
+                text += `*Attendance Summary*\\nPresent: ${present}\\nAbsent: ${absent}\\nLeave: ${leave}\\nWeekoff: ${weekoff}\\n\\n`;
+
+                const tasks = globalAllTasks || [];
+                const completed = tasks.filter(t => (t.empStatus || '').toLowerCase() === 'completed').length;
+                text += `*Task Summary*\\nAssigned: ${tasks.length}\\nCompleted: ${completed}\\nPending: ${tasks.length-completed}\\n`;
+                tasks.forEach((t,i) => {
+                    text += `${i+1}. ${t.taskName} | ${t.empStatus} | ${t.timeSpent || 0} min | ${getDeadlineExportText(t.endDate, t.empStatus, t.completedAt)}\\n`;
+                });
+                text += `\\n`;
+
+                const logs = (globalWorkLogs || []).filter(w => {
+                    const d = (w.WorkDate || '').split('-');
+                    return d.length === 3 && `${d[1]}-${d[2]}` === key;
+                });
+                let total=0;
+                text += `*Work Details*\\n`;
+                if(logs.length) {
+                    logs.forEach((w,i) => {
+                        total += Number(w.TimeSpentMins) || 0;
+                        text += `${i+1}. ${w.WorkDate} | ${w.Task} | ${w.TimeSpentMins} min\\n   ${w.Description || 'No description'}\\n`;
+                    });
+                } else text += `No work logs found.\\n`;
+                text += `\\nTotal Logged Work: *${formatMinsForReport(total)}*\\n`;
+            }
+
+            text += `\\nGenerated: ${new Date().toLocaleString()}`;
+            document.getElementById('whatsappReportPreview').value = text;
+        }
+
+        document.addEventListener('change', function(e) {
+            if(e.target && (e.target.id === 'whatsappReportDate' || e.target.id === 'whatsappReportMonth')) generateWhatsAppReportPreview();
+        });
+
+        async function shareWhatsAppReport() {
+            if(!whatsappGroupLink) {
+                alert("WhatsApp group link is not assigned.");
+                return;
+            }
+            const text = document.getElementById('whatsappReportPreview').value;
+            try {
+                await navigator.clipboard.writeText(text);
+                alert("Report copied. WhatsApp group will open; paste the report and press Send.");
+            } catch(err) {
+                const box = document.getElementById('whatsappReportPreview');
+                box.focus(); box.select();
+                alert("Please copy the selected report text, then WhatsApp group will open.");
+            }
+            window.open(whatsappGroupLink, '_blank', 'noopener,noreferrer');
         }
 
         // ================= ANALYSATION MODAL =================
@@ -1585,7 +1908,8 @@
             formData.append('username', username);
             formData.append('role', role);
             formData.append('department', dept);
-            formData.append('monthYear', monthYear);
+             formData.append('monthYear', monthYear);
+             formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
