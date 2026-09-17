@@ -6,6 +6,7 @@
     <title>Office Zimmedar Task - ERP Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -16,26 +17,32 @@
         .modal-content { background-color: #fefefe; margin: 2% auto; padding: 20px; border-radius: 10px; width: 95%; max-width: 1200px; max-height: 90vh; overflow-y: auto; }
         .hod-only, .admin-only { display: none; }
         .emp-only { display: block; }
+        
         .modern-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e1ebea; }
+        
         .perf-table th { background-color: #2a4d53; color: white; padding: 12px; text-align: left; border-bottom: 2px solid #5fd3cc; font-size: 0.875rem; }
         .perf-table td { padding: 12px; border-bottom: 1px solid #e1ebea; font-size: 0.875rem; color: #4b5563; }
         .perf-header { background-color: #259b94; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.1rem; }
         .perf-subheader { background-color: #1e3e43; color: white; text-align: center; padding: 5px; font-weight: bold; font-size: 1.2rem; }
+
         .prog-table th.orange-header { background-color: #259b94; color: white; padding: 12px; text-align: center; border-right: 2px solid white; }
         .prog-table th.blue-header { background-color: #2a4d53; color: white; padding: 12px; text-align: left; border-right: 2px solid white;}
         .prog-table td.blue-cell { background-color: #1e3e43; color: white; font-weight: bold; padding: 12px; border-bottom: 1px solid #2a4d53; }
         .prog-table td.light-cell { background-color: #ffffff; color: #374151; padding: 12px; text-align: center; border-bottom: 1px solid #e1ebea; border-right: 1px solid #e1ebea; }
+        
         .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
         .dot-red { background-color: #ef4444; }
         .dot-orange { background-color: #f59e0b; }
         .dot-green { background-color: #10b981; }
         .progress-bar-bg { background-color: #e5e7eb; border-radius: 4px; height: 16px; width: 100%; display: inline-block; vertical-align: middle; overflow: hidden;}
         .progress-bar-fill { background-color: #259b94; height: 100%; }
+
         .oneview-table th { border: 1px solid #cbd5e1; }
         .oneview-table td { border: 1px solid #e2e8f0; }
-        .ov-teal { background-color: #0d9488; color: white; }
+        .ov-teal { background-color: #259b94; color: white; }
         .ov-yellow { background-color: #fbbf24; color: #78350f; }
-        .ov-light-teal { background-color: #ccfbf1; }
+        .ov-light-teal { background-color: #e6fcf5; }
+
         .sched-main-header { background-color: #259b94; color: white; padding: 15px; font-size: 1.5rem; }
         .sched-sub-header { background-color: #7db0b1; color: #112a2e; padding: 10px; font-weight: bold; }
         .sched-table th { background-color: #2a4d53; color: white; padding: 8px; font-size: 0.8rem; text-align: center; border: 1px solid #fff;}
@@ -133,18 +140,15 @@
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
-                <button onclick="shareWhatsAppReport()" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4 flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-lg"></i> Share WhatsApp Report
-                </button>
             </div>
 
-            <!-- Admin/HOD Notice -->
+            <!-- Notice Box -->
             <div id="hodNoticeBox" class="hod-only admin-only bg-[#1e3e43] p-4 rounded-xl mb-4 border border-[#3e6a6e]">
                 <p class="text-sm font-bold text-[#5fd3cc]"><i class="fas fa-shield-alt"></i> Manager / Admin Mode</p>
-                <p class="text-xs text-[#a5cacc] mt-1">Manage team tasks, approve requests & export reports.</p>
+                <p class="text-xs text-[#a5cacc] mt-1">Attendance tracking disabled. Manage team and approve requests.</p>
             </div>
 
-            <!-- Report Card Sidebar -->
+            <!-- Comprehensive Report Card Sidebar -->
             <div class="bg-[#1e3e43] border border-[#3e6a6e] p-4 rounded-xl mb-4 text-center">
                 <h3 class="text-[#7db0b1] uppercase text-xs font-bold mb-2">Monthly Grade</h3>
                 <div id="monthlyGrade" class="text-5xl font-extrabold text-[#f59e0b]">-</div>
@@ -181,9 +185,11 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
+                        <!-- EXCEL EXPORT BUTTON -->
                         <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </button>
+
                         <button onclick="openAnalysationModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-3 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-chart-line text-[#259b94]"></i> Analytics
                         </button>
@@ -359,7 +365,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
                 </div>
-                
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
@@ -370,7 +375,6 @@
                         <input type="date" id="newTaskEnd" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required>
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Priority:</label>
@@ -401,7 +405,6 @@
             <span onclick="closeEmailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
             <h3 class="text-2xl font-bold text-gray-900 mb-2"><i class="fas fa-envelope-open-text text-[#259b94]"></i> Email Performance Report</h3>
             <p class="text-sm text-gray-500 mb-6">Send an employee's current progress report directly to their HOD.</p>
-            
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Employee:</label>
@@ -577,7 +580,6 @@
         let globalMonthlyFullAttendance = []; 
         let globalWorkLogs = [];
         let monthlyChartInst = null;
-        let isFirstLoad = true;
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -585,9 +587,11 @@
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
             const tzOffset = today.getTimezoneOffset() * 60000; 
-            dateInput.max = (new Date(today - tzOffset)).toISOString().split('T')[0];
-            dateInput.min = (new Date(yesterday - tzOffset)).toISOString().split('T')[0];
-            dateInput.value = dateInput.max; 
+            const localToday = (new Date(today - tzOffset)).toISOString().split('T')[0];
+            const localYesterday = (new Date(yesterday - tzOffset)).toISOString().split('T')[0];
+            dateInput.max = localToday;
+            dateInput.min = localYesterday;
+            dateInput.value = localToday; 
         }
         setDateConstraints();
 
@@ -600,9 +604,11 @@
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12 || 12;
+            h = h % 12; h = h ? h : 12;
+            const formattedTime = `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
+            
             document.getElementById('currentDate').innerText = `${day}-${month}-${year}`;
-            document.getElementById('currentTime').innerText = `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
+            document.getElementById('currentTime').innerText = formattedTime;
         }
         setInterval(updateLiveTime, 1000); updateLiveTime();
 
@@ -645,7 +651,7 @@
             let [hours, minutes] = time.split(':');
             if(!hours || !minutes) return 0;
             if (hours === '12') hours = '00';
-            if (modifier && modifier.toUpperCase() === 'PM') hours = parseInt(hours, 10) + 12;
+            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
         }
 
@@ -703,7 +709,6 @@
                         document.getElementById('empTimeTracker').style.display = 'flex';
                     }
 
-                    isFirstLoad = true;
                     fetchDashboardData(data.actualName, role, data.department);
                 } else {
                     alert(data.message || "Invalid Credentials");
@@ -731,24 +736,23 @@
             }
 
             if (action === 'Punch Out') {
-                const shiftStr = document.getElementById('displayOfficeTime').innerText.toLowerCase();
-                if (shiftStr && shiftStr !== '--' && shiftStr.includes('to')) {
-                    const parts = shiftStr.split('to');
-                    if (parts.length > 1) {
-                        const endTimeStr = parts[1].trim(); 
-                        const endMins = timeToMins(endTimeStr);
-                        
-                        let outMins;
-                        if (rawManualTime) {
-                            outMins = timeToMins(formatTime12h(rawManualTime));
-                        } else {
-                            const now = new Date();
-                            outMins = now.getHours() * 60 + now.getMinutes();
-                        }
-                        if (outMins < endMins) {
-                            alert(`Closing time is ${endTimeStr.toUpperCase()}. You cannot Punch Out early! Please use 'Leave' or 'Time Adjustment' with HOD approval if you are leaving early.`);
-                            return;
-                        }
+                const shiftStr = document.getElementById('displayOfficeTime').innerText;
+                const parts = shiftStr.toLowerCase().split('to');
+                if (parts.length > 1) {
+                    const endTimeStr = parts[1].trim(); 
+                    const endMins = timeToMins(endTimeStr);
+                    
+                    let outMins;
+                    if (rawManualTime) {
+                        outMins = timeToMins(formatTime12h(rawManualTime));
+                    } else {
+                        const now = new Date();
+                        outMins = now.getHours() * 60 + now.getMinutes();
+                    }
+
+                    if (outMins < endMins) {
+                        alert(`Closing time is ${endTimeStr.toUpperCase()}. You cannot Punch Out early! Please use 'Leave' or 'Time Adjustment' with HOD approval if you are leaving early.`);
+                        return;
                     }
                 }
             }
@@ -785,11 +789,9 @@
 
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
-            if(isFirstLoad) {
-                const tbody = document.getElementById('taskTableBody');
-                tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
-            }
-            fetchDataAPI(username, role, dept, false);
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
+            fetchDataAPI(username, role, dept);
         }
 
         function fetchDashboardDataSilently() {
@@ -813,8 +815,8 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    globalAllTasks = data.tasks || []; 
-                    globalTeamMembers = data.teamMembers || []; 
+                    globalAllTasks = data.tasks; 
+                    globalTeamMembers = data.teamMembers; 
                     globalMonthlyFullAttendance = data.monthlyFullAttendance || []; 
                     globalWorkLogs = data.workLogs || [];
                     
@@ -828,15 +830,10 @@
 
                     filterTasksByEmp(); 
                 }
-                isFirstLoad = false;
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             }).catch(err => {
                 console.log(err);
-                if (isFirstLoad) {
-                    const tbody = document.getElementById('taskTableBody');
-                    tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-red-500 font-semibold">Error loading data. Check internet or URL.</td></tr>';
-                }
                 const syncIcon = document.getElementById('syncIcon');
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             });
@@ -942,7 +939,7 @@
             }
 
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?8:7}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -956,14 +953,13 @@
 
                     let empStatusHTML = '';
                     let hodStatusHTML = '';
-                    let timeSpentHTML = '';
+                    let timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                     let deadlineHTML = getDeadlineHTML(task.endDate, task.empStatus);
 
                     let empLocked = (task.empStatus.toLowerCase() === 'completed' && !isAdmin) ? 'disabled' : '';
                     let hodLocked = (task.hodStatus.toLowerCase() === 'approved' && !isAdmin) ? 'disabled' : '';
 
                     if (!isHOD && !isAdmin) { 
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] focus:ring-1 focus:ring-[#259b94] outline-none cursor-pointer" ${empLocked}>
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -973,7 +969,6 @@
                         hodStatusHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm ${hBadge}">${task.hodStatus}</span>`;
                     } 
                     else if (isHOD && !isAdmin) { 
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         let eBadge = task.empStatus === 'Completed' ? 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded' : 'text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded';
                         empStatusHTML = `<span class="${eBadge}">${task.empStatus}</span>`;
                         hodStatusHTML = `
@@ -984,7 +979,6 @@
                             </select>`;
                     } 
                     else if (isAdmin) { 
-                        timeSpentHTML = `<span class="font-bold text-[#2a4d53]">${task.timeSpent ? task.timeSpent + ' mins' : '-'}</span>`;
                         empStatusHTML = `
                             <select onchange="updateTaskDB(${task.rowIndex}, 'emp', this.value)" class="border border-[#7db0b1] rounded-md px-2 py-1 bg-white text-xs font-semibold text-[#2a4d53] cursor-pointer focus:ring-1 focus:ring-[#259b94]">
                                 <option value="Pending" ${task.empStatus === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -1167,42 +1161,7 @@
             });
         }
 
-        // ================= WHATSAPP REPORT SHARING =================
-        function shareWhatsAppReport() {
-            const username = document.getElementById('displayUser').innerText;
-            const dept = document.getElementById('displayDept').innerText;
-            const grade = document.getElementById('monthlyGrade').innerText;
-            const overall = document.getElementById('monthlyPerc').innerText;
-
-            let reportText = `📊 *ZIMMEDAR OFFICE REPORT*%0A`;
-            reportText += `👤 Employee: ${username}%0A`;
-            reportText += `🏢 Dept: ${dept}%0A`;
-            reportText += `🏆 Monthly Grade: *${grade}* (${overall})%0A%0A`;
-            
-            reportText += `📌 *Assigned Tasks Overview:*%0A`;
-            if (globalAllTasks.length === 0) {
-                reportText += `No tasks found.%0A`;
-            } else {
-                globalAllTasks.forEach((t, idx) => {
-                    reportText += `${idx + 1}. ${t.taskName} [Status: ${t.empStatus} | Time: ${t.timeSpent || 0} mins]%0A`;
-                });
-            }
-
-            reportText += `%0A🕒 *Recent Daily Work Logs:*%0A`;
-            let userLogs = globalWorkLogs.filter(w => w.Employee.trim().toLowerCase() === username.trim().toLowerCase());
-            if (userLogs.length === 0) {
-                reportText += `No logs recorded yet.%0A`;
-            } else {
-                userLogs.slice(-5).forEach((w, idx) => { 
-                    reportText += `- ${w.Task}: ${w.TimeSpentMins} mins (${w.Description || 'No desc'})%0A`;
-                });
-            }
-
-            const waURL = `https://api.whatsapp.com/send?text=${reportText}`;
-            window.open(waURL, '_blank');
-        }
-
-        // ================= EMAIL REPORT CARD (ADMIN) =================
+        // ================= EMAIL REPORT CARD =================
         function openEmailModal() { document.getElementById('emailReportModal').style.display = 'block'; }
         function closeEmailModal() { document.getElementById('emailReportModal').style.display = 'none'; }
         
@@ -1221,7 +1180,7 @@
             empTasks.forEach(t => { if(t.empStatus.toLowerCase() === 'completed') comp++; });
             let taskPerc = empTasks.length > 0 ? Math.round((comp / empTasks.length) * 100) : 0;
             
-            let attPerc = 100; 
+            let attPerc = 100; // Will be properly calculated via main grade logic in backend
             let finalScore = taskPerc; 
             let grade = "D";
             if (finalScore >= 90) grade = "A";
@@ -1310,63 +1269,57 @@
                 alert("Excel library is loading, please try again in a few seconds.");
                 return;
             }
-            try {
-                let wb = XLSX.utils.book_new();
-                
-                let tasksForExport = globalAllTasks.map(t => ({
-                    "Task Name": t.taskName || "-",
-                    "Assigned To": t.assignedTo || "-",
-                    "Department": t.department || "-",
-                    "Start Date": t.startDate || "-",
-                    "End Date": t.endDate || "-",
-                    "Priority": t.priority || "-",
-                    "Frequency": t.frequency || "-",
-                    "Time Spent (Mins)": t.timeSpent || 0,
-                    "Employee Status": t.empStatus || "Pending",
-                    "HOD Approval": t.hodStatus || "Pending"
-                }));
-                let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
-                XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
-                
-                let attForExport = globalMonthlyFullAttendance.map(a => ({
-                    "Date": a.Date || "-",
-                    "Employee": a.Employee || "-",
-                    "In Time": a.InTime || "-",
-                    "Out Time": a.OutTime || "-",
-                    "Leave/Weekoff": a.Leave || "-",
-                    "Reason": a.Reason || "-",
-                    "HOD Status": a.Status || "-"
-                }));
-                let wsAtt = XLSX.utils.json_to_sheet(attForExport);
-                XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
-                
-                let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs.map(w => ({
-                    "Date": w.Date || "-",
-                    "Employee": w.Employee || "-",
-                    "Task Name": w.Task || "-",
-                    "Time Spent (Mins)": w.TimeSpentMins || 0,
-                    "Description": w.Description || "-"
-                })));
-                XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
-                
-                let username = document.getElementById('displayUser').innerText;
-                let grade = document.getElementById('monthlyGrade').innerText;
-                let overall = document.getElementById('monthlyPerc').innerText;
-                let summaryData = [
-                    {"Metric": "Employee", "Value": username},
-                    {"Metric": "Overall Grade", "Value": grade},
-                    {"Metric": "Performance", "Value": overall},
-                    {"Metric": "Total Tasks", "Value": globalAllTasks.length},
-                    {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
-                ];
-                let wsSummary = XLSX.utils.json_to_sheet(summaryData);
-                XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
+            
+            let wb = XLSX.utils.book_new();
+            
+            // 1. Tasks Sheet
+            let tasksForExport = globalAllTasks.map(t => ({
+                "Task Name": t.taskName,
+                "Assigned To": t.assignedTo,
+                "Department": t.department,
+                "Start Date": t.startDate,
+                "End Date": t.endDate,
+                "Priority": t.priority,
+                "Frequency": t.frequency,
+                "Time Spent (Mins)": t.timeSpent,
+                "Employee Status": t.empStatus,
+                "HOD Approval": t.hodStatus
+            }));
+            let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
+            XLSX.utils.book_append_sheet(wb, wsTasks, "Assigned Tasks");
+            
+            // 2. Attendance Sheet
+            let attForExport = globalMonthlyFullAttendance.map(a => ({
+                "Date": a.Date,
+                "Employee": a.Employee,
+                "In Time": a.InTime,
+                "Out Time": a.OutTime,
+                "Leave/Weekoff": a.Leave,
+                "Reason": a.Reason,
+                "HOD Status": a.Status
+            }));
+            let wsAtt = XLSX.utils.json_to_sheet(attForExport);
+            XLSX.utils.book_append_sheet(wb, wsAtt, "Monthly Attendance");
+            
+            // 3. Work Logs
+            let wsLogs = XLSX.utils.json_to_sheet(globalWorkLogs);
+            XLSX.utils.book_append_sheet(wb, wsLogs, "Daily Work Logs");
+            
+            // 4. Progress Summary
+            let username = document.getElementById('displayUser').innerText;
+            let grade = document.getElementById('monthlyGrade').innerText;
+            let overall = document.getElementById('monthlyPerc').innerText;
+            let summaryData = [
+                {"Metric": "Employee", "Value": username},
+                {"Metric": "Overall Grade", "Value": grade},
+                {"Metric": "Performance", "Value": overall},
+                {"Metric": "Total Tasks", "Value": globalAllTasks.length},
+                {"Metric": "Completed Tasks", "Value": globalAllTasks.filter(t => t.empStatus.toLowerCase() === 'completed').length}
+            ];
+            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Report");
 
-                XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
-            } catch(e) {
-                alert("Error exporting Excel: " + e.message);
-                console.error(e);
-            }
+            XLSX.writeFile(wb, "Zimmedar_Report_" + username + ".xlsx");
         }
 
         // ================= ANALYSATION MODAL =================
