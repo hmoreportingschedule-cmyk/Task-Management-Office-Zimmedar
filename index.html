@@ -157,6 +157,15 @@
                     <span>Att: <b id="attPercText" class="text-white">0%</b></span>
                 </div>
             </div>
+            <div class="bg-white border border-gray-200 rounded-xl p-3 mb-4 shadow-sm">
+                <h4 class="text-xs font-bold text-[#4b6d70] uppercase text-center mb-2">Grade Guide</h4>
+                <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                    <div class="rounded-lg px-2 py-2 text-center bg-emerald-50 text-emerald-700">A — Mumtaz</div>
+                    <div class="rounded-lg px-2 py-2 text-center bg-blue-50 text-blue-700">B — Behtar</div>
+                    <div class="rounded-lg px-2 py-2 text-center bg-amber-50 text-amber-700">C — Munasib</div>
+                    <div class="rounded-lg px-2 py-2 text-center bg-red-50 text-red-700">D — Kamzor</div>
+                </div>
+            </div>
             
             <button onclick="logout()" class="mt-auto bg-[#1e3e43] hover:bg-[#ef4444] text-white font-bold py-3 rounded-xl w-full text-sm transition border border-[#3e6a6e]"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
@@ -177,7 +186,21 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-3">
-                    <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <button id="notificationBtn" onclick="toggleNotifications()" class="relative bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] w-11 h-11 rounded-full shadow-sm transition" title="Notifications">
+                                <i class="fas fa-bell text-[#259b94]"></i>
+                                <span id="notificationCount" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold items-center justify-center">0</span>
+                            </button>
+                            <div id="notificationPanel" class="hidden absolute right-0 top-12 z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+                                <div class="px-4 py-3 bg-[#f0f7f7] border-b flex justify-between items-center">
+                                    <span class="font-bold text-[#112a2e]">Notifications</span>
+                                    <button onclick="toggleNotifications(false)" class="text-gray-400 hover:text-red-500">&times;</button>
+                                </div>
+                                <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
                         <div>
                             <p id="currentDate" class="text-xs font-bold text-gray-500 uppercase tracking-wider">DD-MM-YYYY</p>
                             <p id="currentTime" class="text-xl font-extrabold text-[#112a2e]">HH:MM:SS AM</p>
@@ -185,9 +208,6 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2 justify-end">
-                        <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fab fa-whatsapp"></i> WhatsApp Report
-                        </button>
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> Attendance Report
                         </button>
@@ -206,33 +226,33 @@
             
             <!-- Statistics Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="modern-card p-6 flex flex-col justify-center border-l-4 border-blue-500">
+                <div class="modern-card p-4 flex flex-col justify-center border-l-4 border-blue-500">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-[#4b6d70] text-xs font-bold uppercase tracking-wider">Daily Tasks</h3>
                         <div class="bg-blue-50 p-2 rounded-lg"><i class="fas fa-clipboard-list text-blue-600"></i></div>
                     </div>
-                    <p class="text-3xl font-extrabold text-[#112a2e]" id="statDaily">0 / 0</p>
+                    <p class="text-2xl font-extrabold text-[#112a2e]" id="statDaily">0 / 0</p>
                 </div>
-                <div class="modern-card p-6 flex flex-col justify-center border-l-4 border-[#259b94]">
+                <div class="modern-card p-4 flex flex-col justify-center border-l-4 border-[#259b94]">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-[#4b6d70] text-xs font-bold uppercase tracking-wider">Completed</h3>
                         <div class="bg-teal-50 p-2 rounded-lg"><i class="fas fa-check-circle text-[#259b94]"></i></div>
                     </div>
-                    <p class="text-3xl font-extrabold text-[#112a2e]" id="statCompleted">0</p>
+                    <p class="text-2xl font-extrabold text-[#112a2e]" id="statCompleted">0</p>
                 </div>
-                <div class="modern-card p-6 flex flex-col justify-center border-l-4 border-[#f59e0b]">
+                <div class="modern-card p-4 flex flex-col justify-center border-l-4 border-[#f59e0b]">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-[#4b6d70] text-xs font-bold uppercase tracking-wider">Pending</h3>
                         <div class="bg-orange-50 p-2 rounded-lg"><i class="fas fa-clock text-orange-500"></i></div>
                     </div>
-                    <p class="text-3xl font-extrabold text-[#112a2e]" id="statPending">0</p>
+                    <p class="text-2xl font-extrabold text-[#112a2e]" id="statPending">0</p>
                 </div>
-                <div class="modern-card p-6 flex flex-col justify-center border-l-4 border-red-500">
+                <div class="modern-card p-4 flex flex-col justify-center border-l-4 border-red-500">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-[#4b6d70] text-xs font-bold uppercase tracking-wider">Total Tasks</h3>
                         <div class="bg-red-50 p-2 rounded-lg"><i class="fas fa-bullseye text-red-600"></i></div>
                     </div>
-                    <p class="text-3xl font-extrabold text-[#112a2e]" id="statTotal">0</p>
+                    <p class="text-2xl font-extrabold text-[#112a2e]" id="statTotal">0</p>
                 </div>
             </div>
 
@@ -308,6 +328,8 @@
                                 <th class="py-4 px-6">Timeline</th>
                                 <th class="py-4 px-6">Deadline Status</th>
                                 <th class="py-4 px-6">Priority</th>
+                                <th class="py-4 px-6">Weightage</th>
+                                <th class="py-4 px-6">Assigned By</th>
                                 <th class="py-4 px-6">Time Spent</th>
                                 <th class="py-4 px-6">Emp Status</th>
                                 <th class="py-4 px-6">HOD Approval</th>
@@ -330,7 +352,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Task:</label>
-                    <select id="logTaskSelect" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required></select>
+                    <select id="logTaskSelect" onchange="updateCompletionAvailability(this.value)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required></select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Time Spent (in Minutes):</label>
@@ -338,11 +360,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">What did you do? (Description):</label>
-                    <textarea id="logDesc" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" rows="3" placeholder="Called 15 clients, updated sheet..."></textarea>
+                    <textarea id="logDesc" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" rows="3" placeholder="Work details. If completing before closing date, write your completion request here for HOD/Admin approval."></textarea>
                 </div>
                 <label class="flex items-center gap-3 p-3 rounded-lg bg-orange-50 border border-orange-100 cursor-pointer">
-                    <input type="checkbox" id="markTaskCompleted" class="w-4 h-4 accent-orange-500">
-                    <span class="text-sm font-semibold text-gray-700">Mark this task as Completed</span>
+                    <input type="checkbox" id="markTaskCompleted" class="w-4 h-4 accent-orange-500" disabled onchange="toggleEarlyCompletionRequest()">
+                    <span id="markTaskCompletedLabel" class="text-sm font-semibold text-gray-700">Mark this task as Completed (available on closing date)</span>
                 </label>
                 <button id="saveLogBtn" onclick="submitWorkLog()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Save Log</button>
             </div>
@@ -391,6 +413,11 @@
                             <option>Monthly</option>
                         </select>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Task Weightage (%):</label>
+                    <input id="newTaskWeightage" type="number" min="0" max="85" value="0" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="e.g. 10">
+                    <p class="text-xs text-gray-500 mt-1">Attendance is 15% monthly; task weightage is set by HOD/Admin.</p>
                 </div>
                 <button id="saveTaskBtn" onclick="submitNewTask()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Assign Task</button>
             </div>
@@ -489,7 +516,6 @@
                     <h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-list-check text-[#259b94]"></i> Task Report</h2>
                     <p class="text-sm text-gray-500 mt-1">On-time, delayed and pending task performance.</p>
                 </div>
-                <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg font-bold text-sm"><i class="fab fa-whatsapp"></i> Share</button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
                 <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL</div><div id="trTotal" class="text-2xl font-extrabold">0</div></div>
@@ -514,8 +540,8 @@
             <h2 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-chart-line text-orange-500"></i> Progress Chart</h2>
             <p class="text-sm text-gray-500 mb-5">Attendance + Task performance with adjustable weightage.</p>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 border rounded-lg mb-5">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="50" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="15" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="85" class="w-full border p-2 rounded-lg"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressEmpFilter" class="w-full border p-2 rounded-lg"></select></div>
                 <div class="flex items-end"><button onclick="renderProgressChart()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-2 rounded-lg">Apply</button></div>
             </div>
@@ -933,6 +959,46 @@
             netEl.innerText = `${h}h ${m}m`;
         }
 
+        // ================= NOTIFICATIONS =================
+        function toggleNotifications(force) {
+            const panel = document.getElementById('notificationPanel');
+            if (!panel) return;
+            const show = typeof force === 'boolean' ? force : panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !show);
+            if (show) renderNotifications();
+        }
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            const count = document.getElementById('notificationCount');
+            if (!list || !count) return;
+            const role = document.getElementById('displayRole').innerText.toLowerCase();
+            const items = [];
+            if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
+                const pendingTasks = (globalAllTasks || []).filter(t => String(t.hodStatus || '').toLowerCase() === 'pending' && String(t.empStatus || '').toLowerCase() === 'completed');
+                pendingTasks.slice(0,8).forEach(t => items.push({icon:'fa-check-circle', text:`Task approval pending: ${t.taskName}`, action:'task'}));
+                const pendingAtt = (globalTeamAttendance || []).filter(r => String(r.status || '').toLowerCase() === 'pending');
+                pendingAtt.slice(0,8).forEach(r => items.push({icon:'fa-calendar-check', text:`Attendance request: ${r.user} — ${r.date}`, action:'attendance'}));
+                const pendingEarly = (globalAllTasks || []).filter(t => String(t.empStatus || '').toLowerCase() === 'pending' && Number(t.timeSpent || 0) > 0);
+                pendingEarly.slice(0,8).forEach(t => items.push({icon:'fa-clock', text:`Completion request: ${t.taskName}`, action:'task'}));
+            } else {
+                (globalAllTasks || []).filter(t => String(t.empStatus || '').toLowerCase() === 'pending').slice(0,8).forEach(t => items.push({icon:'fa-tasks', text:`Pending task: ${t.taskName}`, action:'task'}));
+                (globalAllTasks || []).filter(t => String(t.hodStatus || '').toLowerCase() === 'approved').slice(0,8).forEach(t => items.push({icon:'fa-check-double', text:`Task approved: ${t.taskName}`, action:'task'}));
+            }
+            count.innerText = items.length;
+            count.classList.toggle('hidden', items.length === 0);
+            count.classList.toggle('flex', items.length > 0);
+            if (!items.length) {
+                list.innerHTML = '<div class="p-5 text-center text-sm text-gray-500">No new notifications.</div>';
+                return;
+            }
+            list.innerHTML = items.map((n,i)=>`<button onclick="openNotificationTarget('${n.action}')" class="w-full text-left px-4 py-3 border-b hover:bg-[#f0f7f7] flex gap-3 items-start"><i class="fas ${n.icon} text-[#259b94] mt-1"></i><span class="text-sm text-[#2a4d53] font-semibold">${n.text}</span></button>`).join('');
+        }
+        function openNotificationTarget(action) {
+            toggleNotifications(false);
+            if (action === 'attendance') openOneViewModal();
+            else openTaskReportModal();
+        }
+
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
             const tbody = document.getElementById('taskTableBody');
@@ -1002,6 +1068,7 @@
                 }
 
                 filterTasksByEmp();
+                renderNotifications();
             })
             .catch(err => {
                 console.error('Dashboard sync error:', err);
@@ -1152,7 +1219,7 @@
             }
 
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?9:8}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -1211,6 +1278,8 @@
                         <td class="py-4 px-6 text-xs text-[#4b6d70] font-semibold leading-tight"><i class="far fa-calendar text-[#7db0b1]"></i> ${task.startDate} <br><span class="text-[#7db0b1]">to</span><br> <i class="far fa-calendar-check text-[#7db0b1]"></i> ${task.endDate}</td>
                         <td class="py-4 px-6">${deadlineHTML}</td>
                         <td class="py-4 px-6 font-bold ${prioColor}">${task.priority} <br><span class="text-xs text-gray-400 font-medium">${task.frequency}</span></td>
+                        <td class="py-4 px-6 font-bold text-[#2a4d53]">${task.weightage || 0}%</td>
+                        <td class="py-4 px-6 text-[#259b94] font-semibold">${task.assignedBy || '-'}</td>
                         <td class="py-4 px-6">${timeSpentHTML}</td>
                         <td class="py-4 px-6">${empStatusHTML}</td>
                         <td class="py-4 px-6">${hodStatusHTML}</td>
@@ -1383,6 +1452,7 @@
             const tFreq = document.getElementById('newTaskFreq').value;
             const tStart = document.getElementById('newTaskStart').value;
             const tEnd = document.getElementById('newTaskEnd').value;
+            const tWeight = document.getElementById('newTaskWeightage').value;
             const dept = document.getElementById('displayDept').innerText;
 
             if(!tUser || !tName || !tStart || !tEnd) { alert("Fill all required fields including dates!"); return; }
@@ -1397,6 +1467,7 @@
             formData.append('frequency', tFreq);
             formData.append('startDate', tStart);
             formData.append('endDate', tEnd);
+            formData.append('weightage', tWeight);
             formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
@@ -1415,8 +1486,26 @@
         }
 
         // ================= EMP LOG DAILY WORK =================
-        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; }
+        function openLogWorkModal() {
+            document.getElementById('logWorkModal').style.display = 'block';
+            const sel = document.getElementById('logTaskSelect');
+            if (sel && sel.value) updateCompletionAvailability(sel.value);
+        }
         function closeLogWorkModal() { document.getElementById('logWorkModal').style.display = 'none'; }
+        function updateCompletionAvailability(rowIndex) {
+            const task = (globalAllTasks || []).find(t => Number(t.rowIndex) === Number(rowIndex));
+            const cb = document.getElementById('markTaskCompleted');
+            const label = document.getElementById('markTaskCompletedLabel');
+            if (!cb || !label) return;
+            cb.checked = false;
+            if (!task) { cb.disabled = true; label.innerText = 'Mark this task as Completed (available on closing date)'; return; }
+            const end = parseReportDate(task.endDate);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const canComplete = !!end && today >= end;
+            cb.disabled = !canComplete;
+            label.innerText = canComplete ? 'Mark this task as Completed' : 'Mark this task as Completed (available on closing date)';
+        }
+        function toggleEarlyCompletionRequest() {}
         
         function submitWorkLog() {
             const taskSel = document.getElementById('logTaskSelect');
@@ -1545,8 +1634,8 @@
                 attPerc = Math.min(100, Math.round((presentDays / daysElapsed) * 100));
             }
 
-            const aw = Number(localStorage.getItem('zim_att_weight') || 50);
-            const tw = Number(localStorage.getItem('zim_task_weight') || 50);
+            const aw = Number(localStorage.getItem('zim_att_weight') || 15);
+            const tw = Number(localStorage.getItem('zim_task_weight') || 85);
             let finalScore = Math.round((taskPerc * aw + attPerc * tw) / 100);
             if(tasks.length === 0) finalScore = attPerc; 
             
@@ -1608,7 +1697,8 @@
                 "Time Spent (Mins)": t.timeSpent,
                 "Employee Status": t.empStatus,
                 "HOD Approval": t.hodStatus,
-                "Completed At": t.completedAt || ""
+                "Completed At": t.completedAt || "",
+                "Assigned By": t.assignedBy || ""
             }));
             let wsTasks = XLSX.utils.json_to_sheet(tasksForExport);
             autoFitWorksheet(wsTasks);
@@ -2080,7 +2170,7 @@
             sel.innerHTML='';
             if(isManager){(globalTeamMembers||[]).forEach(m=>sel.innerHTML+=`<option value="${m}">${m}</option>`); const f=document.getElementById('hodEmpFilter').value; if(f&&f!=='All')sel.value=f;} else {sel.innerHTML=`<option value="${document.getElementById('displayUser').innerText}">${document.getElementById('displayUser').innerText}</option>`;}
             const aw=localStorage.getItem('zim_att_weight'); const tw=localStorage.getItem('zim_task_weight');
-            document.getElementById('attendanceWeightage').value=aw||50; document.getElementById('taskWeightage').value=tw||50;
+            document.getElementById('attendanceWeightage').value=aw||15; document.getElementById('taskWeightage').value=tw||85;
             renderProgressChart();
         }
         function closeAnalysationModal(){document.getElementById('analysationModal').style.display='none';}
@@ -2089,9 +2179,19 @@
         function getTaskScore(tasks, date) {
             const active=tasks.filter(t=>{const s=parseReportDate(t.startDate),e=parseReportDate(t.endDate);return s&&e&&date>=s&&date<=e;});
             if(!active.length)return null;
-            let total=0;
-            active.forEach(t=>{const st=String(t.empStatus||'').toLowerCase();if(st==='completed'){const info=taskDeadlineInfo(t);total+=info.label.indexOf('Delayed')>-1?50:100;}});
-            return total/active.length;
+            let weighted=0, weightTotal=0, fallbackCount=0, fallbackScore=0;
+            active.forEach(t=>{
+                const st=String(t.empStatus||'').toLowerCase();
+                const info=taskDeadlineInfo(t);
+                const score=st==='completed' ? (info.label.indexOf('Delayed')>-1 ? 50 : 100) : 0;
+                const w=Number(t.weightage)||0;
+                if(w>0){ weighted += score*w; weightTotal += w; }
+                else { fallbackCount++; fallbackScore += score; }
+            });
+            const fallbackWeight = Math.max(0, 100 - weightTotal);
+            if(weightTotal>0 && fallbackCount>0) weighted += (fallbackScore/fallbackCount)*fallbackWeight;
+            if(weightTotal>0 || fallbackCount>0) return weighted / (weightTotal + (fallbackCount>0 ? fallbackWeight : 0));
+            return 0;
         }
         function getAttendanceScore(date, records) {
             const key=String(date.getDate()).padStart(2,'0')+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+date.getFullYear();
