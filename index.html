@@ -379,6 +379,12 @@
                     <select id="newTaskUser" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" required></select>
                 </div>
                 <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Task Assigned By / Request From:</label>
+                    <select id="newTaskAssignedBy" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
                 </div>
@@ -450,8 +456,38 @@
             <button id="createUserBtn" onclick="submitAdminUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-user-plus"></i> Create User</button>
             <div class="mt-6 border-t pt-4">
                 <h4 class="font-bold text-[#112a2e] mb-2">Existing Users</h4>
-                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Access</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
+                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Access</th><th class="p-2 text-left">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
             </div>
+        </div>
+    </div>
+
+    <!-- ADMIN EDIT USER MODAL -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content relative max-w-2xl shadow-2xl">
+            <span onclick="closeEditUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-user-pen text-[#259b94]"></i> Edit User</h3>
+            <p class="text-sm text-gray-500 mb-6">Admin can update password, department, HOD and office In/Out time.</p>
+            <input type="hidden" id="editUserLogin">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">User:</label><input type="text" id="editUserName" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50" readonly></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">New Password:</label><input type="password" id="editUserPassword" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Leave blank to keep current password"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department(s):</label><input type="text" id="editUserDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Dept A, Dept B"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="editUserHod" class="w-full border border-gray-300 p-3 rounded-lg"></select></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time In:</label><input type="text" id="editUserInTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time Out:</label><input type="text" id="editUserOutTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="06:30 PM"></div>
+            </div>
+            <div class="mt-5">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Attendance Report"> Attendance Report</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Task Report"> Task Report</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Progress Chart"> Progress Chart</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Export Excel"> Export Excel</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="WhatsApp Report"> WhatsApp Report</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Notifications"> Notifications</label>
+                </div>
+            </div>
+            <button id="saveEditUserBtn" onclick="submitEditUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-save"></i> Save User Changes</button>
         </div>
     </div>
 
@@ -1457,10 +1493,47 @@
                 const hod=document.getElementById('adminNewHod'); hod.innerHTML='<option value="">-- Select HOD --</option>';
                 (data.hods||[]).forEach(n=>hod.innerHTML+=`<option value="${n}">${n}</option>`);
                 const body=document.getElementById('adminUsersBody'); body.innerHTML='';
-                (data.users||[]).forEach(u=>{ body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}</td></tr>`; });
+                (data.users||[]).forEach(u=>{
+                    const safe=encodeURIComponent(u.username);
+                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}</td><td class="p-2"><button onclick="openEditUserModal(decodeURIComponent('${safe}'))" class="text-xs bg-[#e6fcf5] text-[#1f827c] border border-[#b2d8d8] px-3 py-1.5 rounded-md font-bold"><i class="fas fa-pen"></i> Edit</button></td></tr>`;
+                });
                 toggleAdminUserHod();
             }).catch(()=>alert('Unable to load users.'));
         }
+        function openEditUserModal(username) {
+            const fd=new FormData(); fd.append('action','adminGetUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
+                if(data.status!=='success'){alert(data.message||'Unable to load user.');return;}
+                const u=data.user||{};
+                document.getElementById('editUserLogin').value=u.username||'';
+                document.getElementById('editUserName').value=u.username||'';
+                document.getElementById('editUserPassword').value='';
+                document.getElementById('editUserDepartment').value=u.department||'';
+                document.getElementById('editUserInTime').value=u.timeIn||'';
+                document.getElementById('editUserOutTime').value=u.timeOut||'';
+                const h=document.getElementById('editUserHod'); h.innerHTML='<option value="">-- Select HOD --</option>';
+                (data.hods||[]).forEach(n=>h.innerHTML+=`<option value="${n}">${n}</option>`); h.value=u.hod||'';
+                const access=String(u.accessPermissions||'').split(',').map(x=>x.trim().toLowerCase());
+                document.querySelectorAll('.edit-admin-access').forEach(cb=>cb.checked=access.indexOf(cb.value.toLowerCase())>-1 || !u.accessPermissions);
+                document.getElementById('editUserModal').style.display='block';
+            }).catch(()=>alert('Unable to load user.'));
+        }
+        function closeEditUserModal(){ document.getElementById('editUserModal').style.display='none'; }
+        function submitEditUser(){
+            const username=document.getElementById('editUserLogin').value;
+            const fd=new FormData(); fd.append('action','adminUpdateUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
+            fd.append('password',document.getElementById('editUserPassword').value.trim());
+            fd.append('department',document.getElementById('editUserDepartment').value.trim());
+            fd.append('hod',document.getElementById('editUserHod').value);
+            fd.append('timeIn',document.getElementById('editUserInTime').value.trim());
+            fd.append('timeOut',document.getElementById('editUserOutTime').value.trim());
+            fd.append('accessPermissions',[...document.querySelectorAll('.edit-admin-access:checked')].map(x=>x.value).join(', '));
+            const btn=document.getElementById('saveEditUserBtn'); btn.disabled=true; btn.innerText='Saving...';
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
+                if(data.status==='success'){alert(data.message||'User updated successfully.');closeEditUserModal();loadAdminUsers();fetchDashboardDataSilently();} else alert(data.message||'User update failed.');
+            }).catch(()=>alert('User update failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save User Changes';});
+        }
+
         function submitAdminUser() {
             const name=document.getElementById('adminNewUsername').value.trim(), login=document.getElementById('adminNewLogin').value.trim(), pass=document.getElementById('adminNewPassword').value.trim(), role=document.getElementById('adminNewRole').value, dept=document.getElementById('adminNewDepartment').value.trim(), hod=document.getElementById('adminNewHod').value, office=document.getElementById('adminNewOfficeTime').value.trim(), weekoff=document.getElementById('adminNewWeekoff').value;
             if(!name||!login||!pass||!dept){alert('User name, login username, password and department are required.');return;}
@@ -1473,7 +1546,22 @@
             }).catch(()=>alert('User creation failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create User';});
         }
 
-        function openAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'block'; }
+        function openAssignTaskModal() {
+            document.getElementById('assignTaskModal').style.display = 'block';
+            const role=String(document.getElementById('displayRole').innerText||'').toLowerCase();
+            const sel=document.getElementById('newTaskAssignedBy');
+            sel.innerHTML='<option value="">-- Select --</option>';
+            if(role.indexOf('admin')>-1){
+                const fd=new FormData(); fd.append('action','adminListUsers'); fd.append('sessionToken',sessionToken);
+                fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
+                    (data.hods||[]).forEach(n=>sel.innerHTML+=`<option value="${n}">${n}</option>`);
+                    sel.value=document.getElementById('displayUser').innerText||'';
+                }).catch(()=>{});
+            } else {
+                sel.innerHTML=`<option value="${document.getElementById('displayUser').innerText}">${document.getElementById('displayUser').innerText} (Self)</option>`;
+                sel.value=document.getElementById('displayUser').innerText;
+            }
+        }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
         
         function submitNewTask() {
@@ -1497,6 +1585,8 @@
             formData.append('frequency', tFreq);
             formData.append('startDate', tStart);
             formData.append('endDate', tEnd);
+            formData.append('weightage', document.getElementById('newTaskWeightage').value || '10');
+            formData.append('assignedBy', document.getElementById('newTaskAssignedBy').value || document.getElementById('displayUser').innerText);
             formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
