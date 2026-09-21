@@ -73,8 +73,8 @@
             <h1 class="text-center text-2xl sm:text-3xl font-extrabold text-[#112a2e]">Office Task Reporting</h1>
             <p class="text-center text-sm text-gray-500 mt-2 mb-8">Secure employee workspace & reporting portal</p>
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
-                <div><label class="block text-xs font-bold text-gray-600 mb-2">USERNAME</label><div class="relative"><i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="text" id="username" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter username" value="MasterAdmin" required></div></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-2">PASSWORD</label><div class="relative"><i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="password" id="password" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter password" value="Master@12345" required></div></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-2">USERNAME</label><div class="relative"><i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="text" id="username" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter username" required></div></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-2">PASSWORD</label><div class="relative"><i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="password" id="password" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter password" required></div></div>
                 <button type="submit" id="loginBtn" class="w-full bg-[#112a2e] hover:bg-[#1e3e43] text-white font-bold py-3.5 rounded-xl transition shadow-lg">Login to Dashboard <i class="fas fa-arrow-right ml-2"></i></button>
             </form>
             <p class="text-center text-xs text-gray-400 mt-7"><i class="fas fa-shield-alt mr-1"></i> Authorized office users only</p>
@@ -154,6 +154,9 @@
                 <button onclick="openAdvanceScheduleModal()" class="w-full bg-[#2a4d53] hover:bg-[#112a2e] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-calendar-plus"></i> Advance Schedule Request
                 </button>
+                <button onclick="openEmergencyTaskModal()" class="w-full bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
+                    <i class="fas fa-bolt"></i> Emergency New Task Request
+                </button>
             </div>
 
             <!-- Notice Box -->
@@ -197,9 +200,12 @@
                                 <i class="fas fa-bell"></i>
                                 <span id="notificationCount" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold items-center justify-center">0</span>
                             </button>
-                            <div id="notificationPanel" class="hidden absolute right-0 top-14 z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden text-left">
-                                <div class="px-4 py-3 bg-[#f0f7f7] border-b flex items-center justify-between"><span class="font-bold text-[#112a2e]">Notifications</span><button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-700" aria-label="Close notifications"><i class="fas fa-times"></i></button></div>
-                                <div id="notificationList" class="max-h-80 overflow-y-auto"></div>
+                            <div id="notificationPanel" class="hidden absolute right-0 top-14 z-50 w-[360px] max-w-[calc(100vw-24px)] bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden text-left">
+                                <div class="px-4 py-3 bg-[#f0f7f7] border-b flex items-center justify-between gap-2">
+                                    <div><span class="font-bold text-[#112a2e]">Notifications</span><span id="notificationUnreadLabel" class="ml-2 text-[10px] font-bold text-[#259b94]"></span></div>
+                                    <div class="flex items-center gap-2"><button onclick="markAllNotificationsRead()" class="text-[11px] font-bold text-[#259b94] hover:underline">Mark all read</button><button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-700" aria-label="Close notifications"><i class="fas fa-times"></i></button></div>
+                                </div>
+                                <div id="notificationList" class="max-h-[420px] overflow-y-auto"></div>
                             </div>
                         </div>
                         <div class="bg-white px-5 py-2 rounded-lg shadow-sm border-l-4 border-[#259b94] text-right flex items-center gap-3">
@@ -461,7 +467,7 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Role:</label><select id="adminNewRole" class="w-full border border-gray-300 p-3 rounded-lg" onchange="toggleAdminUserHod()"><option value="emp">Employee</option><option value="hod">HOD</option><option value="admin">Admin</option></select></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department:</label><input type="text" id="adminNewDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Department (multiple: Dept A, Dept B)" required></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="adminNewHod" class="w-full border border-gray-300 p-3 rounded-lg"><option value="">-- Select HOD --</option></select></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Time:</label><input type="text" id="adminNewOfficeTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM to 06:30 PM"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Contact Number:</label><input type="tel" id="adminNewContactNumber" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="9876543210"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">WhatsApp Number:</label><input type="tel" id="adminNewWhatsappNumber" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="919876543210"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Time:</label><input type="text" id="adminNewOfficeTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM to 06:30 PM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Weekoff:</label><select id="adminNewWeekoff" class="w-full border border-gray-300 p-3 rounded-lg"><option>Sunday</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="adminNewOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="adminNewOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Tan Tan Pura, Khadad, Mumbai - 440011"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Profile Photo:</label><input type="file" id="adminNewPhotoFile" accept="image/*" class="w-full border border-gray-300 p-2.5 rounded-lg bg-white"><p class="text-xs text-gray-500 mt-1">Employee / HOD photo upload karein. JPG/PNG recommended.</p></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Photo URL (Optional):</label><input type="url" id="adminNewPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
             </div>
             <div class="mt-5">
@@ -478,7 +484,7 @@
             <button id="createUserBtn" onclick="submitAdminUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-user-plus"></i> Create User</button>
             <div class="mt-6 border-t pt-4">
                 <h4 class="font-bold text-[#112a2e] mb-2">Existing Users</h4>
-                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Access</th><th class="p-2 text-left">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
+                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Contact</th><th class="p-2 text-left">WhatsApp</th><th class="p-2 text-left">Access</th><th class="p-2 text-left">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
             </div>
         </div>
     </div>
@@ -495,7 +501,7 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">New Password:</label><input type="password" id="editUserPassword" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Leave blank to keep current password"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department(s):</label><input type="text" id="editUserDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Dept A, Dept B"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="editUserHod" class="w-full border border-gray-300 p-3 rounded-lg"></select></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time In:</label><input type="text" id="editUserInTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Contact Number:</label><input type="tel" id="editUserContactNumber" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="9876543210"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">WhatsApp Number:</label><input type="tel" id="editUserWhatsappNumber" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="919876543210"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Time In:</label><input type="text" id="editUserInTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time Out:</label><input type="text" id="editUserOutTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="06:30 PM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry Start:</label><input type="date" id="editAttendanceStart" class="w-full border border-gray-300 p-3 rounded-lg"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry End:</label><input type="date" id="editAttendanceEnd" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="editOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="editOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Profile Photo Upload:</label><input type="file" id="editPhotoFile" accept="image/*" class="w-full border border-gray-300 p-2.5 rounded-lg bg-white"><p class="text-xs text-gray-500 mt-1">Naya photo select karne par purane photo URL ko replace karega.</p></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Photo URL (Optional):</label><input type="url" id="editPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
@@ -535,6 +541,22 @@
         </div>
     </div>
 
+    <!-- EMERGENCY TASK REQUEST MODAL -->
+    <div id="emergencyTaskModal" class="modal">
+        <div class="modal-content relative max-w-md shadow-2xl">
+            <span onclick="closeEmergencyTaskModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-bolt text-red-500"></i> Emergency New Task Request</h3>
+            <p class="text-sm text-gray-500 mb-5">Jo urgent meeting/task pehle se plan nahi tha, uski request yahan HOD/Admin ko bhejein.</p>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Task / Meeting:</label><input id="emergencyTaskName" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Emergency task name" required></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Date:</label><input type="date" id="emergencyTaskDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Location:</label><input id="emergencyTaskLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Office / Meeting location"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Details:</label><textarea id="emergencyTaskDetails" class="w-full border border-gray-300 p-3 rounded-lg" rows="4" placeholder="Urgent task details..."></textarea></div>
+                <button onclick="submitEmergencyTaskRequest()" id="emergencyTaskBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg">Send Request</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ADVANCE SCHEDULE REQUEST MODAL -->
     <div id="advanceScheduleModal" class="modal">
         <div class="modal-content relative max-w-md shadow-2xl">
@@ -546,11 +568,8 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Next Month Schedule Date:</label><input type="date" id="advanceScheduleDate" class="w-full border border-gray-300 p-3 rounded-lg" required></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" onchange="toggleAdvanceScheduleFields()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Leave">Leave</option><option value="Weekoff Adjustment">Weekoff Adjustment</option><option value="Meeting">Meeting</option><option value="Meeting Journey">Meeting Journey</option></select></div>
                 <div id="weekoffAdjustmentBox" class="hidden">
-                    <div class="mb-2 text-xs font-semibold text-[#1f827c]">Weekoff Adjustment tabhi available hoga jab selected date aapke configured Weekoff (jaise Sunday) par ho.</div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Original Weekoff Date:</label><input type="date" id="weekoffDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">New Weekoff Date:</label><input type="date" id="newWeekoffDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
-                    </div>
+                    <div class="mb-2 text-xs font-semibold text-[#1f827c]">Upar selected Schedule Date aapke configured Weekoff (jaise Sunday) par honi chahiye. Us Weekoff ko kis date par adjust karna hai woh date select karein.</div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">New Weekoff Date:</label><input type="date" id="newWeekoffDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
                 </div>
                 <div id="meetingModeBox" class="hidden"><label class="block text-sm font-semibold text-gray-700 mb-1">Meeting Type:</label><select id="meetingMode" onchange="toggleMeetingMode()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Online">Online</option><option value="Physical">Physical</option></select></div>
                 <div id="onlineDurationBox" class="hidden grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-gray-600 mb-1">From:</label><input type="time" id="meetingFrom" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">To:</label><input type="time" id="meetingTo" class="w-full border border-gray-300 p-3 rounded-lg"></div></div>
@@ -643,7 +662,13 @@
                     <h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-list-check text-[#259b94]"></i> Task Report</h2>
                     <p class="text-sm text-gray-500 mt-1">On-time, delayed and pending task performance.</p>
                 </div>
-
+                <div class="flex flex-wrap gap-2 items-end">
+                    <div><label class="block text-xs font-bold text-gray-600 mb-1">Period</label><select id="taskReportPeriod" onchange="toggleTaskReportFilters()" class="border p-2 rounded-lg text-sm"><option value="all">All</option><option value="day">Daily</option><option value="week">Weekly</option><option value="month">Monthly</option><option value="year">Yearly</option></select></div>
+                    <div id="taskReportDateBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Date</label><input type="date" id="taskReportDate" class="border p-2 rounded-lg text-sm"></div>
+                    <div id="taskReportMonthBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Month</label><input type="month" id="taskReportMonth" class="border p-2 rounded-lg text-sm"></div>
+                    <div id="taskReportYearBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Year</label><input type="number" id="taskReportYear" class="border p-2 rounded-lg text-sm" placeholder="YYYY"></div>
+                    <button onclick="renderTaskReport(getReportTasks())" class="bg-[#259b94] text-white px-4 py-2 rounded-lg text-sm font-bold">Apply</button>
+                </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
                 <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL</div><div id="trTotal" class="text-2xl font-extrabold">0</div></div>
@@ -671,6 +696,10 @@
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="attendanceWeightage" type="number" min="0" max="100" value="15" class="w-full border p-2 rounded-lg"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="taskWeightage" type="number" min="0" max="100" value="85" class="w-full border p-2 rounded-lg"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressEmpFilter" class="w-full border p-2 rounded-lg"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Period</label><select id="progressPeriodType" onchange="toggleProgressPeriodInputs()" class="w-full border p-2 rounded-lg"><option value="default">Daily/Weekly/Monthly</option><option value="day">Daily</option><option value="week">Weekly</option><option value="month">Monthly</option><option value="year">Yearly</option></select></div>
+                <div id="progressPeriodDateBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Date</label><input type="date" id="progressPeriodDate" class="w-full border p-2 rounded-lg"></div>
+                <div id="progressPeriodMonthBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Month</label><input type="month" id="progressPeriodMonth" class="w-full border p-2 rounded-lg"></div>
+                <div id="progressPeriodYearBox" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1">Year</label><input type="number" id="progressPeriodYear" class="w-full border p-2 rounded-lg" placeholder="YYYY"></div>
                 <div class="flex items-end"><button onclick="renderProgressChart()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-2 rounded-lg">Apply</button></div>
             </div>
             <div id="progressWeightError" class="hidden text-red-600 text-sm font-bold mb-3">Attendance + Task weightage must equal 100%.</div>
@@ -809,6 +838,7 @@
 
     <script>
         // YAHAN APNA NAYA GOOGLE SCRIPT URL DAALEIN
+        // GOOGLE SHEET / APPS SCRIPT URL: Is URL ko change karein agar Web App deployment URL badle.
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLoOPtmn1wfe929TWPOVt52GijbtJJ5LthLmvZsik9bi0NR4q7TR8HKlyPgmM1UG05lw/exec";
         
         let globalAllTasks = []; 
@@ -934,7 +964,8 @@
                     attendanceEntryStart = data.attendanceEntryStart || "";
                     attendanceEntryEnd = data.attendanceEntryEnd || "";
                     setDateConstraints();
-                    document.getElementById('displayUser').innerText = data.actualName;
+                    document.getElementById('displayUser').innerText = data.actualName || data.username;
+                    window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
                     window.currentUserWeekoff = data.weekoff || 'Sunday';
@@ -1445,7 +1476,7 @@
                     stateBadge = `<span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">Present</span>`;
                 }
 
-                if (isAdmin) {
+                if (isHOD) {
                     stateBadge += ` <button onclick="openAttendanceEditModal(${r.rowIndex}, ${JSON.stringify(r.user)})" class="ml-2 bg-[#2a4d53] hover:bg-[#112a2e] text-white px-2 py-1 rounded text-xs font-bold" title="Admin correction"><i class="fas fa-edit"></i> Edit</button>`;
                 }
 
@@ -1454,7 +1485,7 @@
                 tbody.innerHTML += `
                     <tr class="transition ${rowBg} border-b">
                         <td class="py-4 px-6 font-bold text-gray-800 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-[#e1ebea] flex items-center justify-center text-[#2a4d53] text-xs"><i class="fas fa-user"></i></div>
+                            <div class="w-8 h-8 rounded-full bg-[#e1ebea] flex items-center justify-center text-[#2a4d53] text-xs overflow-hidden">${r.profilePhotoUrl?`<img src="${r.profilePhotoUrl}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`:''}<i class="fas fa-user" style="${r.profilePhotoUrl?'display:none':''}"></i></div>
                             ${r.date}<br><span class="text-xs text-[#259b94]">${r.user}</span>
                         </td>
                         <td class="py-4 px-6 text-green-600 font-semibold">${inT}</td>
@@ -1581,6 +1612,7 @@
             let src=raw;
             const m=raw.match(/[?&]id=([^&]+)/i);
             if(raw.indexOf('drive.google.com')>-1 && m) src='https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w400';
+            if(raw.indexOf('drive.google.com/uc')>-1){ const mid=raw.match(/[?&]id=([^&]+)/i); if(mid) src='https://drive.google.com/thumbnail?id='+encodeURIComponent(mid[1])+'&sz=w400'; }
             ph.onerror=function(){
                 const m2=raw.match(/[?&]id=([^&]+)/i);
                 if(m2 && this.src.indexOf('/thumbnail?')===-1){this.src='https://drive.google.com/thumbnail?id='+encodeURIComponent(m2[1])+'&sz=w400';return;}
@@ -1606,7 +1638,7 @@
                     const safe=encodeURIComponent(u.username);
                     const self=String(u.username||'').trim().toLowerCase()===String(document.getElementById('displayUser').innerText||'').trim().toLowerCase();
                     const action=self ? '<span class="text-xs text-gray-400 font-semibold">Owner only</span>' : `<button onclick="openEditUserModal(decodeURIComponent('${safe}'))" class="text-xs bg-[#e6fcf5] text-[#1f827c] border border-[#b2d8d8] px-3 py-1.5 rounded-md font-bold"><i class="fas fa-pen"></i> Edit</button>`;
-                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}${u.attendanceEntryStart&&u.attendanceEntryEnd?`<br><span class="text-[#259b94]">Att: ${u.attendanceEntryStart} → ${u.attendanceEntryEnd}</span>`:''}</td><td class="p-2">${action}</td></tr>`;
+                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.contactNumber?`<a href="tel:${u.contactNumber}" class="text-[#259b94] font-bold">${u.contactNumber}</a>`:'-'}</td><td class="p-2 text-xs">${u.whatsappNumber?`<a target="_blank" href="https://wa.me/${String(u.whatsappNumber).replace(/\D/g,'')}" class="text-green-600 font-bold">${u.whatsappNumber}</a>`:'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}${u.attendanceEntryStart&&u.attendanceEntryEnd?`<br><span class="text-[#259b94]">Att: ${u.attendanceEntryStart} → ${u.attendanceEntryEnd}</span>`:''}</td><td class="p-2">${action}</td></tr>`;
                 });
                 toggleAdminUserHod();
             }).catch(()=>alert('Unable to load users.'));
@@ -1619,6 +1651,9 @@
                 document.getElementById('editUserLogin').value=u.username||'';
                 document.getElementById('editUserName').value=u.username||'';
                 document.getElementById('editUserPassword').value='';
+                document.getElementById('editUserContactNumber').value=u.contactNumber||'';
+                document.getElementById('editUserWhatsappNumber').value=u.whatsappNumber||'';
+                document.getElementById('editUserName').value=u.displayName||u.username||'';
                 document.getElementById('editUserDepartment').value=u.department||'';
                 document.getElementById('editUserInTime').value=u.timeIn||'';
                 document.getElementById('editUserOutTime').value=u.timeOut||'';
@@ -1668,6 +1703,9 @@
             try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('editPhotoFile',username); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
             if(uploadedPhotoUrl) document.getElementById('editPhotoUrl').value=uploadedPhotoUrl;
             const fd=new FormData(); fd.append('action','adminUpdateUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
+            fd.append('displayName',document.getElementById('editUserName').value.trim());
+            fd.append('contactNumber',document.getElementById('editUserContactNumber').value.trim());
+            fd.append('whatsappNumber',document.getElementById('editUserWhatsappNumber').value.trim());
             fd.append('password',document.getElementById('editUserPassword').value.trim());
             fd.append('department',document.getElementById('editUserDepartment').value.trim());
             fd.append('hod',document.getElementById('editUserHod').value);
@@ -1690,7 +1728,7 @@
             let uploadedPhotoUrl=null;
             try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('adminNewPhotoFile',login); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
             const photoUrl=uploadedPhotoUrl || document.getElementById('adminNewPhotoUrl').value.trim();
-            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',photoUrl);
+            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('contactNumber',document.getElementById('adminNewContactNumber').value.trim()); fd.append('whatsappNumber',document.getElementById('adminNewWhatsappNumber').value.trim()); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',photoUrl);
             const btn=document.getElementById('createUserBtn'); btn.disabled=true; btn.innerText='Creating...';
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
                 if(data.status==='success'){alert('User created successfully.'); document.getElementById('adminNewUsername').value=''; document.getElementById('adminNewLogin').value=''; document.getElementById('adminNewPassword').value=''; document.getElementById('adminNewDepartment').value=''; document.getElementById('adminNewHod').value=''; document.getElementById('adminNewPhotoUrl').value=''; document.getElementById('adminNewPhotoFile').value=''; loadAdminUsers();} else alert(data.message||'User creation failed.');
@@ -2211,7 +2249,10 @@
                 text += `• Break Start: ${formatWhatsAppTime(att && att.BreakStarts)}\n`;
                 text += `• Break End: ${formatWhatsAppTime(att && att.BreakEnds)}\n`;
                 text += `• Leave/Weekoff: ${att && att.Leave ? att.Leave : '-'}\n`;
-                text += `• Reason: ${att && att.Reason ? att.Reason : '-'}\n\n`;
+                text += `• Reason: ${att && att.Reason ? att.Reason : '-'}\n`;
+                function minsBetween(a,b){const fa=formatWhatsAppTime(a),fb=formatWhatsAppTime(b);const ma=fa.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)/i),mb=fb.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)/i);if(!ma||!mb)return 0;let ah=+ma[1]%12+(ma[4].toUpperCase()==='PM'?12:0),bh=+mb[1]%12+(mb[4].toUpperCase()==='PM'?12:0);let x=ah*60+ +ma[2]+(+ma[3]||0)/60,y=bh*60+ +mb[2]+(+mb[3]||0)/60;if(y<x)y+=1440;return y-x;}
+                let breakTotal=0; if(att&&att.BreakStarts&&att.BreakEnds){const bs=String(att.BreakStarts).split('|'),be=String(att.BreakEnds).split('|');for(let bi=0;bi<Math.min(bs.length,be.length);bi++)breakTotal+=minsBetween(bs[bi],be[bi]);}
+                text += `• Break Total Minutes: ${breakTotal}\n\n`;
 
                 // Selected-date work logs only.
                 const logs = (globalWorkLogs || []).filter(w =>
@@ -2285,6 +2326,8 @@
                     text += `No office work log submitted for this date.\n\n`;
                 }
 
+                const totalTaskDuration=activeTasks.reduce((sum,t)=>sum+(Number(t.timeSpent)||0),0);
+                text += `⏱️ Total Task Duration: ${formatMinsForReport(totalTaskDuration)}\n`;
                 text += `⏱️ Total Office Work: ${formatMinsForReport(totalMinutes)}\n`;
             } else {
                 const raw = document.getElementById('whatsappReportMonth').value;
@@ -2360,7 +2403,7 @@
                 text += `⏱️ Total Office Work: ${formatMinsForReport(total)}\n`;
             }
 
-            text += `\n${line}\n📌 Zimmedar Office ERP\n🕒 Generated: ${new Date().toLocaleString()}`;
+            text += `\n${line}\n🕒 Generated: ${new Date().toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
             const preview = document.getElementById('whatsappReportPreview');
             if (preview) preview.value = text;
         }
@@ -2397,31 +2440,61 @@
 
         // ================= NOTIFICATIONS =================
         function closeNotifications(){const p=document.getElementById('notificationPanel');if(p)p.classList.add('hidden');}
+        function notificationStorageKey(){const u=(window.currentUser&&window.currentUser.username)||(document.getElementById('displayName')?.innerText||'user');return 'office_task_reporting_notifications_read_'+String(u).trim().toLowerCase();}
+        function getReadNotificationIds(){try{return JSON.parse(localStorage.getItem(notificationStorageKey())||'[]');}catch(e){return [];}}
+        function setReadNotificationIds(ids){try{localStorage.setItem(notificationStorageKey(),JSON.stringify(Array.from(new Set(ids)).slice(-300)));}catch(e){}}
+        function notificationId(n){return String(n.type||'')+'|'+String(n.key||n.title||'')+'|'+String(n.date||'')+'|'+String(n.text||'');}
+        function notificationTime(n){
+            const raw=n.timestamp||n.date||''; if(!raw)return '';
+            const d=new Date(raw); if(isNaN(d.getTime()))return String(raw);
+            return d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+        }
+        function markNotificationRead(id){const ids=getReadNotificationIds();if(!ids.includes(id)){ids.push(id);setReadNotificationIds(ids);}renderNotifications();}
+        function markAllNotificationsRead(){const items=notificationItems();setReadNotificationIds(items.map(notificationId));renderNotifications();}
         function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
         function notificationItems(){
             const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[];
             if(role.includes('hod')||role.includes('admin')){
-                tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task'});});
-                atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance'});});
-                sched.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({title:'Advance Schedule Request',text:`${r.employee||''} — ${r.requestType||''} — ${r.requestDate||''}`,action:'schedule'});});
+                tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task',date:t.completedAt||t.endDate||t.startDate});});
+                atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({type:'attendance',key:a.rowIndex||a.date,title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance',date:a.date});});
+                (globalWorkLogs||[]).slice(-20).forEach(w=>items.push({type:'work',key:w.rowIndex||w.Task||w.WorkDate,title:'Employee work updated',text:`${w.Employee||''} — ${w.Task||''} — ${w.TimeSpentMins||0} min`,action:'task',date:w.WorkDate||w.Timestamp||''}));
+                sched.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({type:'schedule',key:r.requestId||r.rowIndex,title:'Advance Schedule Request',text:`${r.employee||''} — ${r.requestType||''} — ${r.requestDate||''}`,action:'schedule',date:r.submittedAt||r.requestDate});});
             }else{
-                tasks.forEach(t=>{const s=String(t.hodStatus||'').toLowerCase();if(s==='approved')items.push({title:'Task approved',text:t.taskName||'Task',action:'task'});else if(s==='rejected')items.push({title:'Task request rejected',text:t.taskName||'Task',action:'task'});else if(String(t.empStatus||'').toLowerCase()==='completion requested')items.push({title:'Early completion request pending',text:t.taskName||'Task',action:'task'});});
+                tasks.forEach(t=>{const s=String(t.hodStatus||'').toLowerCase();if(s==='approved')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task assigned / approved',text:`${t.taskName||'Task'} — ${t.assignedBy||''}`,action:'task',date:t.startDate});else if(s==='rejected')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task request rejected',text:t.taskName||'Task',action:'task',date:t.startDate});else if(String(t.empStatus||'').toLowerCase()==='completion requested')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Early completion request pending',text:t.taskName||'Task',action:'task',date:t.endDate});else if(String(t.empStatus||'').toLowerCase()==='pending')items.push({type:'task',key:t.taskId||t.rowIndex,title:'New task assigned',text:`${t.taskName||'Task'} — ${t.assignedBy||''}`,action:'task',date:t.startDate});});
                 const now=new Date();
                 if(now.getDate()<=14){
                     const nm=now.getMonth()===11?0:now.getMonth()+1, ny=now.getMonth()===11?now.getFullYear()+1:now.getFullYear();
                     const hasNext=sched.some(r=>{const d=String(r.requestDate||'').split('-');return d.length===3 && Number(d[1])===nm+1 && Number(d[2])===ny && String(r.status||'').toLowerCase()!=='rejected';});
-                    if(!hasNext)items.push({title:'Advance Schedule Reminder',text:`Aapka next month Advance Schedule abhi add nahi hua. ${15-now.getDate()} din baaqi hain.`,action:'schedule'});
+                    if(!hasNext)items.push({type:'schedule-reminder',key:`${ny}-${nm+1}`,title:'Advance Schedule Reminder',text:`Aapka next month Advance Schedule abhi add nahi hua. ${15-now.getDate()} din baaqi hain.`,action:'schedule',date:now});
                 }
-            } return items.slice(0,20);
+            }
+            return items.slice(0,50);
         }
-        function renderNotifications(){const list=document.getElementById('notificationList'),count=document.getElementById('notificationCount');if(!list||!count)return;const items=notificationItems();list.innerHTML='';count.innerText=items.length;count.classList.toggle('hidden',items.length===0);count.classList.toggle('flex',items.length>0);if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No new notifications.</div>';return;}items.forEach(n=>{const row=document.createElement('button');row.type='button';row.className='w-full text-left px-4 py-3 border-b hover:bg-[#f0f7f7] transition';row.innerHTML=`<div class="font-bold text-sm text-[#112a2e]"><i class="fas fa-bell text-[#259b94] mr-2"></i>${n.title}</div><div class="text-xs text-gray-500 mt-1">${n.text}</div>`;row.onclick=()=>{closeNotifications();if(n.action==='task')openTaskReportModal();else if(n.action==='schedule')openAdvanceScheduleApprovalModal();else openOneViewModal();};list.appendChild(row);});}
+        function renderNotifications(){
+            const list=document.getElementById('notificationList'),count=document.getElementById('notificationCount'),label=document.getElementById('notificationUnreadLabel');if(!list||!count)return;
+            const items=notificationItems(),readIds=getReadNotificationIds();
+            const unread=items.filter(n=>!readIds.includes(notificationId(n)));
+            count.innerText=unread.length;count.classList.toggle('hidden',unread.length===0);count.classList.toggle('flex',unread.length>0);if(label)label.innerText=unread.length?`${unread.length} unread`:'All read';
+            list.innerHTML='';
+            if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No notifications.</div>';return;}
+            items.forEach(n=>{const id=notificationId(n),isRead=readIds.includes(id),row=document.createElement('button');row.type='button';row.className=`w-full text-left px-4 py-3 border-b transition ${isRead?'bg-white opacity-70 hover:bg-gray-50':'bg-[#f0fbf9] hover:bg-[#e7f7f4]'}`;row.innerHTML=`<div class="flex items-start gap-2"><i class="fas fa-bell mt-1 ${isRead?'text-gray-400':'text-[#259b94]'}"></i><div class="min-w-0 flex-1"><div class="font-bold text-sm text-[#112a2e]">${n.title}${isRead?'':' <span class="ml-1 inline-block w-2 h-2 rounded-full bg-red-500 align-middle"></span>'}</div><div class="text-xs text-gray-600 mt-1">${n.text}</div><div class="text-[10px] text-gray-400 mt-1">${notificationTime(n)} ${isRead?'• Read':''}</div></div></div>`;row.onclick=()=>{markNotificationRead(id);closeNotifications();if(n.action==='task')openTaskReportModal();else if(n.action==='schedule')openAdvanceScheduleApprovalModal();else openOneViewModal();};list.appendChild(row);});
+        }
         document.addEventListener('click',function(e){const b=document.getElementById('notificationBtn'),p=document.getElementById('notificationPanel');if(p&&!p.classList.contains('hidden')&&b&&!b.contains(e.target)&&!p.contains(e.target))closeNotifications();});
+        setInterval(()=>{try{if(typeof renderNotifications==='function')renderNotifications();}catch(e){}},60000);
 
         // ================= TASK REPORT =================
         function openTaskReportModal() {
             document.getElementById('taskReportModal').style.display = 'block';
+            const n=new Date(); document.getElementById('taskReportDate').valueAsDate=n; document.getElementById('taskReportMonth').value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; document.getElementById('taskReportYear').value=n.getFullYear();
             renderTaskReport(getReportTasks());
         }
+        function toggleTaskReportFilters(){const v=document.getElementById('taskReportPeriod').value;['taskReportDateBox','taskReportMonthBox','taskReportYearBox'].forEach(id=>document.getElementById(id).classList.add('hidden'));if(v==='day'||v==='week')document.getElementById('taskReportDateBox').classList.remove('hidden');if(v==='month')document.getElementById('taskReportMonthBox').classList.remove('hidden');if(v==='year')document.getElementById('taskReportYearBox').classList.remove('hidden');}
+        function filterTasksByReportPeriod(tasks){const v=document.getElementById('taskReportPeriod')?.value||'all';if(v==='all')return tasks;let start,end;if(v==='day'){const x=document.getElementById('taskReportDate').value;if(!x)return tasks;const [y,m,d]=x.split('-');start=new Date(+y,+m-1,+d);end=new Date(start);}
+          else if(v==='week'){const x=document.getElementById('taskReportDate').value;if(!x)return tasks;const [y,m,d]=x.split('-');end=new Date(+y,+m-1,+d);start=new Date(end);start.setDate(start.getDate()-6);}
+          else if(v==='month'){const x=document.getElementById('taskReportMonth').value;if(!x)return tasks;const [y,m]=x.split('-');start=new Date(+y,+m-1,1);end=new Date(+y,+m,0);}
+          else {const y=Number(document.getElementById('taskReportYear').value);if(!y)return tasks;start=new Date(y,0,1);end=new Date(y,11,31);}
+          return tasks.filter(t=>{const a=parseReportDate(t.startDate),b=parseReportDate(t.endDate);return a&&b&&b>=start&&a<=end;});}
+
         function closeTaskReportModal() { document.getElementById('taskReportModal').style.display = 'none'; }
         function getReportTasks() {
             const role = document.getElementById('displayRole').innerText;
@@ -2449,6 +2522,7 @@
             return {label:`+${n} Days Left`,className:'text-green-600'};
         }
         function renderTaskReport(tasks) {
+            tasks=filterTasksByReportPeriod(tasks);
             let on=0, delayed=0, pending=0, delayDays=0;
             tasks.forEach(t=>{const info=taskDeadlineInfo(t); if(String(t.empStatus).toLowerCase()==='completed' && info.label.indexOf('Delayed')>-1){delayed++;delayDays+=Math.abs(parseInt(info.label)||0);} else if(info.label.indexOf('Delayed')>-1){delayed++;delayDays+=Math.abs(parseInt(info.label)||0);} else if(String(t.empStatus).toLowerCase()!=='completed') pending++; else on++;});
             document.getElementById('trTotal').innerText=tasks.length;
@@ -2470,9 +2544,12 @@
             if(isManager){(globalTeamMembers||[]).forEach(m=>sel.innerHTML+=`<option value="${m}">${m}</option>`); const f=document.getElementById('hodEmpFilter').value; if(f&&f!=='All')sel.value=f;} else {sel.innerHTML=`<option value="${document.getElementById('displayUser').innerText}">${document.getElementById('displayUser').innerText}</option>`;}
             const aw=localStorage.getItem('zim_att_weight'); const tw=localStorage.getItem('zim_task_weight');
             document.getElementById('attendanceWeightage').value=aw||15; document.getElementById('taskWeightage').value=tw||85;
-            renderProgressChart();
+            const n=new Date(); document.getElementById('progressPeriodDate').valueAsDate=n; document.getElementById('progressPeriodMonth').value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; document.getElementById('progressPeriodYear').value=n.getFullYear(); toggleProgressPeriodInputs(); renderProgressChart();
         }
         function closeAnalysationModal(){document.getElementById('analysationModal').style.display='none';}
+        function toggleProgressPeriodInputs(){const v=document.getElementById('progressPeriodType').value;['progressPeriodDateBox','progressPeriodMonthBox','progressPeriodYearBox'].forEach(id=>document.getElementById(id).classList.add('hidden'));if(v==='day'||v==='week')document.getElementById('progressPeriodDateBox').classList.remove('hidden');if(v==='month')document.getElementById('progressPeriodMonthBox').classList.remove('hidden');if(v==='year')document.getElementById('progressPeriodYearBox').classList.remove('hidden');}
+        function getSelectedProgressPeriod(){const v=document.getElementById('progressPeriodType').value;let start,end,label='';const now=new Date();now.setHours(0,0,0,0);if(v==='day'){const x=document.getElementById('progressPeriodDate').value;if(!x)return null;const [y,m,d]=x.split('-');start=new Date(+y,+m-1,+d);end=new Date(start);label='Daily';}else if(v==='week'){const x=document.getElementById('progressPeriodDate').value;if(!x)return null;const [y,m,d]=x.split('-');end=new Date(+y,+m-1,+d);start=new Date(end);start.setDate(start.getDate()-6);label='Weekly';}else if(v==='month'){const x=document.getElementById('progressPeriodMonth').value;if(!x)return null;const [y,m]=x.split('-');start=new Date(+y,+m-1,1);end=new Date(+y,+m,0);label='Monthly';}else if(v==='year'){const y=Number(document.getElementById('progressPeriodYear').value);if(!y)return null;start=new Date(y,0,1);end=new Date(y,11,31);label='Yearly';}else return null;return {start,end,label};}
+
         function applyGradeColor(el, grade){ if(!el) return; el.classList.remove('text-emerald-600','text-blue-600','text-amber-600','text-red-600','text-[#10b981]','text-[#259b94]','text-[#f59e0b]','text-red-500'); const colors={A:'text-emerald-600',B:'text-blue-600',C:'text-amber-600',D:'text-red-600'}; el.classList.add(colors[grade] || colors.D); }
          function getGrade(score){score=Math.max(0,Math.min(100,Math.round(score||0)));if(score>=90)return ['A','Mumtaz'];if(score>=80)return ['B','Behtar'];if(score>=70)return ['C','Munasib'];return ['D','Kamzor'];}
         function getTaskScore(tasks, date) {
@@ -2496,9 +2573,10 @@
             const selected=document.getElementById('progressEmpFilter').value, tasks=(globalAllTasks||[]).filter(t=>!selected||String(t.assignedTo).toLowerCase()===String(selected).toLowerCase()), records=(globalMonthlyFullAttendance||[]).filter(a=>!selected||String(a.Employee).toLowerCase()===String(selected).toLowerCase());
             const now=new Date();now.setHours(0,0,0,0);const dayStart=new Date(now),weekStart=new Date(now);weekStart.setDate(weekStart.getDate()-6);const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
             const day=periodScore(tasks,records,dayStart,now,aw/100,tw/100),week=periodScore(tasks,records,weekStart,now,aw/100,tw/100),month=periodScore(tasks,records,monthStart,now,aw/100,tw/100);
-            [['gradeDaily','scoreDaily',day],['gradeWeekly','scoreWeekly',week],['gradeMonthly','scoreMonthly',month]].forEach(x=>{const g=getGrade(x[2].overall);const ge=document.getElementById(x[0]);const se=document.getElementById(x[1]);if(ge){ge.innerText=`${g[0]} (${g[1]})`;applyGradeColor(ge,g[0]);}if(se)se.innerText=`${Math.round(x[2].overall)}%`;});
-            const body=document.getElementById('progressScoreBody');body.innerHTML='';[['Today',day],['This Week',week],['This Month',month]].forEach(x=>{const g=getGrade(x[1].overall);body.innerHTML+=`<tr class="border-t"><td class="p-3 font-bold">${x[0]}</td><td class="p-3 text-center">${Math.round(x[1].att)}%</td><td class="p-3 text-center">${Math.round(x[1].task)}%</td><td class="p-3 text-center font-bold">${Math.round(x[1].overall)}%</td><td class="p-3 text-center font-bold">${g[0]} (${g[1]})</td></tr>`;});
-            const ctx=document.getElementById('monthlyPerformanceChart').getContext('2d');if(monthlyChartInst)monthlyChartInst.destroy();monthlyChartInst=new Chart(ctx,{type:'bar',data:{labels:['Today','This Week','This Month'],datasets:[{label:'Overall Score',data:[day.overall,week.overall,month.overall],backgroundColor:'#2a4d53',barPercentage:.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100},x:{grid:{display:false}}}}});
+            const custom=getSelectedProgressPeriod(); if(custom){ custom.cp=periodScore(tasks,records,custom.start,custom.end,aw/100,tw/100); const cp=custom.cp; const cg=getGrade(cp.overall); document.getElementById('scoreDaily').innerText=`${Math.round(cp.overall)}%`; document.getElementById('gradeDaily').innerText=`${cg[0]} (${cg[1]})`; applyGradeColor(document.getElementById('gradeDaily'),cg[0]); }
+            if(!custom)[['gradeDaily','scoreDaily',day],['gradeWeekly','scoreWeekly',week],['gradeMonthly','scoreMonthly',month]].forEach(x=>{const g=getGrade(x[2].overall);const ge=document.getElementById(x[0]);const se=document.getElementById(x[1]);if(ge){ge.innerText=`${g[0]} (${g[1]})`;applyGradeColor(ge,g[0]);}if(se)se.innerText=`${Math.round(x[2].overall)}%`;});
+            const body=document.getElementById('progressScoreBody');body.innerHTML='';let chartLabels=['Today','This Week','This Month'],chartData=[day.overall,week.overall,month.overall];if(custom){const g=getGrade(custom.cp?custom.cp.overall:0);const cp=custom.cp||periodScore(tasks,records,custom.start,custom.end,aw/100,tw/100);body.innerHTML=`<tr class="border-t"><td class="p-3 font-bold">${custom.label}</td><td class="p-3 text-center">${Math.round(cp.att)}%</td><td class="p-3 text-center">${Math.round(cp.task)}%</td><td class="p-3 text-center font-bold">${Math.round(cp.overall)}%</td><td class="p-3 text-center font-bold">${g[0]} (${g[1]})</td></tr>`;chartLabels=[custom.label];chartData=[cp.overall];}else{[['Today',day],['This Week',week],['This Month',month]].forEach(x=>{const g=getGrade(x[1].overall);body.innerHTML+=`<tr class="border-t"><td class="p-3 font-bold">${x[0]}</td><td class="p-3 text-center">${Math.round(x[1].att)}%</td><td class="p-3 text-center">${Math.round(x[1].task)}%</td><td class="p-3 text-center font-bold">${Math.round(x[1].overall)}%</td><td class="p-3 text-center font-bold">${g[0]} (${g[1]})</td></tr>`;});}
+            const ctx=document.getElementById('monthlyPerformanceChart').getContext('2d');if(monthlyChartInst)monthlyChartInst.destroy();monthlyChartInst=new Chart(ctx,{type:'bar',data:{labels:chartLabels,datasets:[{label:'Overall Score',data:chartData,backgroundColor:'#2a4d53',barPercentage:.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100},x:{grid:{display:false}}}}});
         }
 
         // ================= PROGRESS CARD MODAL =================
@@ -2861,21 +2939,14 @@
 
         // ================= ADVANCE SCHEDULE REQUEST =================
         function openAdvanceScheduleModal() {
-            const now=new Date(), y=now.getFullYear(), m=now.getMonth();
-            const nextStart=new Date(y,m+1,1), nextEnd=new Date(y,m+2,0);
+            const now=new Date(), day=now.getDate(), y=now.getFullYear(), m=now.getMonth();
+            const minMonth=new Date(y,m+(day<=15?1:2),1), maxMonth=new Date(y+2,m+1,0);
             const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            const remaining=Math.max(0,15-now.getDate());
-            document.getElementById('advanceScheduleDate').min=fmt(nextStart);
-            document.getElementById('advanceScheduleDate').max=fmt(nextEnd);
-            document.getElementById('advanceScheduleDate').value='';
-            document.getElementById('advanceScheduleType').value='Leave';
-            document.getElementById('advanceScheduleReason').value=''; document.getElementById('advanceScheduleLocation').value='';
-            document.getElementById('meetingMode').value='Online';
-            ['meetingFrom','meetingTo','journeyStart','journeyComplete','weekoffDate','newWeekoffDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-            const info=document.getElementById('advanceScheduleWindowInfo');
-            if(info) info.innerText=now.getDate()<=15 ? `Advance Schedule window: ${remaining} din baaqi (15 tareekh tak). Sirf ${nextStart.toLocaleString('en-IN',{month:'long'})} ki dates select karein.` : 'Advance Schedule ki 15 tareekh ki deadline khatam ho chuki hai. HOD/Admin se contact karein.';
-            toggleAdvanceScheduleFields();
-            document.getElementById('advanceScheduleModal').style.display='block';
+            document.getElementById('advanceScheduleDate').min=fmt(minMonth); document.getElementById('advanceScheduleDate').max=fmt(maxMonth); document.getElementById('advanceScheduleDate').value='';
+            document.getElementById('advanceScheduleType').value='Leave'; document.getElementById('advanceScheduleReason').value=''; document.getElementById('advanceScheduleLocation').value=''; document.getElementById('meetingMode').value='Online';
+            ['meetingFrom','meetingTo','journeyStart','journeyComplete','newWeekoffDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+            const info=document.getElementById('advanceScheduleWindowInfo'); if(info) info.innerText=day<=15 ? `Advance Schedule: next month se future 2+ months tak dates select karein. ${15-day} din baaqi.` : `15 tareekh cross ho chuki hai. Next month band hai; uske baad ke future months select karein.`;
+            toggleAdvanceScheduleFields(); document.getElementById('advanceScheduleModal').style.display='block';
         }
         function closeAdvanceScheduleModal(){document.getElementById('advanceScheduleModal').style.display='none';}
         function isConfiguredWeekoffDate(dateStr){
@@ -2884,11 +2955,6 @@
             const names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             const configured=String(window.currentUserWeekoff||'').trim().toLowerCase();
             return configured && configured.split(',').map(x=>x.trim().toLowerCase()).indexOf(names[d.getDay()].toLowerCase())>-1;
-        }
-        function syncWeekoffAdjustmentDate(){
-            const selected=document.getElementById('advanceScheduleDate').value;
-            const weekoffDate=document.getElementById('weekoffDate');
-            if(weekoffDate) weekoffDate.value=selected||'';
         }
         function toggleAdvanceScheduleFields(){
             const type=document.getElementById('advanceScheduleType').value;
@@ -2899,8 +2965,7 @@
             if(type==='Weekoff Adjustment'){
                 const d=document.getElementById('advanceScheduleDate').value, nw=document.getElementById('newWeekoffDate');
                 if(nw){nw.min=document.getElementById('advanceScheduleDate').min;nw.max=document.getElementById('advanceScheduleDate').max;}
-                if(d && !isConfiguredWeekoffDate(d)){alert('Weekoff Adjustment ke liye selected date aapke configured Weekoff par honi chahiye.');document.getElementById('advanceScheduleDate').value='';document.getElementById('weekoffDate').value='';}
-                else syncWeekoffAdjustmentDate();
+                if(d && !isConfiguredWeekoffDate(d)){alert('Weekoff Adjustment ke liye upar selected date aapke configured Weekoff par honi chahiye.');document.getElementById('advanceScheduleDate').value='';}
             }
             if(type!=='Meeting') document.getElementById('onlineDurationBox').classList.add('hidden');
             else toggleMeetingMode();
@@ -2911,8 +2976,8 @@
                     if(!isConfiguredWeekoffDate(ev.target.value)){
                         alert('Weekoff Adjustment sirf aapke configured Weekoff date par select kiya ja sakta hai.');
                         ev.target.value='';
-                        const w=document.getElementById('weekoffDate'); if(w)w.value='';
-                    } else syncWeekoffAdjustmentDate();
+                        
+                    }
                 }
             }
         });
@@ -2920,13 +2985,16 @@
             const show=document.getElementById('advanceScheduleType').value==='Meeting' && document.getElementById('meetingMode').value==='Online';
             document.getElementById('onlineDurationBox').classList.toggle('hidden',!show);
         }
+        function openEmergencyTaskModal(){const d=document.getElementById('emergencyTaskDate');if(d)d.value=new Date().toISOString().split('T')[0];document.getElementById('emergencyTaskModal').style.display='block';}
+        function closeEmergencyTaskModal(){document.getElementById('emergencyTaskModal').style.display='none';}
+        function submitEmergencyTaskRequest(){const name=document.getElementById('emergencyTaskName').value.trim(),date=document.getElementById('emergencyTaskDate').value,details=document.getElementById('emergencyTaskDetails').value.trim(),location=document.getElementById('emergencyTaskLocation').value.trim();if(!name){alert('Emergency Task name required hai.');return;}const fd=new FormData();fd.append('action','emergencyTaskRequest');fd.append('taskName',name);fd.append('requestDate',date);fd.append('details',details);fd.append('location',location);fd.append('sessionToken',sessionToken);const b=document.getElementById('emergencyTaskBtn');b.disabled=true;b.innerText='Sending...';fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Request sent');if(d.status==='success'){closeEmergencyTaskModal();fetchDashboardDataSilently();}}).catch(()=>alert('Emergency request failed.')).finally(()=>{b.disabled=false;b.innerText='Send Request';});}
         function submitAdvanceScheduleRequest(){
             const date=document.getElementById('advanceScheduleDate').value;
             const type=document.getElementById('advanceScheduleType').value;
             const reason=document.getElementById('advanceScheduleReason').value.trim(); const scheduleLocation=document.getElementById('advanceScheduleLocation').value.trim();
-            const weekoffDate=type==='Weekoff Adjustment'?document.getElementById('weekoffDate').value:'';
+            const weekoffDate=type==='Weekoff Adjustment'?date:'';
             const newWeekoffDate=type==='Weekoff Adjustment'?document.getElementById('newWeekoffDate').value:'';
-            if(type==='Weekoff Adjustment' && (!weekoffDate||!newWeekoffDate)){alert('Weekoff Date aur New Weekoff Date dono select karein.');return;}
+            if(type==='Weekoff Adjustment' && (!date||!newWeekoffDate)){alert('Weekoff Date aur New Weekoff Date dono select karein.');return;}
             if(type==='Weekoff Adjustment' && !isConfiguredWeekoffDate(weekoffDate)){alert('Weekoff Adjustment sirf configured Weekoff date par hi kiya ja sakta hai.');return;}
             const mode=type==='Meeting'?document.getElementById('meetingMode').value:'';
             const meetingFrom=type==='Meeting'&&mode==='Online'?document.getElementById('meetingFrom').value:'';
