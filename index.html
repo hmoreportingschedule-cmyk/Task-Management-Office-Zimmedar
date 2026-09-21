@@ -321,6 +321,7 @@
                         <thead>
                             <tr class="bg-[#f0f7f7] text-[#4b6d70] uppercase text-xs font-bold tracking-wider">
                                 <th class="py-4 px-6">Task Name</th>
+                                 <th class="py-4 px-6">Category / Work / Weightage</th>
                                  <th class="py-4 px-6 hod-only-col hidden">Employee</th>
                                  <th class="py-4 px-6">Assigned By</th>
                                  <th class="py-4 px-6">Weightage</th>
@@ -421,6 +422,13 @@
                         </select>
                     </div>
                 </div>
+                <div class="mt-2 border border-[#b2d8d8] rounded-lg bg-[#f7fbfb] p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div><label class="block text-sm font-bold text-[#2a4d53]">Task Works / Categories</label><p class="text-xs text-gray-500">Ek Task ke andar multiple work add karein. Har work ka apna weightage hoga.</p></div>
+                        <button type="button" onclick="addTaskWorkRow()" class="bg-[#2a4d53] text-white px-3 py-2 rounded-md text-xs font-bold"><i class="fas fa-plus"></i> Add Work</button>
+                    </div>
+                    <div id="taskWorksBuilder" class="space-y-2"></div>
+                </div>
                 <button id="saveTaskBtn" onclick="submitNewTask()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Assign Task</button>
             </div>
         </div>
@@ -475,6 +483,8 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="editUserHod" class="w-full border border-gray-300 p-3 rounded-lg"></select></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time In:</label><input type="text" id="editUserInTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time Out:</label><input type="text" id="editUserOutTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="06:30 PM"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry Start:</label><input type="date" id="editAttendanceStart" class="w-full border border-gray-300 p-3 rounded-lg"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry End:</label><input type="date" id="editAttendanceEnd" class="w-full border border-gray-300 p-3 rounded-lg"></div>
             </div>
             <div class="mt-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
@@ -760,20 +770,28 @@
         let dashboardSyncInProgress = false;
         let sessionToken = "";
         let whatsappGroupLink = "";
+        let attendanceEntryStart = "";
+        let attendanceEntryEnd = "";
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
+            if(!dateInput) return;
             const today = new Date();
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
-            const tzOffset = today.getTimezoneOffset() * 60000; 
+            const tzOffset = today.getTimezoneOffset() * 60000;
             const localToday = (new Date(today - tzOffset)).toISOString().split('T')[0];
             const localYesterday = (new Date(yesterday - tzOffset)).toISOString().split('T')[0];
             dateInput.max = localToday;
-            dateInput.min = localYesterday;
-            dateInput.value = localToday; 
+            if(attendanceEntryStart && attendanceEntryEnd){
+                dateInput.min = attendanceEntryStart;
+                dateInput.max = attendanceEntryEnd > localToday ? attendanceEntryEnd : localToday;
+            } else {
+                dateInput.min = localYesterday;
+                dateInput.max = localToday;
+            }
+            dateInput.value = localToday;
         }
-        setDateConstraints();
 
         function updateLiveTime() {
             const now = new Date();
@@ -859,6 +877,9 @@
                     
                     sessionToken = data.sessionToken || "";
                     whatsappGroupLink = data.whatsappGroupLink || "";
+                    attendanceEntryStart = data.attendanceEntryStart || "";
+                    attendanceEntryEnd = data.attendanceEntryEnd || "";
+                    setDateConstraints();
                     document.getElementById('displayUser').innerText = data.actualName;
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('displayOfficeTime').innerText = data.officeTime;
@@ -1085,6 +1106,9 @@
                 globalTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : [];
                 globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
                 globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : [];
+                attendanceEntryStart = data.todayAttendanceEntryStart || attendanceEntryStart;
+                attendanceEntryEnd = data.todayAttendanceEntryEnd || attendanceEntryEnd;
+                setDateConstraints();
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
 
                 if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
@@ -1247,7 +1271,7 @@
             }
 
             if (tasksToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isHOD?7:6}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isHOD?11:10}" class="py-8 text-center text-gray-500 italic">No tasks found.</td></tr>`;
             } else {
                 tasksToRender.forEach(task => {
                     let prioColor = task.priority.toLowerCase() === 'high' ? 'text-red-600' : 'text-yellow-600';
@@ -1302,6 +1326,7 @@
 
                     tr.innerHTML = `
                         <td class="py-4 px-6 font-bold text-[#112a2e]">${task.taskName}</td>
+                         <td class="py-4 px-6 text-xs">${(task.works&&task.works.length)?task.works.map(w=>`<div class="mb-1"><span class="font-bold text-[#2a4d53]">${w.category}</span>: ${w.work} <span class="text-[#259b94] font-bold">(${Number(w.weightage)||0}%)</span></div>`).join(''): '<span class="text-gray-400">No works added</span>'}</td>
                          ${isHOD ? `<td class="py-4 px-6 text-[#259b94] font-bold">${task.assignedTo}</td>` : ''}
                          <td class="py-4 px-6 text-[#4b6d70] font-semibold">${task.assignedBy || '-'}</td>
                          <td class="py-4 px-6 font-bold text-[#2a4d53]">${isHOD ? `<input type="number" min="0" max="85" value="${Number(task.weightage)||0}" onchange="updateTaskWeightage(${task.rowIndex}, this.value, ${JSON.stringify(task.assignedTo)})" class="w-20 border border-[#b2d8d8] rounded-md px-2 py-1 text-sm font-bold" title="Task weightage (%)">` : `${Number(task.weightage)||0}%`}</td>
@@ -1497,7 +1522,7 @@
                     const safe=encodeURIComponent(u.username);
                     const self=String(u.username||'').trim().toLowerCase()===String(document.getElementById('displayUser').innerText||'').trim().toLowerCase();
                     const action=self ? '<span class="text-xs text-gray-400 font-semibold">Owner only</span>' : `<button onclick="openEditUserModal(decodeURIComponent('${safe}'))" class="text-xs bg-[#e6fcf5] text-[#1f827c] border border-[#b2d8d8] px-3 py-1.5 rounded-md font-bold"><i class="fas fa-pen"></i> Edit</button>`;
-                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}</td><td class="p-2">${action}</td></tr>`;
+                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}${u.attendanceEntryStart&&u.attendanceEntryEnd?`<br><span class="text-[#259b94]">Att: ${u.attendanceEntryStart} → ${u.attendanceEntryEnd}</span>`:''}</td><td class="p-2">${action}</td></tr>`;
                 });
                 toggleAdminUserHod();
             }).catch(()=>alert('Unable to load users.'));
@@ -1513,6 +1538,8 @@
                 document.getElementById('editUserDepartment').value=u.department||'';
                 document.getElementById('editUserInTime').value=u.timeIn||'';
                 document.getElementById('editUserOutTime').value=u.timeOut||'';
+                document.getElementById('editAttendanceStart').value=u.attendanceEntryStart||'';
+                document.getElementById('editAttendanceEnd').value=u.attendanceEntryEnd||'';
                 const h=document.getElementById('editUserHod'); h.innerHTML='<option value="">-- Select HOD --</option>';
                 (data.hods||[]).forEach(n=>h.innerHTML+=`<option value="${n}">${n}</option>`); h.value=u.hod||'';
                 const access=String(u.accessPermissions||'').split(',').map(x=>x.trim().toLowerCase());
@@ -1529,6 +1556,8 @@
             fd.append('hod',document.getElementById('editUserHod').value);
             fd.append('timeIn',document.getElementById('editUserInTime').value.trim());
             fd.append('timeOut',document.getElementById('editUserOutTime').value.trim());
+            fd.append('attendanceEntryStart',document.getElementById('editAttendanceStart').value);
+            fd.append('attendanceEntryEnd',document.getElementById('editAttendanceEnd').value);
             fd.append('accessPermissions',[...document.querySelectorAll('.edit-admin-access:checked')].map(x=>x.value).join(', '));
             const btn=document.getElementById('saveEditUserBtn'); btn.disabled=true; btn.innerText='Saving...';
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
@@ -1550,6 +1579,8 @@
 
         function openAssignTaskModal() {
             document.getElementById('assignTaskModal').style.display = 'block';
+            document.getElementById('taskWorksBuilder').innerHTML='';
+            addTaskWorkRow();
             const role=String(document.getElementById('displayRole').innerText||'').toLowerCase();
             const sel=document.getElementById('newTaskAssignedBy');
             sel.innerHTML='<option value="">-- Select --</option>';
@@ -1566,6 +1597,19 @@
         }
         function closeAssignTaskModal() { document.getElementById('assignTaskModal').style.display = 'none'; }
         
+        function addTaskWorkRow(data={}) {
+            const wrap=document.getElementById('taskWorksBuilder');
+            const row=document.createElement('div'); row.className='grid grid-cols-12 gap-2 items-center task-work-row';
+            row.innerHTML=`<input class="col-span-4 border border-gray-300 p-2 rounded-md text-xs task-work-category" placeholder="Category e.g. Calling" value="${data.category||''}">
+                <input class="col-span-5 border border-gray-300 p-2 rounded-md text-xs task-work-name" placeholder="Work e.g. Member Follow-up" value="${data.work||''}">
+                <input type="number" min="0" max="100" class="col-span-2 border border-gray-300 p-2 rounded-md text-xs task-work-weight" placeholder="Weight %" value="${data.weightage??''}">
+                <button type="button" onclick="this.parentElement.remove()" class="col-span-1 bg-red-50 text-red-600 border border-red-200 rounded-md py-2 text-xs font-bold">×</button>`;
+            wrap.appendChild(row);
+        }
+        function collectTaskWorks(){
+            return [...document.querySelectorAll('#taskWorksBuilder .task-work-row')].map(r=>({category:r.querySelector('.task-work-category').value.trim(),work:r.querySelector('.task-work-name').value.trim(),weightage:Number(r.querySelector('.task-work-weight').value)||0})).filter(x=>x.category&&x.work);
+        }
+
         function submitNewTask() {
             const tUser = document.getElementById('newTaskUser').value;
             const tName = document.getElementById('newTaskName').value;
@@ -1575,7 +1619,11 @@
             const tEnd = document.getElementById('newTaskEnd').value;
             const dept = document.getElementById('displayDept').innerText;
 
+            const works = collectTaskWorks();
             if(!tUser || !tName || !tStart || !tEnd) { alert("Fill all required fields including dates!"); return; }
+            if(works.length===0) { alert('Please add at least one Category / Work.'); return; }
+            const workTotal=works.reduce((a,x)=>a+(Number(x.weightage)||0),0);
+            if(workTotal>100) { alert('Work weightage total cannot exceed 100%.'); return; }
 
             document.getElementById('saveTaskBtn').innerText = "Assigning...";
             const formData = new FormData();
@@ -1589,6 +1637,7 @@
             formData.append('endDate', tEnd);
             formData.append('weightage', document.getElementById('newTaskWeightage').value || '10');
             formData.append('assignedBy', document.getElementById('newTaskAssignedBy').value || document.getElementById('displayUser').innerText);
+            formData.append('worksJson', JSON.stringify(works));
             formData.append('sessionToken', sessionToken);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
