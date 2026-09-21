@@ -936,7 +936,7 @@
                     window.currentUserWeekoff = data.weekoff || 'Sunday';
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
                     document.getElementById('displayOfficeLocation').innerText = [data.officeLocation,data.officeAddress].filter(Boolean).join(' : ') || '--';
-                    const ph=document.getElementById('displayUserPhoto'), pf=document.getElementById('displayUserPhotoFallback'); if(data.profilePhotoUrl){ph.src=data.profilePhotoUrl;ph.classList.remove('hidden');pf.classList.add('hidden');ph.onerror=()=>{ph.classList.add('hidden');pf.classList.remove('hidden');};} else {ph.classList.add('hidden');pf.classList.remove('hidden');}
+                    const ph=document.getElementById('displayUserPhoto'), pf=document.getElementById('displayUserPhotoFallback'); const photoSrc=data.profilePhotoDataUrl || data.profilePhotoUrl || ""; if(photoSrc){ph.src=photoSrc;ph.classList.remove('hidden');pf.classList.add('hidden');ph.onerror=()=>{ if(data.profilePhotoDataUrl && data.profilePhotoUrl && ph.src!==data.profilePhotoUrl){ph.src=data.profilePhotoUrl;return;} ph.classList.add('hidden');pf.classList.remove('hidden');};} else {ph.classList.add('hidden');pf.classList.remove('hidden');}
                     
                     const role = data.role.toLowerCase();
                     document.getElementById('displayRole').innerText = role;
