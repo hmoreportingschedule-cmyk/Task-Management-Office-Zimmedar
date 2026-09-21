@@ -126,19 +126,32 @@
                     
                     <select id="actionReasonSelect" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg mb-3 text-xs focus:outline-none focus:border-[#5fd3cc]" onchange="toggleOtherReason()">
                         <option value="">-- Select Reason --</option>
-                        <option value="Namaze Zohar/Namaze Juma & Lunch">Namaze Zohar/Namaze Juma & Lunch</option>
-                        <option value="Ghare Men Emergency">Ghare Men Emergency</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Namaz">Namaz</option>
                         <option value="Bimari">Bimari</option>
-                        <option value="Traffic">Traffic</option>
+                        <option value="Ghar Men Emergency">Ghar Men Emergency</option>
+                        <option value="Trafic">Trafic</option>
                         <option value="Other">Other</option>
                     </select>
-                    <textarea id="actionReasonOther" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg mb-3 text-xs hidden focus:outline-none focus:border-[#5fd3cc]" rows="2" placeholder="Write details here..."></textarea>
+                    <div id="namazReasonBox" class="mb-3 hidden">
+                        <label class="text-xs font-semibold text-[#a5cacc]">Namaz:</label>
+                        <select id="namazReasonSelect" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg text-xs focus:outline-none focus:border-[#5fd3cc]">
+                            <option value="">-- Select Namaz --</option>
+                            <option value="Zohar">Zohar</option>
+                            <option value="Asr">Asr</option>
+                            <option value="Magrib">Magrib</option>
+                        </select>
+                    </div>
+                    <textarea id="actionReasonOther" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg mb-3 text-xs hidden focus:outline-none focus:border-[#5fd3cc]" rows="2" placeholder="Write your reason here..."></textarea>
                     
                     <button id="attendanceBtn" onclick="markAttendance()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold text-sm py-2 rounded-lg shadow-md transition">Submit Record</button>
                 </div>
                 
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
+                </button>
+                <button onclick="openAdvanceScheduleModal()" class="w-full bg-[#2a4d53] hover:bg-[#112a2e] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
+                    <i class="fas fa-calendar-plus"></i> Advance Schedule Request
                 </button>
             </div>
 
@@ -521,6 +534,21 @@
         </div>
     </div>
 
+    <!-- ADVANCE SCHEDULE REQUEST MODAL -->
+    <div id="advanceScheduleModal" class="modal">
+        <div class="modal-content relative max-w-md shadow-2xl">
+            <span onclick="closeAdvanceScheduleModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-calendar-plus text-[#259b94]"></i> Advance Schedule Request</h3>
+            <p class="text-sm text-gray-500 mb-5">Future date ke liye request HOD/Admin ko bhejein.</p>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Select Future Date:</label><input type="date" id="advanceScheduleDate" class="w-full border border-gray-300 p-3 rounded-lg" required></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Advance Attendance">Advance Attendance</option><option value="Leave">Leave</option><option value="Work Schedule">Work Schedule</option></select></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Reason / Details:</label><textarea id="advanceScheduleReason" class="w-full border border-gray-300 p-3 rounded-lg" rows="4" placeholder="Request details..."></textarea></div>
+                <button id="advanceScheduleBtn" onclick="submitAdvanceScheduleRequest()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg shadow-lg">Submit Request</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ADMIN ATTENDANCE EDIT MODAL -->
     <div id="attendanceEditModal" class="modal">
         <div class="modal-content relative max-w-lg shadow-2xl">
@@ -722,38 +750,38 @@
 
     <!-- ATTENDANCE ONE VIEW MODAL -->
     <div id="oneViewModal" class="modal">
-        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
+        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl" style="max-width:1500px;">
             <span onclick="closeOneViewModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance Sheet</h2>
-            <p class="text-xs text-gray-500 mb-6">Comprehensive monthly view of employee attendance, leaves, and absences.</p>
-            
-            <div class="flex items-end gap-4 mb-4 bg-teal-50 p-4 border border-teal-100 rounded-lg">
-                <div>
-                    <label class="block text-xs font-bold text-teal-800 uppercase mb-1">Select Month & Year:</label>
-                    <input type="month" id="oneViewMonthPicker" class="border border-teal-200 p-2 rounded text-sm w-48 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <h2 class="text-2xl font-bold text-teal-700 mb-1">Attendance Sheet & Dashboard</h2>
+            <p class="text-xs text-gray-500 mb-4">Daily, weekly, monthly aur yearly attendance analysis ke saath detailed attendance sheet.</p>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4 bg-teal-50 p-4 border border-teal-100 rounded-lg">
+                <div><label class="block text-xs font-bold text-teal-800 uppercase mb-1">View Type</label><select id="attendanceViewType" onchange="toggleAttendanceViewInputs()" class="border border-teal-200 p-2 rounded text-sm w-full"><option value="monthly">Monthly</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="yearly">Yearly</option></select></div>
+                <div id="attendanceDailyInputBox" class="hidden"><label class="block text-xs font-bold text-teal-800 uppercase mb-1">Date</label><input type="date" id="attendanceAnalyticsDate" class="border border-teal-200 p-2 rounded text-sm w-full"></div>
+                <div id="attendanceMonthlyInputBox"><label class="block text-xs font-bold text-teal-800 uppercase mb-1">Month & Year</label><input type="month" id="oneViewMonthPicker" class="border border-teal-200 p-2 rounded text-sm w-full"></div>
+                <div id="attendanceYearlyInputBox" class="hidden"><label class="block text-xs font-bold text-teal-800 uppercase mb-1">Year</label><input type="number" id="attendanceAnalyticsYear" class="border border-teal-200 p-2 rounded text-sm w-full" min="2000" max="2100"></div>
+                <div><label class="block text-xs font-bold text-teal-800 uppercase mb-1">Employee</label><select id="attendanceAnalyticsEmployee" class="border border-teal-200 p-2 rounded text-sm w-full"></select></div>
+                <div class="flex items-end"><button onclick="fetchOneViewData()" class="w-full bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded shadow font-bold text-sm transition">Generate</button></div>
+            </div>
+            <div id="oneViewLoading" class="hidden text-sm text-teal-600 italic mb-3 font-semibold animate-pulse">Loading attendance...</div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+                <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL EMPLOYEE</div><div id="attTotalEmployees" class="text-2xl font-extrabold text-[#2a4d53]">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL AVAILABILITY</div><div id="attTotalAvailability" class="text-2xl font-extrabold text-[#2a4d53]">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-green-600">TOTAL PRESENCE</div><div id="attTotalPresence" class="text-2xl font-extrabold text-green-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-red-600">TOTAL ABSENCE</div><div id="attTotalAbsence" class="text-2xl font-extrabold text-red-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-[#259b94]">PRESENCE %</div><div id="attPresencePercent" class="text-2xl font-extrabold text-[#259b94]">0%</div></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+                <div class="border rounded-lg p-4 bg-white">
+                    <h3 class="font-bold text-[#2a4d53] mb-3">Attendance Presence Ratio</h3>
+                    <div class="flex items-center gap-6">
+                        <div id="attendanceDonut" class="w-44 h-44 rounded-full flex-shrink-0" style="background:conic-gradient(#8fb0b9 0deg 0deg,#d1d5db 0deg 360deg);position:relative;"><div class="absolute inset-5 rounded-full bg-white flex items-center justify-center font-extrabold text-2xl text-[#2a4d53]" id="attendanceDonutText">0%</div></div>
+                        <div class="text-sm space-y-2"><div><span class="inline-block w-3 h-3 rounded-full bg-[#8fb0b9] mr-2"></span>Present: <b id="attLegendPresent">0</b></div><div><span class="inline-block w-3 h-3 rounded-full bg-gray-300 mr-2"></span>Absent: <b id="attLegendAbsent">0</b></div><div><span class="inline-block w-3 h-3 rounded-full bg-[#cfe3b7] mr-2"></span>Leave: <b id="attLegendLeave">0</b></div></div>
+                    </div>
                 </div>
-                <button onclick="fetchOneViewData()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded shadow font-bold text-sm transition">
-                    Generate Matrix
-                </button>
-                <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-5 py-2 rounded shadow font-bold text-sm transition">
-                    <i class="fab fa-whatsapp"></i> Share Report
-                </button>
-                <span id="oneViewLoading" class="hidden text-sm text-teal-600 italic ml-4 font-semibold animate-pulse">Loading matrix data...</span>
+                <div class="border rounded-lg p-4 bg-white"><h3 class="font-bold text-[#2a4d53] mb-3">Attendance Trend</h3><div id="attendanceTrendChart" class="h-44 flex items-end gap-2 overflow-x-auto border-b border-gray-200 px-2"></div></div>
             </div>
-
-            <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0">
-                <span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span>
-                <span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span>
-                <span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span>
-                <span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span>
-            </div>
-
-            <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200">
-                <table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm">
-                    <thead id="oneViewThead"></thead>
-                    <tbody id="oneViewTbody"></tbody>
-                </table>
-            </div>
+            <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0"><span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span><span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span><span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span><span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span></div>
+            <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200"><table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm"><thead id="oneViewThead"></thead><tbody id="oneViewTbody"></tbody></table></div>
         </div>
     </div>
 
@@ -763,6 +791,7 @@
         
         let globalAllTasks = []; 
         let globalTeamMembers = [];
+        let globalTeamMemberMeta = [];
         let globalMonthlyFullAttendance = []; 
         let globalWorkLogs = [];
         let globalTeamAttendance = [];
@@ -830,8 +859,10 @@
 
         function toggleOtherReason() {
             const val = document.getElementById('actionReasonSelect').value;
-            if(val === 'Other') document.getElementById('actionReasonOther').classList.remove('hidden');
-            else document.getElementById('actionReasonOther').classList.add('hidden');
+            const other = document.getElementById('actionReasonOther');
+            const namaz = document.getElementById('namazReasonBox');
+            if(val === 'Other') other.classList.remove('hidden'); else { other.classList.add('hidden'); other.value=''; }
+            if(val === 'Namaz') namaz.classList.remove('hidden'); else { namaz.classList.add('hidden'); document.getElementById('namazReasonSelect').value=''; }
         }
 
         function formatTime12h(time24) {
@@ -925,8 +956,14 @@
 
         function markAttendance() {
             const action = document.getElementById('attendanceAction').value;
-            let reason = document.getElementById('actionReasonSelect').value;
-            if(reason === 'Other') reason = document.getElementById('actionReasonOther').value;
+            const reasonType = document.getElementById('actionReasonSelect').value;
+            let reason = reasonType;
+            if(reasonType === 'Other') reason = document.getElementById('actionReasonOther').value;
+            if(reasonType === 'Namaz') {
+                const namaz = document.getElementById('namazReasonSelect').value;
+                if(!namaz) { alert('Please select Namaz.'); return; }
+                reason = 'Namaz - ' + namaz;
+            }
             
             const rawManualTime = document.getElementById('manualTime').value;
             const selectedDate = document.getElementById('attendanceDate').value;
@@ -980,6 +1017,8 @@
                 btn.innerText = "Submit Record"; btn.disabled = false;
                 
                 document.getElementById('actionReasonSelect').value = '';
+                document.getElementById('namazReasonSelect').value = '';
+                document.getElementById('namazReasonBox').classList.add('hidden');
                 document.getElementById('actionReasonOther').value = '';
                 document.getElementById('actionReasonOther').classList.add('hidden');
                 
@@ -1104,6 +1143,7 @@
 
                 globalAllTasks = Array.isArray(data.tasks) ? data.tasks : [];
                 globalTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : [];
+                globalTeamMemberMeta = Array.isArray(data.teamMemberMeta) ? data.teamMemberMeta : [];
                 globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
                 globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : [];
                 attendanceEntryStart = data.todayAttendanceEntryStart || attendanceEntryStart;
@@ -2509,132 +2549,251 @@
         function openOneViewModal() {
             document.getElementById('oneViewModal').style.display = 'block';
             const now = new Date();
-            let m = String(now.getMonth() + 1).padStart(2, '0');
-            let y = now.getFullYear();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
             document.getElementById('oneViewMonthPicker').value = `${y}-${m}`;
+            document.getElementById('attendanceAnalyticsDate').value = `${y}-${m}-${d}`;
+            document.getElementById('attendanceAnalyticsYear').value = y;
+            populateAttendanceAnalyticsEmployees();
+            toggleAttendanceViewInputs();
             fetchOneViewData();
         }
         function closeOneViewModal() { document.getElementById('oneViewModal').style.display = 'none'; }
-        
+
+        function populateAttendanceAnalyticsEmployees() {
+            const sel = document.getElementById('attendanceAnalyticsEmployee');
+            if(!sel) return;
+            const role = String(document.getElementById('displayRole').innerText || '').toLowerCase();
+            const me = document.getElementById('displayUser').innerText || '';
+            sel.innerHTML = '';
+            if(role.indexOf('admin') > -1 || role.indexOf('hod') > -1) {
+                sel.innerHTML = '<option value="All">All Employees</option>';
+                (globalTeamMembers || []).forEach(n => sel.innerHTML += `<option value="${String(n).replace(/"/g,'&quot;')}">${n}</option>`);
+            } else {
+                sel.innerHTML = `<option value="${me}">${me}</option>`;
+            }
+        }
+
+        function toggleAttendanceViewInputs() {
+            const type = document.getElementById('attendanceViewType').value;
+            document.getElementById('attendanceDailyInputBox').classList.toggle('hidden', !(type === 'daily' || type === 'weekly'));
+            document.getElementById('attendanceMonthlyInputBox').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('attendanceYearlyInputBox').classList.toggle('hidden', type !== 'yearly');
+        }
+
+        function parseAttendanceDateValue(v) {
+            if(!v) return null;
+            const m = String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+            if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+            const d = new Date(v);
+            return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+
+        function attendanceDateKey(d) {
+            return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+        }
+
+        function attendancePeriodDates(type) {
+            const dates = [];
+            let base;
+            if(type === 'monthly') {
+                const mv = document.getElementById('oneViewMonthPicker').value;
+                if(!mv) return dates;
+                const [y,m] = mv.split('-').map(Number);
+                const count = new Date(y,m,0).getDate();
+                for(let d=1; d<=count; d++) dates.push(new Date(y,m-1,d));
+            } else if(type === 'yearly') {
+                const y = Number(document.getElementById('attendanceAnalyticsYear').value);
+                if(!y) return dates;
+                for(let m=0;m<12;m++){ const count=new Date(y,m+1,0).getDate(); for(let d=1;d<=count;d++) dates.push(new Date(y,m,d)); }
+            } else {
+                base = parseAttendanceDateValue(document.getElementById('attendanceAnalyticsDate').value) || new Date();
+                if(type === 'daily') dates.push(base);
+                else {
+                    const day = base.getDay();
+                    const start = new Date(base); start.setDate(base.getDate() - day);
+                    for(let i=0;i<7;i++){ const x=new Date(start); x.setDate(start.getDate()+i); dates.push(x); }
+                }
+            }
+            return dates;
+        }
+
+        function attendanceMetaForUser(name) {
+            const found=(globalTeamMemberMeta||[]).find(x=>String(x.username).toLowerCase()===String(name).toLowerCase());
+            return found || {username:name,weekoff:'Sunday'};
+        }
+
+        function attendanceIsWorkingDay(date, weekoff) {
+            const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            return dayNames[date.getDay()].toLowerCase() !== String(weekoff||'Sunday').toLowerCase();
+        }
+
+        function attendanceRecordFor(records, user, key) {
+            return (records||[]).find(a=>String(a.Employee||'').toLowerCase()===String(user).toLowerCase() && String(a.Date)===key);
+        }
+
+        function renderAttendanceAnalytics(type, selectedUser) {
+            const allUsers=(globalTeamMembers||[]).slice();
+            const users = selectedUser && selectedUser !== 'All' ? [selectedUser] : allUsers;
+            const dates=attendancePeriodDates(type);
+            const records=globalMonthlyFullAttendance||[];
+            let totalAvailability=0,totalPresence=0,totalAbsence=0,totalLeave=0,totalWeekoff=0;
+            const daily=[];
+            const cutoff=new Date(); cutoff.setHours(0,0,0,0);
+
+            users.forEach(user=>{
+                const meta=attendanceMetaForUser(user);
+                dates.forEach(dt=>{
+                    const isPast=dt<=cutoff;
+                    const working=attendanceIsWorkingDay(dt,meta.weekoff);
+                    if(!working){ totalWeekoff++; return; }
+                    totalAvailability++;
+                    const key=attendanceDateKey(dt);
+                    const rec=attendanceRecordFor(records,user,key);
+                    if(rec && rec.InTime) totalPresence++;
+                    else if(rec && String(rec.Leave||'').toLowerCase().includes('leave')) totalLeave++;
+                    else if(isPast) totalAbsence++;
+                });
+            });
+
+            const denom=totalPresence+totalAbsence+totalLeave;
+            const pct=denom?Math.round(totalPresence/denom*100):0;
+            document.getElementById('attTotalEmployees').innerText=users.length;
+            document.getElementById('attTotalAvailability').innerText=totalAvailability;
+            document.getElementById('attTotalPresence').innerText=totalPresence;
+            document.getElementById('attTotalAbsence').innerText=totalAbsence;
+            document.getElementById('attPresencePercent').innerText=pct+'%';
+            document.getElementById('attLegendPresent').innerText=totalPresence;
+            document.getElementById('attLegendAbsent').innerText=totalAbsence;
+            document.getElementById('attLegendLeave').innerText=totalLeave;
+
+            const presentDeg=denom?Math.round(totalPresence/denom*360):0;
+            const absentDeg=denom?Math.round(totalAbsence/denom*360):0;
+            const leaveDeg=Math.max(0,360-presentDeg-absentDeg);
+            document.getElementById('attendanceDonut').style.background=`conic-gradient(#8fb0b9 0deg ${presentDeg}deg,#d1d5db ${presentDeg}deg ${presentDeg+absentDeg}deg,#cfe3b7 ${presentDeg+absentDeg}deg ${presentDeg+absentDeg+leaveDeg}deg)`;
+            document.getElementById('attendanceDonutText').innerText=pct+'%';
+
+            const trend=document.getElementById('attendanceTrendChart');
+            trend.innerHTML='';
+            let groups=[];
+            if(type==='yearly'){
+                for(let m=0;m<12;m++) groups.push({label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m],dates:dates.filter(d=>d.getMonth()===m)});
+            } else if(type==='monthly'){
+                groups=dates.map(d=>({label:String(d.getDate()),dates:[d]}));
+            } else {
+                groups=dates.map(d=>({label:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],dates:[d]}));
+            }
+            groups.forEach(g=>{
+                let gp=0, ga=0;
+                users.forEach(user=>{
+                    const meta=attendanceMetaForUser(user);
+                    g.dates.forEach(dt=>{
+                        if(!attendanceIsWorkingDay(dt,meta.weekoff) || dt>cutoff) return;
+                        const rec=attendanceRecordFor(records,user,attendanceDateKey(dt));
+                        if(rec&&rec.InTime) gp++; else if(!(rec&&String(rec.Leave||'').toLowerCase().includes('leave'))) ga++;
+                    });
+                });
+                const max=Math.max(1,gp+ga), h=Math.max(4,Math.round(gp/max*120));
+                trend.innerHTML+=`<div class="flex flex-col items-center justify-end min-w-[30px] h-full"><div class="text-[9px] font-bold text-[#2a4d53] mb-1">${gp}</div><div class="w-5 bg-[#8fb0b9] rounded-t" style="height:${h}px"></div><div class="text-[9px] text-gray-500 mt-1">${g.label}</div></div>`;
+            });
+        }
+
         function fetchOneViewData() {
-            document.getElementById('oneViewLoading').style.display = 'inline';
-            const username = document.getElementById('displayUser').innerText;
-            const role = document.getElementById('displayRole').innerText;
-            const dept = document.getElementById('displayDept').innerText;
-            const monthYear = document.getElementById('oneViewMonthPicker').value; 
-            
-            if(!monthYear) {
-                alert('Please select a month');
-                document.getElementById('oneViewLoading').style.display = 'none';
-                return;
-            }
-            const formData = new FormData();
-            formData.append('action', 'getOneViewAttendance');
-            formData.append('username', username);
-            formData.append('role', role);
-            formData.append('department', dept);
-             formData.append('monthYear', monthYear);
-             formData.append('sessionToken', sessionToken);
+            const loading=document.getElementById('oneViewLoading');
+            loading.style.display='block';
+            const type=document.getElementById('attendanceViewType').value;
+            const selectedUser=document.getElementById('attendanceAnalyticsEmployee').value;
+            renderAttendanceAnalytics(type,selectedUser);
 
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('oneViewLoading').style.display = 'none';
-                if(data.status === 'success') {
-                    renderOneViewTable(data.members, data.records, monthYear);
-                }
-            }).catch(err => {
-                document.getElementById('oneViewLoading').style.display = 'none';
-                alert("Failed to load One View Data");
-            });
+            const monthYear=document.getElementById('oneViewMonthPicker').value;
+            const formData=new FormData();
+            formData.append('action','getOneViewAttendance');
+            formData.append('monthYear',monthYear);
+            formData.append('targetUser',selectedUser);
+            formData.append('sessionToken',sessionToken);
+
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:formData})
+            .then(res=>res.json())
+            .then(data=>{
+                loading.style.display='none';
+                if(data.status==='success') renderOneViewTable(data.members,data.records,monthYear,selectedUser);
+                else alert(data.message||'Unable to load attendance sheet.');
+            })
+            .catch(()=>{loading.style.display='none'; renderOneViewTable(globalTeamMembers||[],globalMonthlyFullAttendance||[],monthYear,selectedUser);});
         }
 
-        function renderOneViewTable(members, records, monthYear) {
-            const [yStr, mStr] = monthYear.split('-');
-            const year = parseInt(yStr, 10);
-            const month = parseInt(mStr, 10);
-            const daysInMonth = new Date(year, month, 0).getDate();
+        function renderOneViewTable(members, records, monthYear, selectedUser) {
+            const [yStr,mStr]=monthYear.split('-'), year=parseInt(yStr,10), month=parseInt(mStr,10);
+            const daysInMonth=new Date(year,month,0).getDate();
+            let visibleMembers=(selectedUser&&selectedUser!=='All')?[selectedUser]:members;
+            let theadHtml=`<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
+            for(let d=1;d<=daysInMonth;d++) theadHtml+=`<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
+            theadHtml+=`<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
+            document.getElementById('oneViewThead').innerHTML=theadHtml;
 
-            let theadHtml = `<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
-            for(let d = 1; d <= daysInMonth; d++) {
-                theadHtml += `<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
-            }
-            theadHtml += `<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
-            document.getElementById('oneViewThead').innerHTML = passedHeaders = theadHtml;
-
-            let matrix = {};
-            members.forEach(m => matrix[m] = {});
-
-            records.forEach(r => {
+            const matrix={}; visibleMembers.forEach(m=>matrix[m]={});
+            records.forEach(r=>{
                 if(!matrix[r.user]) return;
-                let parts = r.date.split('-');
-                let d = parseInt(parts[0], 10);
-                
-                let status = '';
-                if (r.inTime) status = 'P'; 
-                else if (r.leave && r.leave.toLowerCase().includes('leave')) status = 'L';
-                else if (r.leave && r.leave.toLowerCase().includes('weekoff')) status = 'W';
-                else if (r.leave && r.leave.toLowerCase().includes('adjustment')) status = 'Adj';
-
-                if (status === 'P' || !matrix[r.user][d]) {
-                    matrix[r.user][d] = status; 
-                }
+                const parts=String(r.date).split('-'), d=parseInt(parts[0],10);
+                let status='';
+                if(r.inTime) status='P';
+                else if(String(r.leave||'').toLowerCase().includes('leave')) status='L';
+                else if(String(r.leave||'').toLowerCase().includes('weekoff')) status='W';
+                if(status==='P'||!matrix[r.user][d]) matrix[r.user][d]=status;
             });
-
-            const tbody = document.getElementById('oneViewTbody');
-            tbody.innerHTML = '';
-            
-            const today = new Date();
-            const isCurrentMonth = (today.getFullYear() === year && (today.getMonth()+1) === month);
-            const currentDay = today.getDate();
-
-            members.forEach((m, idx) => {
-                let pCount = 0; let aCount = 0; let lCount = 0; let wCount = 0;
-                let rowHtml = `<tr class="hover:bg-[#e6fcf5] transition"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border font-bold text-gray-800 ov-light-teal">${m}</td>`;
-
-                for(let d = 1; d <= daysInMonth; d++) {
-                    let s = matrix[m][d];
-                    
-                    if(!s) {
-                        let isPast = (year < today.getFullYear()) || 
-                                      (year == today.getFullYear() && month < (today.getMonth()+1)) || 
-                                      (isCurrentMonth && d < currentDay);
-                        if(isPast) s = 'A'; 
-                        else s = '-'; 
+            const tbody=document.getElementById('oneViewTbody'); tbody.innerHTML='';
+            const today=new Date(); today.setHours(0,0,0,0);
+            visibleMembers.forEach((m,idx)=>{
+                let p=0,a=0,l=0,w=0;
+                let row=`<tr class="hover:bg-[#e6fcf5] transition"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border font-bold text-gray-800 ov-light-teal">${m}</td>`;
+                const meta=attendanceMetaForUser(m);
+                for(let d=1;d<=daysInMonth;d++){
+                    let st=matrix[m][d];
+                    const dt=new Date(year,month-1,d);
+                    if(!st){
+                        if(!attendanceIsWorkingDay(dt,meta.weekoff)) st='W';
+                        else if(dt<today) st='A';
+                        else st='-';
                     }
-
-                    if(s === 'P') pCount++;
-                    if(s === 'A') aCount++;
-                    if(s === 'L') lCount++;
-                    if(s === 'W') wCount++;
-
-                    let color = 'text-gray-400';
-                    if(s==='P') color = 'text-[#259b94] font-extrabold';
-                    if(s==='A') color = 'text-red-500 font-extrabold bg-red-50';
-                    if(s==='L') color = 'text-yellow-600 font-extrabold bg-yellow-50';
-                    if(s==='W') color = 'text-blue-500 font-extrabold bg-blue-50';
-
-                    rowHtml += `<td class="p-1 border text-center text-xs ${color}">${s}</td>`;
+                    if(st==='P')p++; if(st==='A')a++; if(st==='L')l++; if(st==='W')w++;
+                    let color='text-gray-400';
+                    if(st==='P')color='text-[#259b94] font-extrabold';
+                    if(st==='A')color='text-red-500 font-extrabold bg-red-50';
+                    if(st==='L')color='text-yellow-600 font-extrabold bg-yellow-50';
+                    if(st==='W')color='text-blue-500 font-extrabold bg-blue-50';
+                    row+=`<td class="p-1 border text-center text-xs ${color}">${st}</td>`;
                 }
-
-                let workingDays = pCount + aCount; 
-                let perc = workingDays > 0 ? Math.round((pCount / workingDays) * 100) : 0;
-
-                rowHtml += `
-                    <td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${pCount}</td>
-                    <td class="p-2 border text-center font-bold text-red-500 bg-red-50">${aCount}</td>
-                    <td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${lCount}</td>
-                    <td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${wCount}</td>
-                    <td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td>
-                </tr>`;
-                
-                tbody.innerHTML += rowHtml;
+                const working=p+a;
+                const perc=working?Math.round(p/working*100):0;
+                row+=`<td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${p}</td><td class="p-2 border text-center font-bold text-red-500 bg-red-50">${a}</td><td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${l}</td><td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${w}</td><td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td></tr>`;
+                tbody.innerHTML+=row;
             });
-
-            if (members.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${daysInMonth + 7}" class="text-center p-8 text-gray-500 italic font-medium">No employees found in your department.</td></tr>`;
-            }
+            if(!visibleMembers.length) tbody.innerHTML=`<tr><td colspan="${daysInMonth+7}" class="text-center p-8 text-gray-500 italic font-medium">No employees found.</td></tr>`;
         }
+
+        // ================= ADVANCE SCHEDULE REQUEST =================
+        function openAdvanceScheduleModal() {
+            const now=new Date(), d=new Date(now); d.setDate(now.getDate()+1);
+            document.getElementById('advanceScheduleDate').min=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            document.getElementById('advanceScheduleDate').value='';
+            document.getElementById('advanceScheduleReason').value='';
+            document.getElementById('advanceScheduleModal').style.display='block';
+        }
+        function closeAdvanceScheduleModal(){document.getElementById('advanceScheduleModal').style.display='none';}
+        function submitAdvanceScheduleRequest(){
+            const date=document.getElementById('advanceScheduleDate').value;
+            const type=document.getElementById('advanceScheduleType').value;
+            const reason=document.getElementById('advanceScheduleReason').value.trim();
+            if(!date){alert('Please select future date.');return;}
+            const btn=document.getElementById('advanceScheduleBtn'); btn.disabled=true; btn.innerText='Submitting...';
+            const fd=new FormData(); fd.append('action','advanceScheduleRequest'); fd.append('requestDate',date); fd.append('requestType',type); fd.append('reason',reason); fd.append('sessionToken',sessionToken);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
+                alert(data.message||'Request submitted.');
+                if(data.status==='success') closeAdvanceScheduleModal();
+            }).catch(()=>alert('Request submission failed.')).finally(()=>{btn.disabled=false;btn.innerText='Submit Request';});
+        }
+
     </script>
 </body>
 </html>
