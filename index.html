@@ -137,7 +137,7 @@
                         <label class="text-xs font-semibold text-[#a5cacc]">Namaz:</label>
                         <select id="namazReasonSelect" class="w-full bg-[#2a4d53] border border-[#5a8789] text-white px-2 py-2 rounded-lg text-xs focus:outline-none focus:border-[#5fd3cc]">
                             <option value="">-- Select Namaz --</option>
-                            <option value="Zohar">Zohar</option>
+                            <option value="Zohar / Juma">Zohar / Juma</option>
                             <option value="Asr">Asr</option>
                             <option value="Magrib">Magrib</option>
                         </select>
@@ -542,10 +542,23 @@
             <p class="text-sm text-gray-500 mb-5">Future date ke liye request HOD/Admin ko bhejein.</p>
             <div class="space-y-4">
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Select Future Date:</label><input type="date" id="advanceScheduleDate" class="w-full border border-gray-300 p-3 rounded-lg" required></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Advance Attendance">Advance Attendance</option><option value="Leave">Leave</option><option value="Work Schedule">Work Schedule</option></select></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Reason / Details:</label><textarea id="advanceScheduleReason" class="w-full border border-gray-300 p-3 rounded-lg" rows="4" placeholder="Request details..."></textarea></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" onchange="toggleAdvanceScheduleFields()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Leave">Leave</option><option value="Weekoff Adjustment">Weekoff Adjustment</option><option value="Meeting">Meeting</option><option value="Meeting Journey">Meeting Journey</option></select></div>
+                <div id="meetingModeBox" class="hidden"><label class="block text-sm font-semibold text-gray-700 mb-1">Meeting Type:</label><select id="meetingMode" onchange="toggleMeetingMode()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Online">Online</option><option value="Physical">Physical</option></select></div>
+                <div id="onlineDurationBox" class="hidden grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-gray-600 mb-1">From:</label><input type="time" id="meetingFrom" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">To:</label><input type="time" id="meetingTo" class="w-full border border-gray-300 p-3 rounded-lg"></div></div>
+                <div id="journeyTimeBox" class="hidden grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-gray-600 mb-1">Journey Start:</label><input type="time" id="journeyStart" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Journey Complete:</label><input type="time" id="journeyComplete" class="w-full border border-gray-300 p-3 rounded-lg"></div></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Details:</label><textarea id="advanceScheduleReason" class="w-full border border-gray-300 p-3 rounded-lg" rows="3" placeholder="Request details..."></textarea></div>
                 <button id="advanceScheduleBtn" onclick="submitAdvanceScheduleRequest()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg shadow-lg">Submit Request</button>
             </div>
+        </div>
+    </div>
+
+    <!-- ADVANCE SCHEDULE APPROVAL MODAL -->
+    <div id="advanceScheduleApprovalModal" class="modal">
+        <div class="modal-content relative max-w-4xl shadow-2xl">
+            <span onclick="closeAdvanceScheduleApprovalModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-calendar-check text-[#259b94]"></i> Advance Schedule Requests</h3>
+            <p class="text-sm text-gray-500 mb-5">Employee ki advance schedule requests yahan approve/reject/update karein.</p>
+            <div id="advanceScheduleRequestsList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
         </div>
     </div>
 
@@ -801,6 +814,7 @@
         let whatsappGroupLink = "";
         let attendanceEntryStart = "";
         let attendanceEntryEnd = "";
+        let globalAdvanceScheduleRequests = [];
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -1150,6 +1164,7 @@
                 attendanceEntryEnd = data.todayAttendanceEntryEnd || attendanceEntryEnd;
                 setDateConstraints();
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
+                globalAdvanceScheduleRequests = Array.isArray(data.advanceScheduleRequests) ? data.advanceScheduleRequests : [];
 
                 if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                     populateTeamDropdowns(globalTeamMembers);
@@ -2319,15 +2334,16 @@
         function closeNotifications(){const p=document.getElementById('notificationPanel');if(p)p.classList.add('hidden');}
         function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
         function notificationItems(){
-            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[];
+            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[];
             if(role.includes('hod')||role.includes('admin')){
                 tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task'});});
                 atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance'});});
+                sched.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({title:'Advance Schedule Request',text:`${r.employee||''} — ${r.requestType||''} — ${r.requestDate||''}`,action:'schedule'});});
             }else{
                 tasks.forEach(t=>{const s=String(t.hodStatus||'').toLowerCase();if(s==='approved')items.push({title:'Task approved',text:t.taskName||'Task',action:'task'});else if(s==='rejected')items.push({title:'Task request rejected',text:t.taskName||'Task',action:'task'});else if(String(t.empStatus||'').toLowerCase()==='completion requested')items.push({title:'Early completion request pending',text:t.taskName||'Task',action:'task'});});
             } return items.slice(0,20);
         }
-        function renderNotifications(){const list=document.getElementById('notificationList'),count=document.getElementById('notificationCount');if(!list||!count)return;const items=notificationItems();list.innerHTML='';count.innerText=items.length;count.classList.toggle('hidden',items.length===0);count.classList.toggle('flex',items.length>0);if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No new notifications.</div>';return;}items.forEach(n=>{const row=document.createElement('button');row.type='button';row.className='w-full text-left px-4 py-3 border-b hover:bg-[#f0f7f7] transition';row.innerHTML=`<div class="font-bold text-sm text-[#112a2e]"><i class="fas fa-bell text-[#259b94] mr-2"></i>${n.title}</div><div class="text-xs text-gray-500 mt-1">${n.text}</div>`;row.onclick=()=>{closeNotifications();if(n.action==='task')openTaskReportModal();else openOneViewModal();};list.appendChild(row);});}
+        function renderNotifications(){const list=document.getElementById('notificationList'),count=document.getElementById('notificationCount');if(!list||!count)return;const items=notificationItems();list.innerHTML='';count.innerText=items.length;count.classList.toggle('hidden',items.length===0);count.classList.toggle('flex',items.length>0);if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No new notifications.</div>';return;}items.forEach(n=>{const row=document.createElement('button');row.type='button';row.className='w-full text-left px-4 py-3 border-b hover:bg-[#f0f7f7] transition';row.innerHTML=`<div class="font-bold text-sm text-[#112a2e]"><i class="fas fa-bell text-[#259b94] mr-2"></i>${n.title}</div><div class="text-xs text-gray-500 mt-1">${n.text}</div>`;row.onclick=()=>{closeNotifications();if(n.action==='task')openTaskReportModal();else if(n.action==='schedule')openAdvanceScheduleApprovalModal();else openOneViewModal();};list.appendChild(row);});}
         document.addEventListener('click',function(e){const b=document.getElementById('notificationBtn'),p=document.getElementById('notificationPanel');if(p&&!p.classList.contains('hidden')&&b&&!b.contains(e.target)&&!p.contains(e.target))closeNotifications();});
 
         // ================= TASK REPORT =================
@@ -2774,25 +2790,71 @@
 
         // ================= ADVANCE SCHEDULE REQUEST =================
         function openAdvanceScheduleModal() {
-            const now=new Date(), d=new Date(now); d.setDate(now.getDate()+1);
-            document.getElementById('advanceScheduleDate').min=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const now=new Date();
+            document.getElementById('advanceScheduleDate').min=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()+1).padStart(2,'0')}`;
             document.getElementById('advanceScheduleDate').value='';
+            document.getElementById('advanceScheduleType').value='Leave';
             document.getElementById('advanceScheduleReason').value='';
+            document.getElementById('meetingMode').value='Online';
+            ['meetingFrom','meetingTo','journeyStart','journeyComplete'].forEach(id=>document.getElementById(id).value='');
+            toggleAdvanceScheduleFields();
             document.getElementById('advanceScheduleModal').style.display='block';
         }
         function closeAdvanceScheduleModal(){document.getElementById('advanceScheduleModal').style.display='none';}
+        function toggleAdvanceScheduleFields(){
+            const type=document.getElementById('advanceScheduleType').value;
+            document.getElementById('meetingModeBox').classList.toggle('hidden',type!=='Meeting');
+            document.getElementById('journeyTimeBox').classList.toggle('hidden',type!=='Meeting Journey');
+            if(type!=='Meeting') document.getElementById('onlineDurationBox').classList.add('hidden');
+            else toggleMeetingMode();
+        }
+        function toggleMeetingMode(){
+            const show=document.getElementById('advanceScheduleType').value==='Meeting' && document.getElementById('meetingMode').value==='Online';
+            document.getElementById('onlineDurationBox').classList.toggle('hidden',!show);
+        }
         function submitAdvanceScheduleRequest(){
             const date=document.getElementById('advanceScheduleDate').value;
             const type=document.getElementById('advanceScheduleType').value;
             const reason=document.getElementById('advanceScheduleReason').value.trim();
+            const mode=type==='Meeting'?document.getElementById('meetingMode').value:'';
+            const meetingFrom=type==='Meeting'&&mode==='Online'?document.getElementById('meetingFrom').value:'';
+            const meetingTo=type==='Meeting'&&mode==='Online'?document.getElementById('meetingTo').value:'';
+            const journeyStart=type==='Meeting Journey'?document.getElementById('journeyStart').value:'';
+            const journeyComplete=type==='Meeting Journey'?document.getElementById('journeyComplete').value:'';
             if(!date){alert('Please select future date.');return;}
+            if(type==='Meeting'&&mode==='Online'&&(!meetingFrom||!meetingTo)){alert('Online Meeting ke liye From aur To time select karein.');return;}
+            if(type==='Meeting Journey'&&(!journeyStart||!journeyComplete)){alert('Journey Start aur Journey Complete time select karein.');return;}
             const btn=document.getElementById('advanceScheduleBtn'); btn.disabled=true; btn.innerText='Submitting...';
-            const fd=new FormData(); fd.append('action','advanceScheduleRequest'); fd.append('requestDate',date); fd.append('requestType',type); fd.append('reason',reason); fd.append('sessionToken',sessionToken);
+            const fd=new FormData(); fd.append('action','advanceScheduleRequest'); fd.append('requestDate',date); fd.append('requestType',type); fd.append('reason',reason); fd.append('meetingMode',mode); fd.append('meetingFrom',meetingFrom); fd.append('meetingTo',meetingTo); fd.append('journeyStart',journeyStart); fd.append('journeyComplete',journeyComplete); fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
                 alert(data.message||'Request submitted.');
-                if(data.status==='success') closeAdvanceScheduleModal();
+                if(data.status==='success'){closeAdvanceScheduleModal();fetchDashboardDataSilently();}
             }).catch(()=>alert('Request submission failed.')).finally(()=>{btn.disabled=false;btn.innerText='Submit Request';});
         }
+        function openAdvanceScheduleApprovalModal(){
+            const box=document.getElementById('advanceScheduleRequestsList'); if(!box)return;
+            const reqs=(globalAdvanceScheduleRequests||[]).filter(r=>String(r.status||'').toLowerCase()==='pending');
+            if(!reqs.length){box.innerHTML='<div class="p-6 text-center text-gray-500 italic">No pending advance schedule requests.</div>';}
+            else box.innerHTML=reqs.map(r=>`<div class="border border-[#b2d8d8] rounded-xl p-4 bg-[#f7fbfb]">
+                <div class="flex flex-col md:flex-row md:justify-between gap-2"><div><b class="text-[#112a2e]">${r.employee}</b><span class="text-xs text-gray-500 ml-2">${r.requestDate}</span></div><span class="bg-[#e6fcf5] text-[#1f827c] px-3 py-1 rounded-full text-xs font-bold">${r.requestType}</span></div>
+                <div class="text-sm text-gray-600 mt-2">${r.details||'-'}</div>
+                <div class="mt-3 flex gap-2"><button onclick="editAdvanceSchedule(${r.rowIndex},${JSON.stringify(r.requestDate)},${JSON.stringify(r.details||'')})" class="bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg text-sm font-bold">Edit</button><button onclick="approveAdvanceSchedule(${r.rowIndex})" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg text-sm font-bold">Approve & Assign</button><button onclick="rejectAdvanceSchedule(${r.rowIndex})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold">Reject</button></div>
+            </div>`).join('');
+            document.getElementById('advanceScheduleApprovalModal').style.display='block';
+        }
+        function closeAdvanceScheduleApprovalModal(){document.getElementById('advanceScheduleApprovalModal').style.display='none';}
+        function editAdvanceSchedule(rowIndex,currentDate,currentDetails){
+            const date=prompt('Request Date (YYYY-MM-DD):',currentDate||''); if(date===null)return;
+            const details=prompt('Update Details:',currentDetails||''); if(details===null)return;
+            const fd=new FormData();fd.append('action','editAdvanceScheduleRequest');fd.append('rowIndex',rowIndex);fd.append('requestDate',date);fd.append('reason',details);fd.append('sessionToken',sessionToken);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Updated');if(d.status==='success'){openAdvanceScheduleApprovalModal();fetchDashboardDataSilently();}}).catch(()=>alert('Update failed.'));
+        }
+        function updateAdvanceScheduleRequest(rowIndex,status){
+            const fd=new FormData();fd.append('action','updateAdvanceScheduleRequest');fd.append('rowIndex',rowIndex);fd.append('status',status);fd.append('sessionToken',sessionToken);
+            return fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json());
+        }
+        function approveAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Approved').then(d=>{alert(d.message||'Approved');if(d.status==='success'){closeAdvanceScheduleApprovalModal();fetchDashboardDataSilently();}}).catch(()=>alert('Update failed.'));}
+        function rejectAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Rejected').then(d=>{alert(d.message||'Rejected');if(d.status==='success'){closeAdvanceScheduleApprovalModal();fetchDashboardDataSilently();}}).catch(()=>alert('Update failed.'));}
 
     </script>
 </body>
