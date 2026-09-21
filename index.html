@@ -936,7 +936,8 @@
                     window.currentUserWeekoff = data.weekoff || 'Sunday';
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
                     document.getElementById('displayOfficeLocation').innerText = [data.officeLocation,data.officeAddress].filter(Boolean).join(' : ') || '--';
-                    const ph=document.getElementById('displayUserPhoto'), pf=document.getElementById('displayUserPhotoFallback'); const photoSrc=data.profilePhotoDataUrl || data.profilePhotoUrl || ""; if(photoSrc){ph.src=photoSrc;ph.classList.remove('hidden');pf.classList.add('hidden');ph.onerror=()=>{ if(data.profilePhotoDataUrl && data.profilePhotoUrl && ph.src!==data.profilePhotoUrl){ph.src=data.profilePhotoUrl;return;} ph.classList.add('hidden');pf.classList.remove('hidden');};} else {ph.classList.add('hidden');pf.classList.remove('hidden');}
+                    setDashboardProfilePhoto(data);
+                    loadProfilePhotoFromServer(data.actualName);
                     
                     const role = data.role.toLowerCase();
                     document.getElementById('displayRole').innerText = role;
@@ -1114,6 +1115,21 @@
             const tbody = document.getElementById('taskTableBody');
             tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
             fetchDataAPI(username, role, dept, false, 0);
+        }
+
+        function setDashboardProfilePhoto(data){
+            const ph=document.getElementById('displayUserPhoto'), pf=document.getElementById('displayUserPhotoFallback');
+            if(!ph||!pf)return;
+            const src=(data&&data.profilePhotoDataUrl)|| (data&&data.profilePhotoUrl) || "";
+            if(src){ ph.src=src; ph.classList.remove('hidden'); pf.classList.add('hidden'); ph.onerror=()=>{ ph.classList.add('hidden'); pf.classList.remove('hidden'); }; }
+            else { ph.removeAttribute('src'); ph.classList.add('hidden'); pf.classList.remove('hidden'); }
+        }
+        function loadProfilePhotoFromServer(username){
+            if(!sessionToken||!username)return;
+            const fd=new FormData(); fd.append('action','getProfilePhoto'); fd.append('sessionToken',sessionToken); fd.append('username',username);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{
+                if(d&&d.status==='success'&&d.photoDataUrl){ setDashboardProfilePhoto({profilePhotoDataUrl:d.photoDataUrl,profilePhotoUrl:d.photoUrl||''}); }
+            }).catch(()=>{});
         }
 
         function fetchDashboardDataSilently() {
