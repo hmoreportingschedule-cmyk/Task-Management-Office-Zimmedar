@@ -151,6 +151,9 @@
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
+                <button onclick="openAttendanceRequestModal()" class="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
+                    <i class="fas fa-clock-rotate-left"></i> Attendance Missed Request
+                </button>
                 <button onclick="openAdvanceScheduleModal()" class="w-full bg-[#2a4d53] hover:bg-[#112a2e] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-calendar-plus"></i> Advance Schedule Request
                 </button>
@@ -306,7 +309,14 @@
             <!-- HOD ONLY: Team Attendance Overview -->
             <div id="teamAttendanceSection" class="hod-only admin-only modern-card overflow-hidden mb-8 border-t-4 border-[#f59e0b]">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                    <h3 class="text-lg font-bold text-[#112a2e]"><i class="fas fa-bell text-[#f59e0b] mr-2"></i> Team Activities & Requests</h3>
+                    <div>
+                        <h3 class="text-lg font-bold text-[#112a2e]"><i class="fas fa-bell text-[#f59e0b] mr-2"></i> Team Activities & Requests</h3>
+                        <p class="text-xs text-gray-500 mt-1">Attendance manually enter/correct ya one-time Excel upload karein.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="openManagerAttendanceModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg text-xs font-bold"><i class="fas fa-user-clock"></i> Add Attendance</button>
+                        <button onclick="openAttendanceExcelModal()" class="bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg text-xs font-bold"><i class="fas fa-file-excel"></i> One-Time Excel Upload</button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -618,6 +628,55 @@
         </div>
     </div>
 
+    <!-- ATTENDANCE REQUEST / MANAGER ENTRY MODALS -->
+    <div id="attendanceRequestModal" class="modal">
+        <div class="modal-content relative max-w-lg shadow-2xl">
+            <span onclick="closeAttendanceRequestModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-clock-rotate-left text-[#7c3aed]"></i> Attendance Missed Request</h3>
+            <p class="text-sm text-gray-500 mb-5">Agar attendance lagana bhool gaye hain to date aur reason submit karein. Admin/HOD approval ke baad attendance add ho jayegi.</p>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Date</label>
+            <input type="date" id="attReqDate" class="w-full border p-3 rounded-lg mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Reason</label>
+            <textarea id="attReqReason" rows="4" class="w-full border p-3 rounded-lg" placeholder="Attendance miss hone ka reason..."></textarea>
+            <button onclick="submitAttendanceMissedRequest()" class="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold py-3 rounded-lg mt-5">Submit Request</button>
+        </div>
+    </div>
+    <div id="managerAttendanceModal" class="modal">
+        <div class="modal-content relative max-w-2xl shadow-2xl">
+            <span onclick="closeManagerAttendanceModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-clock text-[#259b94]"></i> Add / Correct Attendance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="mgrAttEmployee" class="w-full border p-3 rounded-lg"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Date</label><input type="date" id="mgrAttDate" class="w-full border p-3 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">In Time</label><input type="text" id="mgrAttIn" class="w-full border p-3 rounded-lg" placeholder="09:30:00 AM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Out Time</label><input type="text" id="mgrAttOut" class="w-full border p-3 rounded-lg" placeholder="06:30:00 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Break Start</label><input type="text" id="mgrAttBreakStart" class="w-full border p-3 rounded-lg" placeholder="02:00:00 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Break End</label><input type="text" id="mgrAttBreakEnd" class="w-full border p-3 rounded-lg" placeholder="02:30:00 PM"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Leave / Weekoff</label><input type="text" id="mgrAttLeave" class="w-full border p-3 rounded-lg"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Reason</label><input type="text" id="mgrAttReason" class="w-full border p-3 rounded-lg"></div>
+            </div>
+            <button onclick="saveManagerAttendance()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5">Save Attendance</button>
+        </div>
+    </div>
+    <div id="attendanceExcelModal" class="modal">
+        <div class="modal-content relative max-w-3xl shadow-2xl">
+            <span onclick="closeAttendanceExcelModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-file-excel text-green-600"></i> One-Time Attendance Excel Upload</h3>
+            <p class="text-sm text-gray-500 mb-4">Excel sirf one-time import ke liye hai. Import ke baad file browser se clear/remove ho jayegi.</p>
+            <button onclick="downloadAttendanceExcelTemplate()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold mb-4"><i class="fas fa-download"></i> Download Excel Format</button>
+            <input type="file" id="attendanceExcelFile" accept=".xlsx,.xls" class="w-full border p-3 rounded-lg bg-white">
+            <div id="attendanceExcelPreview" class="mt-4 max-h-56 overflow-auto text-xs"></div>
+            <button onclick="uploadAttendanceExcelOnce()" class="w-full bg-[#2a4d53] hover:bg-[#1e3e43] text-white font-bold py-3 rounded-lg mt-5">Import Attendance Once</button>
+        </div>
+    </div>
+    <div id="attendanceRequestsModal" class="modal">
+        <div class="modal-content relative max-w-3xl shadow-2xl">
+            <span onclick="closeAttendanceRequestsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-clock text-[#7c3aed]"></i> Attendance Requests</h3>
+            <div id="attendanceRequestsList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
     <!-- WHATSAPP REPORT MODAL -->
     <div id="whatsappReportModal" class="modal">
         <div class="modal-content relative max-w-lg shadow-2xl">
@@ -854,6 +913,7 @@
         let attendanceEntryStart = "";
         let attendanceEntryEnd = "";
         let globalAdvanceScheduleRequests = [];
+        let globalAttendanceRequests = [];
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -1209,6 +1269,7 @@
                 setDateConstraints();
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
                 globalAdvanceScheduleRequests = Array.isArray(data.advanceScheduleRequests) ? data.advanceScheduleRequests : [];
+                globalAttendanceRequests = Array.isArray(data.attendanceRequests) ? data.attendanceRequests : [];
 
                 if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                     populateTeamDropdowns(globalTeamMembers);
@@ -2438,6 +2499,22 @@
             }
         }
 
+        // ================= ATTENDANCE REQUEST / ONE-TIME IMPORT =================
+        function openAttendanceRequestModal(){const d=document.getElementById('attReqDate'); if(d){const x=new Date(); d.value=x.toISOString().split('T')[0];} document.getElementById('attReqReason').value=''; document.getElementById('attendanceRequestModal').style.display='block';}
+        function closeAttendanceRequestModal(){document.getElementById('attendanceRequestModal').style.display='none';}
+        function submitAttendanceMissedRequest(){const date=document.getElementById('attReqDate').value,reason=document.getElementById('attReqReason').value.trim();if(!date||!reason){alert('Date aur reason required hai.');return;}const fd=new FormData();fd.append('action','submitAttendanceRequest');fd.append('date',date);fd.append('reason',reason);fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Request submitted');if(d.status==='success'){closeAttendanceRequestModal();fetchDashboardDataSilently();}}).catch(()=>alert('Attendance request failed.'));}
+        function fillManagerAttendanceEmployees(){const s=document.getElementById('mgrAttEmployee');if(!s)return;s.innerHTML=(globalTeamMembers||[]).map(u=>`<option value="${String(u).replace(/"/g,'&quot;')}">${u}</option>`).join('');}
+        function openManagerAttendanceModal(){fillManagerAttendanceEmployees();const d=document.getElementById('mgrAttDate');if(d)d.value=new Date().toISOString().split('T')[0];document.getElementById('managerAttendanceModal').style.display='block';}
+        function closeManagerAttendanceModal(){document.getElementById('managerAttendanceModal').style.display='none';}
+        function saveManagerAttendance(){const fd=new FormData();fd.append('action','adminSaveAttendance');fd.append('employee',document.getElementById('mgrAttEmployee').value);fd.append('date',document.getElementById('mgrAttDate').value);fd.append('inTime',document.getElementById('mgrAttIn').value.trim());fd.append('outTime',document.getElementById('mgrAttOut').value.trim());fd.append('breakStart',document.getElementById('mgrAttBreakStart').value.trim());fd.append('breakEnd',document.getElementById('mgrAttBreakEnd').value.trim());fd.append('leave',document.getElementById('mgrAttLeave').value.trim());fd.append('reason',document.getElementById('mgrAttReason').value.trim());fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Saved');if(d.status==='success'){closeManagerAttendanceModal();fetchDashboardDataSilently();}}).catch(()=>alert('Attendance save failed.'));}
+        function downloadAttendanceExcelTemplate(){const rows=[['Date','Employee ID','In Time','Out Time','Break Start','Break End','Leave/Weekoff','Reason','Approval Status'],['2026-09-21','EMP001','09:30:00 AM','06:30:00 PM','','','','Manual Entry','Approved']];const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Attendance');XLSX.writeFile(wb,'Attendance_One_Time_Upload_Format.xlsx');}
+        function openAttendanceExcelModal(){document.getElementById('attendanceExcelFile').value='';document.getElementById('attendanceExcelPreview').innerHTML='';document.getElementById('attendanceExcelModal').style.display='block';}
+        function closeAttendanceExcelModal(){document.getElementById('attendanceExcelModal').style.display='none';}
+        function uploadAttendanceExcelOnce(){const f=document.getElementById('attendanceExcelFile').files[0];if(!f){alert('Excel file select karein.');return;}const rd=new FileReader();rd.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''});if(!arr.length){alert('Excel mein data nahi hai.');return;}const excelDate=v=>{if(v instanceof Date)return v.toISOString().split('T')[0];if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return String(v||'').trim();}; const excelTime=v=>{if(v instanceof Date)return v.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(typeof v==='number'&&v>=0&&v<1){const total=Math.round(v*86400),h=Math.floor(total/3600)%24,m=Math.floor((total%3600)/60),sec=total%60,ap=h>=12?'PM':'AM',hh=h%12||12;return `${String(hh).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} ${ap}`;}return String(v||'').trim();}; const rows=arr.map(r=>({date:excelDate(r['Date']||r['date']),employee:r['Employee ID']||r['Employee']||r['Username']||r['username'],inTime:excelTime(r['In Time']||r['InTime']),outTime:excelTime(r['Out Time']||r['OutTime']),breakStart:excelTime(r['Break Start']),breakEnd:excelTime(r['Break End']),leave:r['Leave/Weekoff']||r['Leave']||'',reason:r['Reason']||'',status:r['Approval Status']||'Approved'}));document.getElementById('attendanceExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} row(s) ready for one-time import.</div>`;const fd=new FormData();fd.append('action','bulkAttendanceUpload');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('attendanceExcelFile').value='';closeAttendanceExcelModal();fetchDashboardDataSilently();}}).catch(()=>alert('Excel upload failed.'));}catch(e){alert('Excel format read nahi ho saka: '+e.message);}};rd.readAsArrayBuffer(f);}
+        function openAttendanceRequestsModal(){const box=document.getElementById('attendanceRequestsList'),reqs=globalAttendanceRequests||[];if(!box)return; if(!reqs.length){box.innerHTML='<div class="p-6 text-center text-gray-500">No attendance requests.</div>';}else box.innerHTML=reqs.map(r=>{const pending=String(r.status).toLowerCase()==='pending',manager=(document.getElementById('displayRole')?.innerText||'').toLowerCase().includes('admin')||(document.getElementById('displayRole')?.innerText||'').toLowerCase().includes('hod');return `<div class="border rounded-xl p-4 ${pending?'bg-[#fffbeb]':'bg-white'}"><div class="flex justify-between gap-2"><b>${r.employee}</b><span class="text-xs font-bold">${r.status}</span></div><div class="text-sm mt-2">Date: <b>${r.date}</b><br>Reason: ${r.reason||'-'}<br><span class="text-xs text-gray-500">Submitted: ${r.submittedAt||'-'}</span></div>${pending&&manager?`<div class="mt-3 flex gap-2"><button onclick="reviewAttendanceRequest(${r.rowIndex},'Approved')" class="bg-[#259b94] text-white px-4 py-2 rounded-lg text-xs font-bold">Approve & Add Attendance</button><button onclick="reviewAttendanceRequest(${r.rowIndex},'Rejected')" class="bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Reject</button></div>`:''}</div>`}).join('');document.getElementById('attendanceRequestsModal').style.display='block';}
+        function closeAttendanceRequestsModal(){document.getElementById('attendanceRequestsModal').style.display='none';}
+        function reviewAttendanceRequest(rowIndex,status){const fd=new FormData();fd.append('action','reviewAttendanceRequest');fd.append('rowIndex',rowIndex);fd.append('status',status);fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Updated');if(d.status==='success'){openAttendanceRequestsModal();fetchDashboardDataSilently();}}).catch(()=>alert('Request update failed.'));}
+
         // ================= NOTIFICATIONS =================
         function closeNotifications(){const p=document.getElementById('notificationPanel');if(p)p.classList.add('hidden');}
         function notificationStorageKey(){const u=(window.currentUser&&window.currentUser.username)||(document.getElementById('displayName')?.innerText||'user');return 'office_task_reporting_notifications_read_'+String(u).trim().toLowerCase();}
@@ -2453,13 +2530,15 @@
         function markAllNotificationsRead(){const items=notificationItems();setReadNotificationIds(items.map(notificationId));renderNotifications();}
         function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
         function notificationItems(){
-            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[];
+            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[],attReqs=globalAttendanceRequests||[];
             if(role.includes('hod')||role.includes('admin')){
                 tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task',date:t.completedAt||t.endDate||t.startDate});});
                 atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({type:'attendance',key:a.rowIndex||a.date,title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance',date:a.date});});
                 (globalWorkLogs||[]).slice(-20).forEach(w=>items.push({type:'work',key:w.rowIndex||w.Task||w.WorkDate,title:'Employee work updated',text:`${w.Employee||''} — ${w.Task||''} — ${w.TimeSpentMins||0} min`,action:'task',date:w.WorkDate||w.Timestamp||''}));
                 sched.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({type:'schedule',key:r.requestId||r.rowIndex,title:'Advance Schedule Request',text:`${r.employee||''} — ${r.requestType||''} — ${r.requestDate||''}`,action:'schedule',date:r.submittedAt||r.requestDate});});
+                attReqs.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({type:'attendance-request',key:r.requestId||r.rowIndex,title:'Attendance Entry Request',text:`${r.employee||''} — ${r.date||''} — ${r.reason||''}`,action:'attendance-request',date:r.submittedAt||r.date});});
             }else{
+                attReqs.forEach(r=>{if(String(r.status||'').toLowerCase()==='approved')items.push({type:'attendance-request',key:r.requestId||r.rowIndex,title:'Attendance Request Approved',text:`${r.date||''} — ${r.reason||''}`,action:'attendance-request',date:r.reviewedAt||r.date});else if(String(r.status||'').toLowerCase()==='rejected')items.push({type:'attendance-request',key:r.requestId||r.rowIndex,title:'Attendance Request Rejected',text:`${r.date||''} — ${r.reason||''}`,action:'attendance-request',date:r.reviewedAt||r.date});});
                 tasks.forEach(t=>{const s=String(t.hodStatus||'').toLowerCase();if(s==='approved')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task assigned / approved',text:`${t.taskName||'Task'} — ${t.assignedBy||''}`,action:'task',date:t.startDate});else if(s==='rejected')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task request rejected',text:t.taskName||'Task',action:'task',date:t.startDate});else if(String(t.empStatus||'').toLowerCase()==='completion requested')items.push({type:'task',key:t.taskId||t.rowIndex,title:'Early completion request pending',text:t.taskName||'Task',action:'task',date:t.endDate});else if(String(t.empStatus||'').toLowerCase()==='pending')items.push({type:'task',key:t.taskId||t.rowIndex,title:'New task assigned',text:`${t.taskName||'Task'} — ${t.assignedBy||''}`,action:'task',date:t.startDate});});
                 const now=new Date();
                 if(now.getDate()<=14){
@@ -2477,7 +2556,7 @@
             count.innerText=unread.length;count.classList.toggle('hidden',unread.length===0);count.classList.toggle('flex',unread.length>0);if(label)label.innerText=unread.length?`${unread.length} unread`:'All read';
             list.innerHTML='';
             if(!items.length){list.innerHTML='<div class="p-5 text-center text-sm text-gray-500">No notifications.</div>';return;}
-            items.forEach(n=>{const id=notificationId(n),isRead=readIds.includes(id),row=document.createElement('button');row.type='button';row.className=`w-full text-left px-4 py-3 border-b transition ${isRead?'bg-white opacity-70 hover:bg-gray-50':'bg-[#f0fbf9] hover:bg-[#e7f7f4]'}`;row.innerHTML=`<div class="flex items-start gap-2"><i class="fas fa-bell mt-1 ${isRead?'text-gray-400':'text-[#259b94]'}"></i><div class="min-w-0 flex-1"><div class="font-bold text-sm text-[#112a2e]">${n.title}${isRead?'':' <span class="ml-1 inline-block w-2 h-2 rounded-full bg-red-500 align-middle"></span>'}</div><div class="text-xs text-gray-600 mt-1">${n.text}</div><div class="text-[10px] text-gray-400 mt-1">${notificationTime(n)} ${isRead?'• Read':''}</div></div></div>`;row.onclick=()=>{markNotificationRead(id);closeNotifications();if(n.action==='task')openTaskReportModal();else if(n.action==='schedule')openAdvanceScheduleApprovalModal();else openOneViewModal();};list.appendChild(row);});
+            items.forEach(n=>{const id=notificationId(n),isRead=readIds.includes(id),row=document.createElement('button');row.type='button';row.className=`w-full text-left px-4 py-3 border-b transition ${isRead?'bg-white opacity-70 hover:bg-gray-50':'bg-[#f0fbf9] hover:bg-[#e7f7f4]'}`;row.innerHTML=`<div class="flex items-start gap-2"><i class="fas fa-bell mt-1 ${isRead?'text-gray-400':'text-[#259b94]'}"></i><div class="min-w-0 flex-1"><div class="font-bold text-sm text-[#112a2e]">${n.title}${isRead?'':' <span class="ml-1 inline-block w-2 h-2 rounded-full bg-red-500 align-middle"></span>'}</div><div class="text-xs text-gray-600 mt-1">${n.text}</div><div class="text-[10px] text-gray-400 mt-1">${notificationTime(n)} ${isRead?'• Read':''}</div></div></div>`;row.onclick=()=>{markNotificationRead(id);closeNotifications();if(n.action==='task')openTaskReportModal();else if(n.action==='schedule')openAdvanceScheduleApprovalModal();else if(n.action==='attendance-request')openAttendanceRequestsModal();else openOneViewModal();};list.appendChild(row);});
         }
         document.addEventListener('click',function(e){const b=document.getElementById('notificationBtn'),p=document.getElementById('notificationPanel');if(p&&!p.classList.contains('hidden')&&b&&!b.contains(e.target)&&!p.contains(e.target))closeNotifications();});
         setInterval(()=>{try{if(typeof renderNotifications==='function')renderNotifications();}catch(e){}},60000);
