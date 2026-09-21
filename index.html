@@ -462,7 +462,7 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department:</label><input type="text" id="adminNewDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Department (multiple: Dept A, Dept B)" required></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="adminNewHod" class="w-full border border-gray-300 p-3 rounded-lg"><option value="">-- Select HOD --</option></select></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Time:</label><input type="text" id="adminNewOfficeTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM to 06:30 PM"></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Weekoff:</label><select id="adminNewWeekoff" class="w-full border border-gray-300 p-3 rounded-lg"><option>Sunday</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="adminNewOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="adminNewOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Tan Tan Pura, Khadad, Mumbai - 440011"></div><div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-1">Employee Photo URL:</label><input type="url" id="adminNewPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Weekoff:</label><select id="adminNewWeekoff" class="w-full border border-gray-300 p-3 rounded-lg"><option>Sunday</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="adminNewOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="adminNewOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Tan Tan Pura, Khadad, Mumbai - 440011"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Profile Photo:</label><input type="file" id="adminNewPhotoFile" accept="image/*" class="w-full border border-gray-300 p-2.5 rounded-lg bg-white"><p class="text-xs text-gray-500 mt-1">Employee / HOD photo upload karein. JPG/PNG recommended.</p></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Photo URL (Optional):</label><input type="url" id="adminNewPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
             </div>
             <div class="mt-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
@@ -498,7 +498,7 @@
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time In:</label><input type="text" id="editUserInTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="09:30 AM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Time Out:</label><input type="text" id="editUserOutTime" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="06:30 PM"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry Start:</label><input type="date" id="editAttendanceStart" class="w-full border border-gray-300 p-3 rounded-lg"></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry End:</label><input type="date" id="editAttendanceEnd" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="editOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="editOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg"></div><div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-1">Employee Photo URL:</label><input type="url" id="editPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Attendance Entry End:</label><input type="date" id="editAttendanceEnd" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Location:</label><input type="text" id="editOfficeLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Mumbai"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Office Address:</label><input type="text" id="editOfficeAddress" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Profile Photo Upload:</label><input type="file" id="editPhotoFile" accept="image/*" class="w-full border border-gray-300 p-2.5 rounded-lg bg-white"><p class="text-xs text-gray-500 mt-1">Naya photo select karne par purane photo URL ko replace karega.</p></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Photo URL (Optional):</label><input type="url" id="editPhotoUrl" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..."></div>
             </div>
             <div class="mt-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
@@ -1612,8 +1612,40 @@
             }).catch(()=>alert('Unable to load user.'));
         }
         function closeEditUserModal(){ document.getElementById('editUserModal').style.display='none'; }
-        function submitEditUser(){
+        function prepareProfilePhoto(file){
+            return new Promise((resolve,reject)=>{
+                if(!file){resolve(null);return;}
+                if(!file.type || file.type.indexOf("image/")!==0){reject(new Error("Please select an image file."));return;}
+                const reader=new FileReader();
+                reader.onload=()=>{
+                    const img=new Image();
+                    img.onload=()=>{
+                        const max=600, scale=Math.min(1,max/Math.max(img.width,img.height));
+                        const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(img.width*scale)); c.height=Math.max(1,Math.round(img.height*scale));
+                        const ctx=c.getContext("2d"); ctx.drawImage(img,0,0,c.width,c.height);
+                        const dataUrl=c.toDataURL("image/jpeg",0.82);
+                        resolve({base64:dataUrl.split(",")[1],mime:"image/jpeg",name:(file.name||"profile.jpg").replace(/\.[^.]+$/,".jpg")});
+                    };
+                    img.onerror=()=>reject(new Error("Photo read nahi ho saki.")); img.src=reader.result;
+                };
+                reader.onerror=()=>reject(new Error("Photo read nahi ho saki.")); reader.readAsDataURL(file);
+            });
+        }
+        async function uploadSelectedProfilePhoto(inputId, username){
+            const input=document.getElementById(inputId);
+            if(!input || !input.files || !input.files[0]) return null;
+            const photo=await prepareProfilePhoto(input.files[0]);
+            const fd=new FormData(); fd.append("action","uploadProfilePhoto"); fd.append("sessionToken",sessionToken); fd.append("username",username); fd.append("photoBase64",photo.base64); fd.append("photoMime",photo.mime); fd.append("photoName",photo.name);
+            const res=await fetch(GOOGLE_SCRIPT_URL,{method:"POST",body:fd}); const data=await res.json();
+            if(data.status!=="success") throw new Error(data.message||"Photo upload failed.");
+            return data.url||null;
+        }
+
+        async function submitEditUser(){
             const username=document.getElementById('editUserLogin').value;
+            let uploadedPhotoUrl=null;
+            try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('editPhotoFile',username); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
+            if(uploadedPhotoUrl) document.getElementById('editPhotoUrl').value=uploadedPhotoUrl;
             const fd=new FormData(); fd.append('action','adminUpdateUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
             fd.append('password',document.getElementById('editUserPassword').value.trim());
             fd.append('department',document.getElementById('editUserDepartment').value.trim());
@@ -1629,15 +1661,18 @@
             }).catch(()=>alert('User update failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save User Changes';});
         }
 
-        function submitAdminUser() {
+        async function submitAdminUser() {
             const name=document.getElementById('adminNewUsername').value.trim(), login=document.getElementById('adminNewLogin').value.trim(), pass=document.getElementById('adminNewPassword').value.trim(), role=document.getElementById('adminNewRole').value, dept=document.getElementById('adminNewDepartment').value.trim(), hod=document.getElementById('adminNewHod').value, office=document.getElementById('adminNewOfficeTime').value.trim(), weekoff=document.getElementById('adminNewWeekoff').value;
             if(!name||!login||!pass||!dept){alert('User name, login username, password and department are required.');return;}
             if(role==='emp'&&!hod){alert('Please assign an HOD to the employee.');return;}
             const access=[...document.querySelectorAll('.admin-access:checked')].map(x=>x.value).join(', ');
-            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',document.getElementById('adminNewPhotoUrl').value.trim());
+            let uploadedPhotoUrl=null;
+            try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('adminNewPhotoFile',login); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
+            const photoUrl=uploadedPhotoUrl || document.getElementById('adminNewPhotoUrl').value.trim();
+            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',photoUrl);
             const btn=document.getElementById('createUserBtn'); btn.disabled=true; btn.innerText='Creating...';
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
-                if(data.status==='success'){alert('User created successfully.'); document.getElementById('adminNewUsername').value=''; document.getElementById('adminNewLogin').value=''; document.getElementById('adminNewPassword').value=''; document.getElementById('adminNewDepartment').value=''; document.getElementById('adminNewHod').value=''; loadAdminUsers();} else alert(data.message||'User creation failed.');
+                if(data.status==='success'){alert('User created successfully.'); document.getElementById('adminNewUsername').value=''; document.getElementById('adminNewLogin').value=''; document.getElementById('adminNewPassword').value=''; document.getElementById('adminNewDepartment').value=''; document.getElementById('adminNewHod').value=''; document.getElementById('adminNewPhotoUrl').value=''; document.getElementById('adminNewPhotoFile').value=''; loadAdminUsers();} else alert(data.message||'User creation failed.');
             }).catch(()=>alert('User creation failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create User';});
         }
 
