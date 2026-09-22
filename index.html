@@ -3142,22 +3142,35 @@
             return found || {username:name,weekoff:'Sunday'};
         }
 
-        function officeEventForDate(date){ const key=attendanceDateKey(date); return (globalOfficeEvents||[]).find(ev=>key>=String(ev.fromDate||"") && key<=String(ev.toDate||ev.fromDate||""))||null; }
+        function officeEventForDate(date){ const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; return (globalOfficeEvents||[]).find(ev=>key>=String(ev.fromDate||"") && key<=String(ev.toDate||ev.fromDate||""))||null; }
 
         function attendanceIsWorkingDay(date, weekoff) {
             const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             return dayNames[date.getDay()].toLowerCase() !== String(weekoff||'Sunday').toLowerCase();
         }
 
+        function uniqueAttendanceRecords(records) {
+            const map = new Map();
+            (records || []).forEach(a => {
+                const emp=String(a.Employee||'').trim().toLowerCase(), date=String(a.Date||'').trim();
+                if(!emp || !date) return;
+                const key=emp+'|'+date, prev=map.get(key);
+                if(!prev) { map.set(key,a); return; }
+                const score=x => (x && x.InTime ? 4 : 0) + (x && String(x.Leave||'').toLowerCase().includes('leave') ? 2 : 0) + (x && String(x.Leave||'').toLowerCase().includes('weekoff') ? 1 : 0);
+                if(score(a)>=score(prev)) map.set(key,a);
+            });
+            return Array.from(map.values());
+        }
+
         function attendanceRecordFor(records, user, key) {
             return (records||[]).find(a=>String(a.Employee||'').toLowerCase()===String(user).toLowerCase() && String(a.Date)===key);
         }
 
-        function renderAttendanceAnalytics(type, selectedUser) {
+        function renderAttendanceAnalytics(type, selectedUser, sourceRecords) {
             const allUsers=(globalTeamMembers||[]).slice();
             const users = selectedUser && selectedUser !== 'All' ? [selectedUser] : allUsers;
             const dates=attendancePeriodDates(type);
-            const records=globalMonthlyFullAttendance||[];
+            const records=uniqueAttendanceRecords(sourceRecords !== undefined ? sourceRecords : (globalMonthlyFullAttendance||[]));
             let totalAvailability=0,totalPresence=0,totalAbsence=0,totalLeave=0,totalWeekoff=0;
             const daily=[];
             const cutoff=new Date(); cutoff.setHours(0,0,0,0);
@@ -3239,8 +3252,13 @@
             .then(res=>res.json())
             .then(data=>{
                 loading.style.display='none';
-                if(data.status==='success') renderOneViewTable(data.members,data.records,monthYear,selectedUser);
-                else alert(data.message||'Unable to load attendance sheet.');
+                if(data.status==='success') {
+                    renderOneViewTable(data.members,data.records,monthYear,selectedUser);
+                    // Monthly analytics must use the exact same server records as the table.
+                    // This prevents cached/duplicate attendance from making the cards disagree with the grid.
+                    if(type==='monthly') renderAttendanceAnalytics(type,selectedUser,data.records);
+                    else renderAttendanceAnalytics(type,selectedUser);
+                } else alert(data.message||'Unable to load attendance sheet.');
             })
             .catch(()=>{loading.style.display='none'; renderOneViewTable(globalTeamMembers||[],globalMonthlyFullAttendance||[],monthYear,selectedUser);});
         }
