@@ -226,6 +226,9 @@
                         <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fab fa-whatsapp"></i> WhatsApp Report
                         </button>
+                        <button onclick="openEmployeeIdModal()" class="bg-[#112a2e] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-id-card"></i> Employee ID
+                        </button>
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> Attendance Report
                         </button>
@@ -643,6 +646,17 @@
     </div>
 
     <!-- ADMIN ATTENDANCE EDIT MODAL -->
+    <div id="officeEventsModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl" style="max-width:760px;">
+            <span onclick="closeOfficeEventsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-calendar-day text-[#7c3aed]"></i> Office Events / Holidays</h3>
+            <p class="text-sm text-gray-500 mb-4">15 August, Eid, office event ya holiday ki Excel file upload karein. Attendance report mein ye dates automatically <b>E = Event / Office Closed</b> ke roop mein show hongi aur absence mein count nahi hongi.</p>
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm mb-4"><b>Excel Format:</b> Event Name, From Date, To Date, Type, Details</div>
+            <div class="flex flex-wrap gap-2 mb-4"><button type="button" onclick="downloadOfficeEventsTemplate()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold"><i class="fas fa-download"></i> Download Excel Format</button><label class="bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer"><i class="fas fa-upload"></i> Select Excel File<input type="file" id="officeEventsExcelFile" accept=".xlsx,.xls,.csv" class="hidden"></label></div>
+            <div id="officeEventsPreview" class="mb-4"></div><button onclick="uploadOfficeEventsOnce()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg shadow-lg">Upload Office Events</button>
+        </div>
+    </div>
+
     <div id="attendanceEditModal" class="modal">
         <div class="modal-content relative max-w-lg shadow-2xl">
             <span onclick="closeAttendanceEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
@@ -716,6 +730,39 @@
             <span onclick="closeAttendanceRequestsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-clock text-[#7c3aed]"></i> Attendance Requests</h3>
             <div id="attendanceRequestsList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- EMPLOYEE ID MODAL -->
+    <div id="employeeIdModal" class="modal">
+        <div class="modal-content relative max-w-md shadow-2xl">
+            <span onclick="closeEmployeeIdModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-id-card text-[#259b94]"></i> Employee ID</h3>
+            <p class="text-sm text-gray-500 mb-5">Office Task Reporting Digital ID</p>
+            <div class="rounded-2xl border border-[#b2d8d8] bg-[#f5fbfb] p-5">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-20 h-20 rounded-xl bg-[#259b94] overflow-hidden flex items-center justify-center text-white text-3xl shadow">
+                        <img id="employeeIdPhoto" class="w-full h-full object-cover hidden" alt="Employee Photo">
+                        <i id="employeeIdPhotoFallback" class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div id="employeeIdName" class="text-xl font-extrabold text-[#112a2e] truncate">-</div>
+                        <div id="employeeIdRole" class="text-sm font-bold text-[#259b94] mt-1">-</div>
+                        <div id="employeeIdDepartment" class="text-xs text-gray-500 mt-1">-</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Employee ID</div><div id="employeeIdNumber" class="font-extrabold text-[#112a2e] mt-1 break-all">-</div></div>
+                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Office</div><div id="employeeIdOffice" class="font-bold text-[#112a2e] mt-1">-</div></div>
+                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Contact</div><div id="employeeIdContact" class="font-bold text-[#112a2e] mt-1">-</div></div>
+                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">WhatsApp</div><div id="employeeIdWhatsApp" class="font-bold text-[#112a2e] mt-1">-</div></div>
+                </div>
+                <div id="employeeIdAddress" class="mt-3 bg-white rounded-lg p-3 border text-xs text-gray-600">-</div>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <button onclick="printEmployeeId()" class="flex-1 bg-[#259b94] hover:bg-[#1f827c] text-white py-3 rounded-xl font-bold"><i class="fas fa-print mr-2"></i>Print ID</button>
+                <button onclick="closeEmployeeIdModal()" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Close</button>
+            </div>
         </div>
     </div>
 
@@ -960,7 +1007,7 @@
                 </div>
                 <div class="border rounded-lg p-4 bg-white"><h3 class="font-bold text-[#2a4d53] mb-3">Attendance Trend</h3><div id="attendanceTrendChart" class="h-44 flex items-end gap-2 overflow-x-auto border-b border-gray-200 px-2"></div></div>
             </div>
-            <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0"><span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span><span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span><span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span><span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span></div>
+            <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0"><span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span><span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span><span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span><span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span><span class="text-purple-600 ml-3"><i class="fas fa-calendar-day"></i> E = Office Closed/Event</span></div>
             <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200"><table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm"><thead id="oneViewThead"></thead><tbody id="oneViewTbody"></tbody></table></div>
         </div>
     </div>
@@ -984,6 +1031,7 @@
         let attendanceEntryEnd = "";
         let globalAdvanceScheduleRequests = [];
         let globalAttendanceRequests = [];
+        let globalOfficeEvents = [];
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -1079,7 +1127,7 @@
             .then(data=>{
                 if(data.status!=='success'){alert(data.message||"Invalid Credentials");btn.innerText="Login to Dashboard";btn.disabled=false;return;}
                 document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='flex';
-                sessionToken=data.sessionToken||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
+                sessionToken=data.sessionToken||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||""; window.currentUsername=data.username||user; window.currentUserName=data.actualName||data.username||user; window.currentUserRole=data.role||''; window.currentUserDepartment=data.department||''; window.currentUserWhatsappNumber=data.whatsappNumber||''; window.currentUserOfficeLocation=data.officeLocation||''; window.currentUserOfficeAddress=data.officeAddress||''; window.currentUserPhotoUrl=data.profilePhotoUrl||'';
                 setDateConstraints(); document.getElementById('displayUser').innerText=data.actualName||data.username; window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
                 document.getElementById('displayDept').innerText=data.department||'--'; document.getElementById('displayOfficeTime').innerText=data.officeTime||'--'; window.currentUserWeekoff=data.weekoff||'Sunday'; document.getElementById('displayWeekoff').innerText=data.weekoff||'Sunday';
                 document.getElementById('displayOfficeLocation').innerText=[data.officeLocation,data.officeAddress].filter(Boolean).join(' : ')||'--'; setDisplayedProfilePhoto(data.profilePhotoUrl||'');
@@ -1271,7 +1319,7 @@
                 globalWorkLogs=Array.isArray(data.workLogs)?data.workLogs:[]; window.globalDelayReports=Array.isArray(data.delayReports)?data.delayReports:[];
                 globalTeamAttendance=Array.isArray(data.teamAttendance)?data.teamAttendance:[];
                 globalAdvanceScheduleRequests=Array.isArray(data.advanceScheduleRequests)?data.advanceScheduleRequests:[];
-                globalAttendanceRequests=Array.isArray(data.attendanceRequests)?data.attendanceRequests:[]; window.serverNotifications=Array.isArray(data.serverNotifications)?data.serverNotifications:[]; window.serverDashboardSummary=Array.isArray(data.dashboardSummary)?data.dashboardSummary:[];
+                globalAttendanceRequests=Array.isArray(data.attendanceRequests)?data.attendanceRequests:[]; globalOfficeEvents=Array.isArray(data.officeEvents)?data.officeEvents:[]; window.serverNotifications=Array.isArray(data.serverNotifications)?data.serverNotifications:[]; window.serverDashboardSummary=Array.isArray(data.dashboardSummary)?data.dashboardSummary:[];
                 attendanceEntryStart=data.todayAttendanceEntryStart||attendanceEntryStart;
                 attendanceEntryEnd=data.todayAttendanceEntryEnd||attendanceEntryEnd;
                 setDateConstraints();
@@ -1337,7 +1385,7 @@
                 setDateConstraints();
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
                 globalAdvanceScheduleRequests = Array.isArray(data.advanceScheduleRequests) ? data.advanceScheduleRequests : [];
-                globalAttendanceRequests = Array.isArray(data.attendanceRequests) ? data.attendanceRequests : []; window.serverNotifications=Array.isArray(data.serverNotifications)?data.serverNotifications:[]; window.serverDashboardSummary=Array.isArray(data.dashboardSummary)?data.dashboardSummary:[];
+                globalAttendanceRequests = Array.isArray(data.attendanceRequests) ? data.attendanceRequests : []; globalOfficeEvents = Array.isArray(data.officeEvents) ? data.officeEvents : []; window.serverNotifications=Array.isArray(data.serverNotifications)?data.serverNotifications:[]; window.serverDashboardSummary=Array.isArray(data.dashboardSummary)?data.dashboardSummary:[];
 
                 // Keep the latest successful result locally so the next page/login opens instantly.
                 try {
@@ -2622,6 +2670,11 @@
         function openManagerAttendanceModal(){fillManagerAttendanceEmployees();const d=document.getElementById('mgrAttDate');if(d)d.value=new Date().toISOString().split('T')[0];document.getElementById('managerAttendanceModal').style.display='block';}
         function closeManagerAttendanceModal(){document.getElementById('managerAttendanceModal').style.display='none';}
         function saveManagerAttendance(){const fd=new FormData();fd.append('action','adminSaveAttendance');fd.append('employee',document.getElementById('mgrAttEmployee').value);fd.append('date',document.getElementById('mgrAttDate').value);fd.append('inTime',document.getElementById('mgrAttIn').value.trim());fd.append('outTime',document.getElementById('mgrAttOut').value.trim());fd.append('breakStart',document.getElementById('mgrAttBreakStart').value.trim());fd.append('breakEnd',document.getElementById('mgrAttBreakEnd').value.trim());fd.append('leave',document.getElementById('mgrAttLeave').value.trim());fd.append('reason',document.getElementById('mgrAttReason').value.trim());fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Saved');if(d.status==='success'){closeManagerAttendanceModal();fetchDashboardDataSilently();}}).catch(()=>alert('Attendance save failed.'));}
+        function openOfficeEventsModal(){ document.getElementById('officeEventsModal').classList.add('active'); }
+        function closeOfficeEventsModal(){ document.getElementById('officeEventsModal').classList.remove('active'); }
+        function downloadOfficeEventsTemplate(){ const rows=[['Event Name','From Date','To Date','Type','Details'],['Independence Day','2026-08-15','2026-08-15','National Holiday','Office Closed'],['Eid','2026-06-17','2026-06-18','Religious Holiday','Office Closed']]; const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Office Events');XLSX.writeFile(wb,'Office_Events_Holidays_Format.xlsx'); }
+        function uploadOfficeEventsOnce(){ const f=document.getElementById('officeEventsExcelFile').files[0]; if(!f){alert('Office Events ki Excel file select karein.');return;} const rd=new FileReader(); rd.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''}); if(!arr.length){alert('Excel mein data nahi hai.');return;} const excelDate=v=>{if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;} const x=String(v||'').trim();if(/^\d{2}\/\d{2}\/\d{4}$/.test(x)){const p=x.split('/');return `${p[2]}-${p[1]}-${p[0]}`;}return x;}; const rows=arr.map(r=>({eventName:r['Event Name']||r['Event']||'',fromDate:excelDate(r['From Date']||r['Date']),toDate:excelDate(r['To Date']||r['From Date']||r['Date']),type:r['Type']||'Office Closed',details:r['Details']||''})); document.getElementById('officeEventsPreview').innerHTML=`<div class="bg-purple-50 border border-purple-200 rounded-lg p-3 font-semibold">${rows.length} event row(s) ready for import.</div>`; const fd=new FormData();fd.append('action','uploadOfficeEvents');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Office events imported.');document.getElementById('officeEventsExcelFile').value='';if(d.status==='success'){globalOfficeEvents=rows.concat(globalOfficeEvents||[]);closeOfficeEventsModal();fetchDashboardDataSilently();}if(d.failed&&d.failed.length)alert(d.failed.join('\n'));}).catch(()=>alert('Office Events upload failed.'));}catch(e){alert('Excel format read nahi ho saka: '+e.message);}};rd.readAsArrayBuffer(f); }
+
         function downloadAttendanceExcelTemplate(){const rows=[['Date','Employee ID','In Time','Out Time','Break Start','Break End','Leave/Weekoff','Reason','Approval Status'],['2026-09-21','EMP001','09:30:00 AM','06:30:00 PM','','','','Manual Entry','Approved']];const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Attendance');XLSX.writeFile(wb,'Attendance_One_Time_Upload_Format.xlsx');}
         function openAttendanceExcelModal(){document.getElementById('attendanceExcelFile').value='';document.getElementById('attendanceExcelPreview').innerHTML='';document.getElementById('attendanceExcelModal').style.display='block';}
         function closeAttendanceExcelModal(){document.getElementById('attendanceExcelModal').style.display='none';}
@@ -2997,6 +3050,8 @@
             return found || {username:name,weekoff:'Sunday'};
         }
 
+        function officeEventForDate(date){ const key=attendanceDateKey(date); return (globalOfficeEvents||[]).find(ev=>key>=String(ev.fromDate||"") && key<=String(ev.toDate||ev.fromDate||""))||null; }
+
         function attendanceIsWorkingDay(date, weekoff) {
             const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             return dayNames[date.getDay()].toLowerCase() !== String(weekoff||'Sunday').toLowerCase();
@@ -3019,6 +3074,8 @@
                 const meta=attendanceMetaForUser(user);
                 dates.forEach(dt=>{
                     const isPast=dt<=cutoff;
+                    const event=officeEventForDate(dt);
+                    if(event) return;
                     const working=attendanceIsWorkingDay(dt,meta.weekoff);
                     if(!working){ totalWeekoff++; return; }
                     totalAvailability++;
@@ -3062,7 +3119,7 @@
                 users.forEach(user=>{
                     const meta=attendanceMetaForUser(user);
                     g.dates.forEach(dt=>{
-                        if(!attendanceIsWorkingDay(dt,meta.weekoff) || dt>cutoff) return;
+                        if(officeEventForDate(dt) || !attendanceIsWorkingDay(dt,meta.weekoff) || dt>cutoff) return;
                         const rec=attendanceRecordFor(records,user,attendanceDateKey(dt));
                         if(rec&&rec.InTime) gp++; else if(!(rec&&String(rec.Leave||'').toLowerCase().includes('leave'))) ga++;
                     });
@@ -3102,7 +3159,7 @@
             let visibleMembers=(selectedUser&&selectedUser!=='All')?[selectedUser]:members;
             let theadHtml=`<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
             for(let d=1;d<=daysInMonth;d++) theadHtml+=`<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
-            theadHtml+=`<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
+            theadHtml+=`<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-purple-200">E</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
             document.getElementById('oneViewThead').innerHTML=theadHtml;
 
             const matrix={}; visibleMembers.forEach(m=>matrix[m]={});
@@ -3118,28 +3175,31 @@
             const tbody=document.getElementById('oneViewTbody'); tbody.innerHTML='';
             const today=new Date(); today.setHours(0,0,0,0);
             visibleMembers.forEach((m,idx)=>{
-                let p=0,a=0,l=0,w=0;
+                let p=0,a=0,l=0,w=0,eCount=0;
                 let row=`<tr class="hover:bg-[#e6fcf5] transition"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border font-bold text-gray-800 ov-light-teal">${m}</td>`;
                 const meta=attendanceMetaForUser(m);
                 for(let d=1;d<=daysInMonth;d++){
                     let st=matrix[m][d];
                     const dt=new Date(year,month-1,d);
+                    const ev=officeEventForDate(dt);
+                    if(ev) st='E';
                     if(!st){
                         if(!attendanceIsWorkingDay(dt,meta.weekoff)) st='W';
                         else if(dt<today) st='A';
                         else st='-';
                     }
-                    if(st==='P')p++; if(st==='A')a++; if(st==='L')l++; if(st==='W')w++;
+                    if(st==='P')p++; if(st==='A')a++; if(st==='L')l++; if(st==='W')w++; if(st==='E')eCount++;
                     let color='text-gray-400';
                     if(st==='P')color='text-[#259b94] font-extrabold';
                     if(st==='A')color='text-red-500 font-extrabold bg-red-50';
                     if(st==='L')color='text-yellow-600 font-extrabold bg-yellow-50';
                     if(st==='W')color='text-blue-500 font-extrabold bg-blue-50';
+                    if(st==='E')color='text-purple-600 font-extrabold bg-purple-50';
                     row+=`<td class="p-1 border text-center text-xs ${color}">${st}</td>`;
                 }
                 const working=p+a;
                 const perc=working?Math.round(p/working*100):0;
-                row+=`<td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${p}</td><td class="p-2 border text-center font-bold text-red-500 bg-red-50">${a}</td><td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${l}</td><td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${w}</td><td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td></tr>`;
+                row+=`<td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${p}</td><td class="p-2 border text-center font-bold text-red-500 bg-red-50">${a}</td><td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${l}</td><td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${w}</td><td class="p-2 border text-center font-bold text-purple-600 bg-purple-50">${eCount}</td><td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td></tr>`;
                 tbody.innerHTML+=row;
             });
             if(!visibleMembers.length) tbody.innerHTML=`<tr><td colspan="${daysInMonth+7}" class="text-center p-8 text-gray-500 italic font-medium">No employees found.</td></tr>`;
@@ -3252,6 +3312,36 @@
         function approveAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Approved').then(d=>{alert(d.message||'Approved');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
         function rejectAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Rejected').then(d=>{alert(d.message||'Rejected');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
 
-    </script>
+    
+        function openEmployeeIdModal(){
+            const name=window.currentUserName||document.getElementById('displayUser')?.innerText||'-';
+            const role=window.currentUserRole||document.getElementById('displayRole')?.innerText||'Employee';
+            const dept=window.currentUserDepartment||document.getElementById('displayDept')?.innerText||'-';
+            const username=window.currentUsername||'-';
+            const office=window.currentUserOfficeLocation||document.getElementById('displayOfficeLocation')?.innerText||'-';
+            const contact=window.currentUserContactNumber||'-';
+            const whatsapp=window.currentUserWhatsappNumber||'-';
+            const address=window.currentUserOfficeAddress||'-';
+            document.getElementById('employeeIdName').textContent=name;
+            document.getElementById('employeeIdRole').textContent=role||'Employee';
+            document.getElementById('employeeIdDepartment').textContent=dept||'-';
+            document.getElementById('employeeIdNumber').textContent=username||'-';
+            document.getElementById('employeeIdOffice').textContent=office||'-';
+            document.getElementById('employeeIdContact').textContent=contact||'-';
+            document.getElementById('employeeIdWhatsApp').textContent=whatsapp||'-';
+            document.getElementById('employeeIdAddress').textContent=address||'-';
+            const img=document.getElementById('employeeIdPhoto'),fb=document.getElementById('employeeIdPhotoFallback'),src=window.currentUserPhotoUrl||document.getElementById('displayUserPhoto')?.getAttribute('src')||'';
+            if(src){img.src=src;img.classList.remove('hidden');fb.classList.add('hidden');}else{img.removeAttribute('src');img.classList.add('hidden');fb.classList.remove('hidden');}
+            const m=document.getElementById('employeeIdModal');m.style.display='block';
+        }
+        function closeEmployeeIdModal(){const m=document.getElementById('employeeIdModal');if(m)m.style.display='none';}
+        function printEmployeeId(){
+            const modal=document.getElementById('employeeIdModal');if(!modal)return;
+            const card=modal.querySelector('.modal-content');
+            const name=document.getElementById('employeeIdName')?.innerText||'Employee';
+            const html='<!doctype html><html><head><meta charset="utf-8"><title>Employee ID - '+name.replace(/</g,'&lt;')+'</title><style>body{font-family:Arial,sans-serif;background:#eef5f5;padding:30px}.card{max-width:420px;margin:auto;background:#fff;border:1px solid #b2d8d8;border-radius:18px;padding:24px}.head{font-size:22px;font-weight:800;color:#112a2e;margin-bottom:18px}.photo{width:80px;height:80px;border-radius:12px;object-fit:cover;background:#259b94}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.item{border:1px solid #ddd;border-radius:8px;padding:10px}.label{font-size:10px;color:#888;text-transform:uppercase;font-weight:bold}.value{font-weight:bold;margin-top:4px}</style></head><body><div class="card"><div class="head">Employee ID</div>'+card.querySelector('.rounded-2xl')?.outerHTML.replace(/class="[^"]*"/g,'')+'</div><script>window.onload=function(){window.print();}</script></body></html>';
+            const w=window.open('','_blank','width=520,height=720');if(!w){alert('Please allow pop-ups for printing.');return;}w.document.write(html);w.document.close();
+        }
+</script>
 </body>
 </html>
