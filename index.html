@@ -226,9 +226,7 @@
                         <button onclick="openWhatsAppReportModal()" class="bg-[#25D366] hover:bg-[#1da851] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fab fa-whatsapp"></i> WhatsApp Report
                         </button>
-                        <button onclick="openEmployeeIdModal()" class="bg-[#112a2e] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-id-card"></i> Employee ID
-                        </button>
+                        <button onclick="openEmployeeIdModal()" class="bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition"><i class="fas fa-id-card"></i> Employee ID</button>
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> Attendance Report
                         </button>
@@ -490,6 +488,19 @@
         </div>
     </div>
 
+    <!-- EMPLOYEE DIGITAL ID MODAL -->
+    <div id="employeeIdModal" class="modal">
+        <div class="modal-content relative max-w-lg shadow-2xl">
+            <span onclick="closeEmployeeIdModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-id-card text-[#259b94]"></i> Employee ID</h3>
+            <div id="employeeIdCard" class="mt-5 rounded-2xl border border-[#b2d8d8] bg-white p-6 shadow-inner">
+                <div class="flex items-center gap-4"><img id="employeeIdPhoto" class="w-20 h-20 rounded-full object-cover border-4 border-[#e6fcf5]" src="" alt="Profile"><div><div id="employeeIdName" class="text-xl font-extrabold text-[#112a2e]">-</div><div id="employeeIdNumber" class="text-sm font-bold text-[#259b94]">EMP ID: -</div><div id="employeeIdRole" class="text-sm text-gray-500">-</div></div></div>
+                <div class="grid grid-cols-2 gap-3 mt-5 text-sm"><div><b>Department</b><div id="employeeIdDept">-</div></div><div><b>Office</b><div id="employeeIdOffice">-</div></div><div><b>Contact</b><div id="employeeIdContact">-</div></div><div><b>WhatsApp</b><div id="employeeIdWhatsApp">-</div></div><div class="col-span-2"><b>Address</b><div id="employeeIdAddress">-</div></div></div>
+            </div>
+            <button onclick="printEmployeeId()" class="w-full mt-5 bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg"><i class="fas fa-print"></i> Print Employee ID</button>
+        </div>
+    </div>
+
     <!-- ADMIN ONE-TIME TASK EXCEL UPLOAD MODAL -->
     <div id="taskExcelModal" class="modal">
         <div class="modal-content relative max-w-3xl shadow-2xl">
@@ -497,11 +508,11 @@
             <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-file-excel text-[#166534]"></i> One-Time Task Excel Upload</h3>
             <p class="text-sm text-gray-500 mb-5">Admin ek Excel file se multiple employees ko one-time tasks assign kar sakta hai. Import ke baad file browser se clear ho jayegi; server par Excel file save nahi hoti.</p>
             <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-4 text-sm text-green-900">
-                <b>Excel Format:</b> Employee Username, Task Name, Start Date, End Date, Priority, Frequency, Weightage, Assigned By, Category, Work, Work Weightage
+                <b>CSV / Excel Format:</b> Employee ID, Task Name, Start Date, End Date, Priority, Frequency, Weightage, Assigned By, Category, Work, Work Weightage
             </div>
             <div class="flex flex-wrap gap-3 mb-4">
                 <button type="button" onclick="downloadTaskExcelTemplate()" class="bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg text-sm font-bold"><i class="fas fa-download"></i> Download Excel Format</button>
-                <label class="bg-[#166534] hover:bg-[#14532d] text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer"><i class="fas fa-upload"></i> Select Excel File<input type="file" id="taskExcelFile" accept=".xlsx,.xls" class="hidden"></label>
+                <label class="bg-[#166534] hover:bg-[#14532d] text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer"><i class="fas fa-upload"></i> Select CSV / Excel File<input type="file" id="taskExcelFile" accept=".xlsx,.xls,.csv" class="hidden"></label>
             </div>
             <div id="taskExcelPreview" class="mb-4"></div>
             <button id="uploadTaskExcelBtn" onclick="uploadTaskExcelOnce()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg shadow-lg">Upload & Assign Tasks</button>
@@ -516,7 +527,7 @@
             <p class="text-sm text-gray-500 mb-6">Admin can create a user, assign department/HOD and select multiple access options.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">User Name:</label><input type="text" id="adminNewUsername" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Employee Name" required></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Login Username:</label><input type="text" id="adminNewLogin" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="username" required></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Login Username:</label><input type="text" id="adminNewLogin" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="username" required></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Employee ID:</label><input type="text" id="adminNewEmployeeId" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="EMP-0001"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Password:</label><input type="text" id="adminNewPassword" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Password" required></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Role:</label><select id="adminNewRole" class="w-full border border-gray-300 p-3 rounded-lg" onchange="toggleAdminUserHod()"><option value="emp">Employee</option><option value="hod">HOD</option><option value="admin">Admin</option></select></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department:</label><input type="text" id="adminNewDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Department (multiple: Dept A, Dept B)" required></div>
@@ -551,7 +562,7 @@
             <p class="text-sm text-gray-500 mb-6">Admin can update password, department, HOD and office In/Out time.</p>
             <input type="hidden" id="editUserLogin">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">User:</label><input type="text" id="editUserName" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50" readonly></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">User:</label><input type="text" id="editUserName" class="w-full border border-gray-300 p-3 rounded-lg bg-gray-50" readonly></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Employee ID:</label><input type="text" id="editUserEmployeeId" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="EMP-0001"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">New Password:</label><input type="password" id="editUserPassword" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Leave blank to keep current password"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Department(s):</label><input type="text" id="editUserDepartment" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Dept A, Dept B"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Assign HOD:</label><select id="editUserHod" class="w-full border border-gray-300 p-3 rounded-lg"></select></div>
@@ -720,7 +731,7 @@
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-file-excel text-green-600"></i> One-Time Attendance Excel Upload</h3>
             <p class="text-sm text-gray-500 mb-4">Excel sirf one-time import ke liye hai. Import ke baad file browser se clear/remove ho jayegi.</p>
             <button onclick="downloadAttendanceExcelTemplate()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold mb-4"><i class="fas fa-download"></i> Download Excel Format</button>
-            <input type="file" id="attendanceExcelFile" accept=".xlsx,.xls" class="w-full border p-3 rounded-lg bg-white">
+            <input type="file" id="attendanceExcelFile" accept=".xlsx,.xls,.csv" class="w-full border p-3 rounded-lg bg-white">
             <div id="attendanceExcelPreview" class="mt-4 max-h-56 overflow-auto text-xs"></div>
             <button onclick="uploadAttendanceExcelOnce()" class="w-full bg-[#2a4d53] hover:bg-[#1e3e43] text-white font-bold py-3 rounded-lg mt-5">Import Attendance Once</button>
         </div>
@@ -730,39 +741,6 @@
             <span onclick="closeAttendanceRequestsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
             <h3 class="text-2xl font-bold text-[#112a2e] mb-2"><i class="fas fa-user-clock text-[#7c3aed]"></i> Attendance Requests</h3>
             <div id="attendanceRequestsList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
-        </div>
-    </div>
-
-    <!-- EMPLOYEE ID MODAL -->
-    <div id="employeeIdModal" class="modal">
-        <div class="modal-content relative max-w-md shadow-2xl">
-            <span onclick="closeEmployeeIdModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl">&times;</span>
-            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-id-card text-[#259b94]"></i> Employee ID</h3>
-            <p class="text-sm text-gray-500 mb-5">Office Task Reporting Digital ID</p>
-            <div class="rounded-2xl border border-[#b2d8d8] bg-[#f5fbfb] p-5">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-20 h-20 rounded-xl bg-[#259b94] overflow-hidden flex items-center justify-center text-white text-3xl shadow">
-                        <img id="employeeIdPhoto" class="w-full h-full object-cover hidden" alt="Employee Photo">
-                        <i id="employeeIdPhotoFallback" class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <div id="employeeIdName" class="text-xl font-extrabold text-[#112a2e] truncate">-</div>
-                        <div id="employeeIdRole" class="text-sm font-bold text-[#259b94] mt-1">-</div>
-                        <div id="employeeIdDepartment" class="text-xs text-gray-500 mt-1">-</div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Employee ID</div><div id="employeeIdNumber" class="font-extrabold text-[#112a2e] mt-1 break-all">-</div></div>
-                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Office</div><div id="employeeIdOffice" class="font-bold text-[#112a2e] mt-1">-</div></div>
-                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">Contact</div><div id="employeeIdContact" class="font-bold text-[#112a2e] mt-1">-</div></div>
-                    <div class="bg-white rounded-lg p-3 border"><div class="text-[10px] uppercase font-bold text-gray-400">WhatsApp</div><div id="employeeIdWhatsApp" class="font-bold text-[#112a2e] mt-1">-</div></div>
-                </div>
-                <div id="employeeIdAddress" class="mt-3 bg-white rounded-lg p-3 border text-xs text-gray-600">-</div>
-            </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="printEmployeeId()" class="flex-1 bg-[#259b94] hover:bg-[#1f827c] text-white py-3 rounded-xl font-bold"><i class="fas fa-print mr-2"></i>Print ID</button>
-                <button onclick="closeEmployeeIdModal()" class="px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Close</button>
-            </div>
         </div>
     </div>
 
@@ -1127,7 +1105,7 @@
             .then(data=>{
                 if(data.status!=='success'){alert(data.message||"Invalid Credentials");btn.innerText="Login to Dashboard";btn.disabled=false;return;}
                 document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='flex';
-                sessionToken=data.sessionToken||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||""; window.currentUsername=data.username||user; window.currentUserName=data.actualName||data.username||user; window.currentUserRole=data.role||''; window.currentUserDepartment=data.department||''; window.currentUserWhatsappNumber=data.whatsappNumber||''; window.currentUserOfficeLocation=data.officeLocation||''; window.currentUserOfficeAddress=data.officeAddress||''; window.currentUserPhotoUrl=data.profilePhotoUrl||'';
+                sessionToken=data.sessionToken||""; window.currentUser=Object.assign({},data); whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
                 setDateConstraints(); document.getElementById('displayUser').innerText=data.actualName||data.username; window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
                 document.getElementById('displayDept').innerText=data.department||'--'; document.getElementById('displayOfficeTime').innerText=data.officeTime||'--'; window.currentUserWeekoff=data.weekoff||'Sunday'; document.getElementById('displayWeekoff').innerText=data.weekoff||'Sunday';
                 document.getElementById('displayOfficeLocation').innerText=[data.officeLocation,data.officeAddress].filter(Boolean).join(' : ')||'--'; setDisplayedProfilePhoto(data.profilePhotoUrl||'');
@@ -1836,7 +1814,7 @@
                 document.getElementById('editUserPassword').value='';
                 document.getElementById('editUserContactNumber').value=u.contactNumber||'';
                 document.getElementById('editUserWhatsappNumber').value=u.whatsappNumber||'';
-                document.getElementById('editUserName').value=u.displayName||u.username||'';
+                document.getElementById('editUserName').value=u.displayName||u.username||''; document.getElementById('editUserEmployeeId').value=u.employeeId||u.username||'';
                 document.getElementById('editUserDepartment').value=u.department||'';
                 document.getElementById('editUserInTime').value=u.timeIn||'';
                 document.getElementById('editUserOutTime').value=u.timeOut||'';
@@ -1886,7 +1864,7 @@
             try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('editPhotoFile',username); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
             if(uploadedPhotoUrl) document.getElementById('editPhotoUrl').value=uploadedPhotoUrl;
             const fd=new FormData(); fd.append('action','adminUpdateUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
-            fd.append('displayName',document.getElementById('editUserName').value.trim());
+            fd.append('displayName',document.getElementById('editUserName').value.trim()); fd.append('employeeId',document.getElementById('editUserEmployeeId').value.trim());
             fd.append('contactNumber',document.getElementById('editUserContactNumber').value.trim());
             fd.append('whatsappNumber',document.getElementById('editUserWhatsappNumber').value.trim());
             fd.append('password',document.getElementById('editUserPassword').value.trim());
@@ -1911,32 +1889,47 @@
             let uploadedPhotoUrl=null;
             try{ uploadedPhotoUrl=await uploadSelectedProfilePhoto('adminNewPhotoFile',login); }catch(err){ alert(err.message||'Photo upload failed.'); return; }
             const photoUrl=uploadedPhotoUrl || document.getElementById('adminNewPhotoUrl').value.trim();
-            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('contactNumber',document.getElementById('adminNewContactNumber').value.trim()); fd.append('whatsappNumber',document.getElementById('adminNewWhatsappNumber').value.trim()); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',photoUrl);
+            const fd=new FormData(); fd.append('action','adminCreateUser'); fd.append('sessionToken',sessionToken); fd.append('username',login); fd.append('displayName',name); fd.append('employeeId',document.getElementById('adminNewEmployeeId').value.trim()||login); fd.append('password',pass); fd.append('role',role); fd.append('department',dept); fd.append('hod',hod); fd.append('accessPermissions',access); fd.append('contactNumber',document.getElementById('adminNewContactNumber').value.trim()); fd.append('whatsappNumber',document.getElementById('adminNewWhatsappNumber').value.trim()); fd.append('officeTime',office); fd.append('weekoff',weekoff); fd.append('officeLocation',document.getElementById('adminNewOfficeLocation').value.trim()); fd.append('officeAddress',document.getElementById('adminNewOfficeAddress').value.trim()); fd.append('profilePhotoUrl',photoUrl);
             const btn=document.getElementById('createUserBtn'); btn.disabled=true; btn.innerText='Creating...';
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
                 if(data.status==='success'){alert('User created successfully.'); document.getElementById('adminNewUsername').value=''; document.getElementById('adminNewLogin').value=''; document.getElementById('adminNewPassword').value=''; document.getElementById('adminNewDepartment').value=''; document.getElementById('adminNewHod').value=''; document.getElementById('adminNewPhotoUrl').value=''; document.getElementById('adminNewPhotoFile').value=''; loadAdminUsers();} else alert(data.message||'User creation failed.');
             }).catch(()=>alert('User creation failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create User';});
         }
 
+        function openEmployeeIdModal(){
+            const u=window.currentUser||{}; const photo=u.profilePhotoUrl||'';
+            document.getElementById('employeeIdPhoto').src=photo||'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#e6f4f3"/><text x="50" y="58" text-anchor="middle" font-size="42">👤</text></svg>');
+            document.getElementById('employeeIdName').innerText=u.displayName||document.getElementById('displayName')?.innerText||u.username||'-';
+            document.getElementById('employeeIdNumber').innerText='EMP ID: '+(u.employeeId||u.username||'-');
+            document.getElementById('employeeIdRole').innerText=u.role||document.getElementById('displayRole')?.innerText||'-';
+            document.getElementById('employeeIdDept').innerText=u.department||'-'; document.getElementById('employeeIdOffice').innerText=u.officeLocation||'-'; document.getElementById('employeeIdContact').innerText=u.contactNumber||'-'; document.getElementById('employeeIdWhatsApp').innerText=u.whatsappNumber||'-'; document.getElementById('employeeIdAddress').innerText=u.officeAddress||'-';
+            document.getElementById('employeeIdModal').style.display='block';
+        }
+        function closeEmployeeIdModal(){document.getElementById('employeeIdModal').style.display='none';}
+        function printEmployeeId(){const card=document.getElementById('employeeIdCard');const w=window.open('','_blank','width=700,height=800');w.document.write('<html><head><title>Employee ID</title><style>body{font-family:Arial;padding:30px} .card{border:2px solid #259b94;border-radius:20px;padding:30px;max-width:520px;margin:auto}img{width:90px;height:90px;border-radius:50%;object-fit:cover}</style></head><body><div class="card">'+card.innerHTML+'</div></body></html>');w.document.close();w.focus();w.print();}
+
         function openTaskExcelModal(){document.getElementById('taskExcelFile').value='';document.getElementById('taskExcelPreview').innerHTML='';document.getElementById('taskExcelModal').style.display='block';}
         function closeTaskExcelModal(){document.getElementById('taskExcelModal').style.display='none';}
         function downloadTaskExcelTemplate(){
             const rows=[{
-                'Employee Username':'employee1','Task Name':'Client Follow-up','Start Date':'2026-09-22','End Date':'2026-09-22','Priority':'Normal','Frequency':'One-time','Weightage':10,'Assigned By':'MasterAdmin','Category':'Calling','Work':'Member Follow-up','Work Weightage':100
+                'Employee ID':'EMP-0001','Task Name':'Client Follow-up','Start Date':'2026-09-22','End Date':'2026-09-22','Priority':'Normal','Frequency':'One-time','Weightage':10,'Assigned By':'MasterAdmin','Category':'Calling','Work':'Member Follow-up','Work Weightage':100
             }];
             const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Tasks');XLSX.writeFile(wb,'Task_Upload_Format.xlsx');
         }
         function uploadTaskExcelOnce(){
-            const f=document.getElementById('taskExcelFile').files[0];if(!f){alert('Excel file select karein.');return;}
-            const rd=new FileReader();rd.onload=function(ev){try{
-                const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''});
-                if(!arr.length){alert('Excel mein task data nahi hai.');return;}
+            const f=document.getElementById('taskExcelFile').files[0]; if(!f){alert('CSV ya Excel file select karein.');return;}
+            const isCsv=/\.csv$/i.test(f.name), rd=new FileReader();
+            rd.onload=function(ev){try{
+                const wb=isCsv?XLSX.read(ev.target.result,{type:'string'}):XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+                const ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''});
+                if(!arr.length){alert('File mein task data nahi hai.');return;}
                 const dateVal=v=>{if(v instanceof Date)return v.toISOString().split('T')[0];if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return String(v||'').trim();};
-                const rows=arr.map(r=>({employee:String(r['Employee Username']||r['Employee ID']||r['Employee']||r['Username']||'').trim(),taskName:String(r['Task Name']||r['Task']||'').trim(),startDate:dateVal(r['Start Date']||r['Start']),endDate:dateVal(r['End Date']||r['End']),priority:String(r['Priority']||'Normal').trim(),frequency:String(r['Frequency']||'One-time').trim(),weightage:Number(r['Weightage'])||10,assignedBy:String(r['Assigned By']||'').trim(),category:String(r['Category']||'').trim(),work:String(r['Work']||'').trim(),workWeightage:Number(r['Work Weightage'])||0}));
-                document.getElementById('taskExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} task row(s) ready for one-time import.</div>`;
+                const rows=arr.map(r=>({employeeId:String(r['Employee ID']||r['Employee ID ']||r['Employee Username']||r['Employee']||r['Username']||'').trim(),taskName:String(r['Task Name']||r['Task']||'').trim(),startDate:dateVal(r['Start Date']||r['Start']),endDate:dateVal(r['End Date']||r['End']),priority:String(r['Priority']||'Normal').trim(),frequency:String(r['Frequency']||'One-time').trim(),weightage:Number(r['Weightage'])||10,assignedBy:String(r['Assigned By']||'').trim(),category:String(r['Category']||'').trim(),work:String(r['Work']||'').trim(),workWeightage:Number(r['Work Weightage'])||0}));
+                document.getElementById('taskExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} task row(s) ready for one-time import. Multiple months are supported.</div>`;
                 const fd=new FormData();fd.append('action','bulkTaskUpload');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);const btn=document.getElementById('uploadTaskExcelBtn');btn.disabled=true;btn.innerText='Uploading & Assigning...';
-                fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Task import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('taskExcelFile').value='';closeTaskExcelModal();fetchDashboardDataSilently();}}).catch(()=>alert('Task Excel upload failed.')).finally(()=>{btn.disabled=false;btn.innerText='Upload & Assign Tasks';});
-            }catch(e){alert('Excel format read nahi ho saka: '+e.message);}};rd.readAsArrayBuffer(f);
+                fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Task import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('taskExcelFile').value='';closeTaskExcelModal();fetchDashboardDataSilently();}}).catch(e=>alert('Task CSV/Excel upload failed: '+e.message)).finally(()=>{btn.disabled=false;btn.innerText='Upload & Assign Tasks';});
+            }catch(e){alert('CSV/Excel format read nahi ho saka: '+e.message);}};
+            if(isCsv)rd.readAsText(f); else rd.readAsArrayBuffer(f);
         }
 
         function openAssignTaskModal() {
@@ -2678,7 +2671,21 @@
         function downloadAttendanceExcelTemplate(){const rows=[['Date','Employee ID','In Time','Out Time','Break Start','Break End','Leave/Weekoff','Reason','Approval Status'],['2026-09-21','EMP001','09:30:00 AM','06:30:00 PM','','','','Manual Entry','Approved']];const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Attendance');XLSX.writeFile(wb,'Attendance_One_Time_Upload_Format.xlsx');}
         function openAttendanceExcelModal(){document.getElementById('attendanceExcelFile').value='';document.getElementById('attendanceExcelPreview').innerHTML='';document.getElementById('attendanceExcelModal').style.display='block';}
         function closeAttendanceExcelModal(){document.getElementById('attendanceExcelModal').style.display='none';}
-        function uploadAttendanceExcelOnce(){const f=document.getElementById('attendanceExcelFile').files[0];if(!f){alert('Excel file select karein.');return;}const rd=new FileReader();rd.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''});if(!arr.length){alert('Excel mein data nahi hai.');return;}const excelDate=v=>{if(v instanceof Date)return v.toISOString().split('T')[0];if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return String(v||'').trim();}; const excelTime=v=>{if(v instanceof Date)return v.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(typeof v==='number'&&v>=0&&v<1){const total=Math.round(v*86400),h=Math.floor(total/3600)%24,m=Math.floor((total%3600)/60),sec=total%60,ap=h>=12?'PM':'AM',hh=h%12||12;return `${String(hh).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} ${ap}`;}return String(v||'').trim();}; const rows=arr.map(r=>({date:excelDate(r['Date']||r['date']),employee:r['Employee ID']||r['Employee']||r['Username']||r['username'],inTime:excelTime(r['In Time']||r['InTime']),outTime:excelTime(r['Out Time']||r['OutTime']),breakStart:excelTime(r['Break Start']),breakEnd:excelTime(r['Break End']),leave:r['Leave/Weekoff']||r['Leave']||'',reason:r['Reason']||'',status:r['Approval Status']||'Approved'}));document.getElementById('attendanceExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} row(s) ready for one-time import.</div>`;const fd=new FormData();fd.append('action','bulkAttendanceUpload');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('attendanceExcelFile').value='';closeAttendanceExcelModal();fetchDashboardDataSilently();}}).catch(()=>alert('Excel upload failed.'));}catch(e){alert('Excel format read nahi ho saka: '+e.message);}};rd.readAsArrayBuffer(f);}
+        function uploadAttendanceExcelOnce(){
+            const f=document.getElementById('attendanceExcelFile').files[0]; if(!f){alert('CSV ya Excel file select karein.');return;}
+            const isCsv=/\.csv$/i.test(f.name), rd=new FileReader();
+            rd.onload=function(ev){try{
+                const wb=isCsv?XLSX.read(ev.target.result,{type:'string'}):XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+                const ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''}); if(!arr.length){alert('File mein attendance data nahi hai.');return;}
+                const excelDate=v=>{if(v instanceof Date)return v.toISOString().split('T')[0];if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return String(v||'').trim();};
+                const excelTime=v=>{if(v instanceof Date)return v.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});if(typeof v==='number'&&v>=0&&v<1){const total=Math.round(v*86400),h=Math.floor(total/3600)%24,m=Math.floor((total%3600)/60),sec=total%60,ap=h>=12?'PM':'AM',hh=h%12||12;return `${String(hh).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} ${ap}`;}return String(v||'').trim();};
+                const rows=arr.map(r=>({date:excelDate(r['Date']||r['date']),employeeId:String(r['Employee ID']||r['Employee']||r['Username']||r['username']||'').trim(),inTime:excelTime(r['In Time']||r['InTime']),outTime:excelTime(r['Out Time']||r['OutTime']),breakStart:excelTime(r['Break Start']),breakEnd:excelTime(r['Break End']),leave:r['Leave/Weekoff']||r['Leave']||'',reason:r['Reason']||'',status:r['Approval Status']||'Approved'}));
+                document.getElementById('attendanceExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} row(s) ready for one-time import. Multiple months are supported.</div>`;
+                const fd=new FormData();fd.append('action','bulkAttendanceUpload');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('attendanceExcelFile').value='';closeAttendanceExcelModal();fetchDashboardDataSilently();}}).catch(e=>alert('Attendance CSV/Excel upload failed: '+e.message)); 
+            }catch(e){alert('CSV/Excel format read nahi ho saka: '+e.message);}};
+            if(isCsv)rd.readAsText(f); else rd.readAsArrayBuffer(f);
+        }
+
         function openAttendanceRequestsModal(){const box=document.getElementById('attendanceRequestsList'),reqs=globalAttendanceRequests||[];if(!box)return; if(!reqs.length){box.innerHTML='<div class="p-6 text-center text-gray-500">No attendance requests.</div>';}else box.innerHTML=reqs.map(r=>{const pending=String(r.status).toLowerCase()==='pending',manager=(document.getElementById('displayRole')?.innerText||'').toLowerCase().includes('admin')||(document.getElementById('displayRole')?.innerText||'').toLowerCase().includes('hod');return `<div class="border rounded-xl p-4 ${pending?'bg-[#fffbeb]':'bg-white'}"><div class="flex justify-between gap-2"><b>${r.employee}</b><span class="text-xs font-bold">${r.status}</span></div><div class="text-sm mt-2">Date: <b>${r.date}</b><br>Reason: ${r.reason||'-'}<br><span class="text-xs text-gray-500">Submitted: ${r.submittedAt||'-'}</span></div>${pending&&manager?`<div class="mt-3 flex gap-2"><button onclick="reviewAttendanceRequest(${r.rowIndex},'Approved')" class="bg-[#259b94] text-white px-4 py-2 rounded-lg text-xs font-bold">Approve & Add Attendance</button><button onclick="reviewAttendanceRequest(${r.rowIndex},'Rejected')" class="bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Reject</button></div>`:''}</div>`}).join('');document.getElementById('attendanceRequestsModal').style.display='block';}
         function closeAttendanceRequestsModal(){document.getElementById('attendanceRequestsModal').style.display='none';}
         function reviewAttendanceRequest(rowIndex,status){const fd=new FormData();fd.append('action','reviewAttendanceRequest');fd.append('rowIndex',rowIndex);fd.append('status',status);fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Updated');if(d.status==='success'){openAttendanceRequestsModal();fetchDashboardDataSilently();}}).catch(()=>alert('Request update failed.'));}
@@ -3312,36 +3319,6 @@
         function approveAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Approved').then(d=>{alert(d.message||'Approved');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
         function rejectAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Rejected').then(d=>{alert(d.message||'Rejected');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
 
-    
-        function openEmployeeIdModal(){
-            const name=window.currentUserName||document.getElementById('displayUser')?.innerText||'-';
-            const role=window.currentUserRole||document.getElementById('displayRole')?.innerText||'Employee';
-            const dept=window.currentUserDepartment||document.getElementById('displayDept')?.innerText||'-';
-            const username=window.currentUsername||'-';
-            const office=window.currentUserOfficeLocation||document.getElementById('displayOfficeLocation')?.innerText||'-';
-            const contact=window.currentUserContactNumber||'-';
-            const whatsapp=window.currentUserWhatsappNumber||'-';
-            const address=window.currentUserOfficeAddress||'-';
-            document.getElementById('employeeIdName').textContent=name;
-            document.getElementById('employeeIdRole').textContent=role||'Employee';
-            document.getElementById('employeeIdDepartment').textContent=dept||'-';
-            document.getElementById('employeeIdNumber').textContent=username||'-';
-            document.getElementById('employeeIdOffice').textContent=office||'-';
-            document.getElementById('employeeIdContact').textContent=contact||'-';
-            document.getElementById('employeeIdWhatsApp').textContent=whatsapp||'-';
-            document.getElementById('employeeIdAddress').textContent=address||'-';
-            const img=document.getElementById('employeeIdPhoto'),fb=document.getElementById('employeeIdPhotoFallback'),src=window.currentUserPhotoUrl||document.getElementById('displayUserPhoto')?.getAttribute('src')||'';
-            if(src){img.src=src;img.classList.remove('hidden');fb.classList.add('hidden');}else{img.removeAttribute('src');img.classList.add('hidden');fb.classList.remove('hidden');}
-            const m=document.getElementById('employeeIdModal');m.style.display='block';
-        }
-        function closeEmployeeIdModal(){const m=document.getElementById('employeeIdModal');if(m)m.style.display='none';}
-        function printEmployeeId(){
-            const modal=document.getElementById('employeeIdModal');if(!modal)return;
-            const card=modal.querySelector('.modal-content');
-            const name=document.getElementById('employeeIdName')?.innerText||'Employee';
-            const html='<!doctype html><html><head><meta charset="utf-8"><title>Employee ID - '+name.replace(/</g,'&lt;')+'</title><style>body{font-family:Arial,sans-serif;background:#eef5f5;padding:30px}.card{max-width:420px;margin:auto;background:#fff;border:1px solid #b2d8d8;border-radius:18px;padding:24px}.head{font-size:22px;font-weight:800;color:#112a2e;margin-bottom:18px}.photo{width:80px;height:80px;border-radius:12px;object-fit:cover;background:#259b94}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.item{border:1px solid #ddd;border-radius:8px;padding:10px}.label{font-size:10px;color:#888;text-transform:uppercase;font-weight:bold}.value{font-weight:bold;margin-top:4px}</style></head><body><div class="card"><div class="head">Employee ID</div>'+card.querySelector('.rounded-2xl')?.outerHTML.replace(/class="[^"]*"/g,'')+'</div><script>window.onload=function(){window.print();}</script></body></html>';
-            const w=window.open('','_blank','width=520,height=720');if(!w){alert('Please allow pop-ups for printing.');return;}w.document.write(html);w.document.close();
-        }
-</script>
+    </script>
 </body>
 </html>
