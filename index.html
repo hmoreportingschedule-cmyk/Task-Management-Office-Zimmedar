@@ -303,6 +303,15 @@
                     <button onclick="openUserManagementModal()" class="admin-only bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
                         <i class="fas fa-user-plus"></i> Manage Users
                     </button>
+                    <button onclick="openAuditLogModal()" class="admin-only bg-[#4c1d95] hover:bg-[#3b0764] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
+                        <i class="fas fa-history"></i> Audit Log
+                    </button>
+                    <button onclick="openDelayAnalyticsModal()" class="admin-only bg-[#9a3412] hover:bg-[#7c2d12] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
+                        <i class="fas fa-chart-column"></i> Delay Analytics
+                    </button>
+                    <button onclick="runManualBackup()" class="admin-only bg-[#475569] hover:bg-[#334155] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
+                        <i class="fas fa-database"></i> Backup Now
+                    </button>
                 </div>
             </div>
 
@@ -389,6 +398,11 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">What did you do? (Description):</label>
                     <textarea id="logDesc" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" rows="3" placeholder="Called 15 clients, updated sheet..."></textarea>
+                </div>
+                <div id="delayReasonWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-red-700 mb-1">Task Delay Reason <span class="text-red-600">*</span>:</label>
+                    <textarea id="delayReason" class="w-full border border-red-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none transition" rows="3" placeholder="Task delay kyun ho raha hai? Reason likhein..."></textarea>
+                    <p class="text-xs text-red-500 mt-1">Ye task closing date cross hone par required hoga.</p>
                 </div>
                 <label class="flex items-center gap-3 p-3 rounded-lg bg-orange-50 border border-orange-100 cursor-pointer">
                     <input type="checkbox" id="markTaskCompleted" class="w-4 h-4 accent-orange-500">
@@ -732,6 +746,26 @@
     </div>
 
     <!-- TASK REPORT MODAL -->
+
+    <!-- AUDIT LOG MODAL -->
+    <div id="auditLogModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
+            <span onclick="closeAuditLogModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            <div class="flex justify-between items-center gap-3 mb-5"><div><h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-history text-[#4c1d95]"></i> Audit Log</h2><p class="text-sm text-gray-500">Admin/HOD actions ka date & time ke saath record.</p></div><button onclick="loadAuditLog()" class="bg-[#4c1d95] text-white px-4 py-2 rounded-lg font-bold">Refresh</button></div>
+            <div class="overflow-x-auto border rounded-lg"><table class="w-full text-left whitespace-nowrap"><thead><tr class="bg-[#f5f3ff] text-xs uppercase font-bold text-[#4c1d95]"><th class="p-3">Date / Time</th><th class="p-3">User</th><th class="p-3">Role</th><th class="p-3">Action</th><th class="p-3">Target</th><th class="p-3">Details</th></tr></thead><tbody id="auditLogBody"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- TASK DELAY ANALYTICS MODAL -->
+    <div id="delayAnalyticsModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
+            <span onclick="closeDelayAnalyticsModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            <div class="flex justify-between items-center gap-3 mb-5"><div><h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-chart-column text-[#9a3412]"></i> Task Delay Analytics</h2><p class="text-sm text-gray-500">Delay count aur common delay reasons.</p></div><button onclick="loadDelayAnalytics()" class="bg-[#9a3412] text-white px-4 py-2 rounded-lg font-bold">Refresh</button></div>
+            <div class="grid grid-cols-2 gap-3 mb-5"><div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL DELAY LOGS</div><div id="delayTotal" class="text-2xl font-extrabold text-red-600">0</div></div><div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TASKS WITH DELAY</div><div id="delayTaskCount" class="text-2xl font-extrabold text-[#9a3412]">0</div></div></div>
+            <div class="overflow-x-auto border rounded-lg"><table class="w-full text-left whitespace-nowrap"><thead><tr class="bg-[#fff7ed] text-xs uppercase font-bold text-[#9a3412]"><th class="p-3">Task</th><th class="p-3">Delay Count</th><th class="p-3">Work Minutes</th><th class="p-3">Common Reason</th></tr></thead><tbody id="delayAnalyticsBody"></tbody></table></div>
+        </div>
+    </div>
+
     <div id="taskReportModal" class="modal">
         <div class="modal-content relative bg-white border border-gray-300 shadow-2xl">
             <span onclick="closeTaskReportModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
@@ -1255,7 +1289,7 @@
                 globalTeamMembers=Array.isArray(data.teamMembers)?data.teamMembers:[];
                 globalTeamMemberMeta=Array.isArray(data.teamMemberMeta)?data.teamMemberMeta:[];
                 globalMonthlyFullAttendance=Array.isArray(data.monthlyFullAttendance)?data.monthlyFullAttendance:[];
-                globalWorkLogs=Array.isArray(data.workLogs)?data.workLogs:[];
+                globalWorkLogs=Array.isArray(data.workLogs)?data.workLogs:[]; window.globalDelayReports=Array.isArray(data.delayReports)?data.delayReports:[];
                 globalTeamAttendance=Array.isArray(data.teamAttendance)?data.teamAttendance:[];
                 globalAdvanceScheduleRequests=Array.isArray(data.advanceScheduleRequests)?data.advanceScheduleRequests:[];
                 globalAttendanceRequests=Array.isArray(data.attendanceRequests)?data.attendanceRequests:[];
@@ -1312,7 +1346,7 @@
                 globalTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : [];
                 globalTeamMemberMeta = Array.isArray(data.teamMemberMeta) ? data.teamMemberMeta : [];
                 globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
-                globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : [];
+                globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : []; window.globalDelayReports=Array.isArray(data.delayReports)?data.delayReports:[];
                 attendanceEntryStart = data.todayAttendanceEntryStart || attendanceEntryStart;
                 attendanceEntryEnd = data.todayAttendanceEntryEnd || attendanceEntryEnd;
                 setDateConstraints();
@@ -1951,11 +1985,13 @@
         }
 
         // ================= EMP LOG DAILY WORK =================
-        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; updateCompletionCheckboxState(); }
+        function openLogWorkModal() { document.getElementById('logWorkModal').style.display = 'block'; if(document.getElementById('delayReason'))document.getElementById('delayReason').value=''; updateCompletionCheckboxState(); }
         function updateCompletionCheckboxState(){
-            const sel=document.getElementById('logTaskSelect'),cb=document.getElementById('markTaskCompleted'); if(!sel||!cb)return;
-            const task=(globalAllTasks||[]).find(t=>String(t.rowIndex)===String(sel.value)); if(!task){cb.disabled=true;cb.checked=false;return;}
-            const due=parseReportDate(task.endDate),today=new Date();today.setHours(0,0,0,0);const can=!!due&&today.getTime()>=due.getTime();cb.disabled=!can;cb.title=can?'Completion can be marked today.':'Completion can be marked only on the closing date. Add request/details in the description for early completion.';if(!can)cb.checked=false;
+            const sel=document.getElementById('logTaskSelect'),cb=document.getElementById('markTaskCompleted'),wrap=document.getElementById('delayReasonWrap'),reason=document.getElementById('delayReason'); if(!sel||!cb)return;
+            const task=(globalAllTasks||[]).find(t=>String(t.rowIndex)===String(sel.value)); if(!task){cb.disabled=true;cb.checked=false;if(wrap)wrap.classList.add('hidden');if(reason)reason.value='';return;}
+            const due=parseReportDate(task.endDate),today=new Date();today.setHours(0,0,0,0);const can=!!due&&today.getTime()>=due.getTime();cb.disabled=!can;cb.title=can?'Completion can be marked today.':'Completion can be marked only on its closing date. Add request/details in the description for early completion.';if(!can)cb.checked=false;
+            const isDelayed=!!due&&today.getTime()>due.getTime()&&String(task.empStatus||'').toLowerCase()!=='completed';
+            if(wrap)wrap.classList.toggle('hidden',!isDelayed); if(!isDelayed&&reason)reason.value='';
         }
         function closeLogWorkModal() { document.getElementById('logWorkModal').style.display = 'none'; }
         
@@ -1979,6 +2015,7 @@
             formData.append('taskName', tName);
             formData.append('timeSpent', mins);
             formData.append('description', desc);
+            formData.append('delayReason', document.getElementById('delayReason')?.value.trim() || '');
             formData.append('markCompleted', document.getElementById('markTaskCompleted').checked ? 'true' : 'false');
             formData.append('sessionToken', sessionToken);
 
@@ -1991,6 +2028,8 @@
                     document.getElementById('saveLogBtn').disabled = false;
                     document.getElementById('logTimeMins').value = '';
                     document.getElementById('logDesc').value = '';
+                    if(document.getElementById('delayReason')) document.getElementById('delayReason').value = '';
+                    if(document.getElementById('delayReasonWrap')) document.getElementById('delayReasonWrap').classList.add('hidden');
                     document.getElementById('markTaskCompleted').checked = false;
                     closeLogWorkModal();
                     fetchDashboardDataSilently();
@@ -2362,7 +2401,7 @@
             const dept = document.getElementById('displayDept').innerText || '-';
             const line = '━━━━━━━━━━━━━━━━━━━━';
 
-            let text = `📊 ZIMMEDAR OFFICE REPORT\n${line}\n\n`;
+            let text = `📊 OFFICE ZIMMEDAR TASK REPORT\n${line}\n\n`;
             text += `👤 Employee: ${user}\n`;
             text += `🏢 Dept: ${dept}\n`;
 
@@ -2444,7 +2483,7 @@
                         text += `   • Status: ${status}\n`;
                         text += `   • Priority: ${t.priority || 'Normal'}\n`;
                         text += `   • Time Today: ${formatMinsForReport(minsToday)}\n`;
-                        text += `   • Deadline: ${info.label}\n\n`;
+                        text += `   • Deadline: ${info.label}\n`; const delayLog=(logs||[]).find(w=>String(w.Task||'').trim().toLowerCase()===nameKey&&String(w.DelayReason||'').trim()); if(delayLog&&delayLog.DelayReason) text += `   • Delay Reason: ${delayLog.DelayReason}\n`; text += `\n`;
                     });
                 } else {
                     text += `No task assigned for this date.\n\n`;
@@ -2514,7 +2553,7 @@
                     text += `   • Status: ${String(t.empStatus || '').toLowerCase() === 'completed' ? '✅ Completed' : '⏳ Pending'}\n`;
                     text += `   • Priority: ${t.priority || 'Normal'}\n`;
                     text += `   • Time: ${formatMinsForReport(Number(t.timeSpent) || 0)}\n`;
-                    text += `   • Deadline: ${info.label}\n\n`;
+                    text += `   • Deadline: ${info.label}\n`; const delayLog=(logs||[]).find(w=>String(w.Task||'').trim().toLowerCase()===nameKey&&String(w.DelayReason||'').trim()); if(delayLog&&delayLog.DelayReason) text += `   • Delay Reason: ${delayLog.DelayReason}\n`; text += `\n`;
                 });
 
                 const logs = (globalWorkLogs || []).filter(w => {
@@ -2540,7 +2579,7 @@
                 text += `⏱️ Total Office Work: ${formatMinsForReport(total)}\n`;
             }
 
-            text += `\n${line}\n🕒 Generated: ${new Date().toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
+            text += `\n${line}\n🕒 Generated Msg : ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',hour12:true}).replace(/\//g,':')}`;
             const preview = document.getElementById('whatsappReportPreview');
             if (preview) preview.value = text;
         }
@@ -2606,11 +2645,11 @@
         function markAllNotificationsRead(){const items=notificationItems();setReadNotificationIds(items.map(notificationId));renderNotifications();}
         function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
         function notificationItems(){
-            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[],attReqs=globalAttendanceRequests||[];
+            const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[],attReqs=globalAttendanceRequests||[],delayReports=window.globalDelayReports||[];
             if(role.includes('hod')||role.includes('admin')){
                 tasks.forEach(t=>{if(String(t.hodStatus||'').toLowerCase()==='pending'&&['completed','completion requested'].includes(String(t.empStatus||'').toLowerCase()))items.push({type:'task',key:t.taskId||t.rowIndex,title:'Task approval required',text:`${t.taskName||'Task'} — ${t.assignedTo||''}`,action:'task',date:t.completedAt||t.endDate||t.startDate});});
                 atts.forEach(a=>{if(String(a.status||'').toLowerCase()==='pending')items.push({type:'attendance',key:a.rowIndex||a.date,title:'Attendance approval required',text:`${a.user||''} — ${a.date||''}`,action:'attendance',date:a.date});});
-                (globalWorkLogs||[]).slice(-20).forEach(w=>items.push({type:'work',key:w.rowIndex||w.Task||w.WorkDate,title:'Employee work updated',text:`${w.Employee||''} — ${w.Task||''} — ${w.TimeSpentMins||0} min`,action:'task',date:w.WorkDate||w.Timestamp||''}));
+                (globalWorkLogs||[]).slice(-20).forEach(w=>items.push({type:'work',key:w.rowIndex||w.Task||w.WorkDate,title:'Employee work updated',text:`${w.Employee||''} — ${w.Task||''} — ${w.TimeSpentMins||0} min`,action:'task',date:w.WorkDate||w.Timestamp||''})); delayReports.slice(-20).forEach((r,i)=>items.push({type:'delay',key:(r.employee||'')+'|'+(r.task||'')+'|'+(r.date||'')+'|'+i,title:'Task Delay Report',text:`${r.employee||''} — ${r.task||''}: ${r.reason||''}`,action:'task',date:r.date||''}));
                 sched.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({type:'schedule',key:r.requestId||r.rowIndex,title:'Advance Schedule Request',text:`${r.employee||''} — ${r.requestType||''} — ${r.requestDate||''}`,action:'schedule',date:r.submittedAt||r.requestDate});});
                 attReqs.forEach(r=>{if(String(r.status||'').toLowerCase()==='pending')items.push({type:'attendance-request',key:r.requestId||r.rowIndex,title:'Attendance Entry Request',text:`${r.employee||''} — ${r.date||''} — ${r.reason||''}`,action:'attendance-request',date:r.submittedAt||r.date});});
             }else{
@@ -2638,6 +2677,15 @@
         setInterval(()=>{try{if(typeof renderNotifications==='function')renderNotifications();}catch(e){}},60000);
 
         // ================= TASK REPORT =================
+
+        function openAuditLogModal(){document.getElementById('auditLogModal').style.display='block';loadAuditLog();}
+        function closeAuditLogModal(){document.getElementById('auditLogModal').style.display='none';}
+        function loadAuditLog(){const fd=new FormData();fd.append('action','getAuditLog');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status!=='success'){alert(d.message||'Audit Log load failed.');return;}const b=document.getElementById('auditLogBody');b.innerHTML=(d.records||[]).map(x=>`<tr class="border-t"><td class="p-3 text-xs">${x.timestamp||''}</td><td class="p-3 font-bold">${x.actor||''}</td><td class="p-3">${x.role||''}</td><td class="p-3 font-semibold">${x.action||''}</td><td class="p-3">${x.target||''}</td><td class="p-3 text-sm text-gray-600">${x.details||''}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-gray-500">No audit records.</td></tr>';}).catch(()=>alert('Audit Log load failed.'));}
+        function openDelayAnalyticsModal(){document.getElementById('delayAnalyticsModal').style.display='block';loadDelayAnalytics();}
+        function closeDelayAnalyticsModal(){document.getElementById('delayAnalyticsModal').style.display='none';}
+        function loadDelayAnalytics(){const fd=new FormData();fd.append('action','getTaskDelayAnalytics');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status!=='success'){alert(d.message||'Delay Analytics load failed.');return;}document.getElementById('delayTotal').innerText=d.totalDelayedLogs||0;document.getElementById('delayTaskCount').innerText=(d.rows||[]).length;document.getElementById('delayAnalyticsBody').innerHTML=(d.rows||[]).map(x=>`<tr class="border-t"><td class="p-3 font-bold">${x.task||''}</td><td class="p-3 text-red-600 font-bold">${x.count||0}</td><td class="p-3">${x.minutes||0}</td><td class="p-3 text-sm text-gray-600">${x.topReason||'-'}</td></tr>`).join('')||'<tr><td colspan="4" class="p-6 text-center text-gray-500">No delayed task records.</td></tr>';}).catch(()=>alert('Delay Analytics load failed.'));}
+        function runManualBackup(){if(!confirm('Master Sheet ka backup abhi create karein?'))return;const fd=new FormData();fd.append('action','runBackupNow');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>alert(d.message||'Backup complete.')).catch(()=>alert('Backup failed.'));}
+
         function openTaskReportModal() {
             document.getElementById('taskReportModal').style.display = 'block';
             const n=new Date(); document.getElementById('taskReportDate').valueAsDate=n; document.getElementById('taskReportMonth').value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; document.getElementById('taskReportYear').value=n.getFullYear();
