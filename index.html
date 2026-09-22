@@ -1665,8 +1665,8 @@
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if(data.status === 'error') alert(data.message || 'Update rejected.');
-                fetchDashboardDataSilently();
+                if(data.status === 'error') { alert(data.message || 'Update rejected.'); return; }
+                setTimeout(fetchDashboardDataSilently, 250);
             })
             .catch(() => alert('Update failed. Please try again.'));
         }
@@ -1681,8 +1681,8 @@
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if(data.status === 'error') alert(data.message || 'Attendance update rejected.');
-                fetchDashboardDataSilently();
+                if(data.status === 'error') { alert(data.message || 'Attendance update rejected.'); return; }
+                setTimeout(fetchDashboardDataSilently, 250);
             })
             .catch(() => alert('Attendance update failed.'));
         }
@@ -1976,7 +1976,7 @@
                 document.getElementById('saveTaskBtn').innerText = "Assign Task";
                 if(data.status === 'success') {
                     closeAssignTaskModal();
-                    fetchDashboardDataSilently();
+                    setTimeout(fetchDashboardDataSilently, 250);
                 }
             }).catch(e => {
                 alert("Task assignment failed. Please try again.");
@@ -2271,8 +2271,14 @@
         function openWhatsAppReportModal() {
             document.getElementById('whatsappReportModal').style.display = 'block';
             const now = new Date();
-            document.getElementById('whatsappReportDate').value = now.toISOString().split('T')[0];
-            document.getElementById('whatsappReportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const todayKey = now.toISOString().split('T')[0];
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const dailyInput = document.getElementById('whatsappReportDate');
+            const monthInput = document.getElementById('whatsappReportMonth');
+            dailyInput.max = todayKey;
+            monthInput.max = monthKey;
+            dailyInput.value = todayKey;
+            monthInput.value = monthKey;
             const role = document.getElementById('displayRole').innerText;
             const isManager = role.indexOf('hod') > -1 || role.indexOf('admin') > -1;
             const empBox = document.getElementById('whatsappEmployeeBox');
@@ -2407,6 +2413,8 @@
 
             if (type === 'daily') {
                 const raw = document.getElementById('whatsappReportDate').value;
+                const todayKey = new Date().toISOString().split('T')[0];
+                if(raw && raw > todayKey){ alert('Aaj ki date ke baad WhatsApp report generate nahi ho sakti.'); document.getElementById('whatsappReportDate').value=todayKey; return; }
                 const p = raw ? raw.split('-') : [];
                 const dateKey = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '-';
                 const dailyGrade = getWhatsAppDailyGrade(user, dateKey);
@@ -2507,6 +2515,9 @@
                 text += `⏱️ Total Office Work: ${formatMinsForReport(totalMinutes)}\n`;
             } else {
                 const raw = document.getElementById('whatsappReportMonth').value;
+                const nowMonth = new Date();
+                const currentMonthKey = `${nowMonth.getFullYear()}-${String(nowMonth.getMonth()+1).padStart(2,'0')}`;
+                if(raw && raw > currentMonthKey){ alert('Current month ke baad WhatsApp report generate nahi ho sakti.'); document.getElementById('whatsappReportMonth').value=currentMonthKey; return; }
                 const p = raw ? raw.split('-') : [];
                 const key = p.length === 2 ? `${p[1]}-${p[0]}` : '';
                 const monthlyGrade = getWhatsAppMonthlyGrade(user);
@@ -2590,6 +2601,10 @@
         });
 
         async function shareWhatsAppReport() {
+            const type = document.getElementById('whatsappReportType').value;
+            const todayKey = new Date().toISOString().split('T')[0];
+            if(type === 'daily' && document.getElementById('whatsappReportDate').value > todayKey){ alert('Future date ki WhatsApp report allowed nahi hai.'); return; }
+            if(type === 'monthly'){ const v=document.getElementById('whatsappReportMonth').value; const n=new Date(); const mk=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; if(v>mk){ alert('Future month ki WhatsApp report allowed nahi hai.'); return; } }
             const text = document.getElementById('whatsappReportPreview').value || '';
             try {
                 if (navigator.clipboard && window.isSecureContext) {
@@ -3244,8 +3259,8 @@
             const fd=new FormData();fd.append('action','updateAdvanceScheduleRequest');fd.append('rowIndex',rowIndex);fd.append('status',status);fd.append('sessionToken',sessionToken);
             return fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json());
         }
-        function approveAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Approved').then(d=>{alert(d.message||'Approved');if(d.status==='success'){closeAdvanceScheduleApprovalModal();fetchDashboardDataSilently();}}).catch(()=>alert('Update failed.'));}
-        function rejectAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Rejected').then(d=>{alert(d.message||'Rejected');if(d.status==='success'){closeAdvanceScheduleApprovalModal();fetchDashboardDataSilently();}}).catch(()=>alert('Update failed.'));}
+        function approveAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Approved').then(d=>{alert(d.message||'Approved');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
+        function rejectAdvanceSchedule(rowIndex){updateAdvanceScheduleRequest(rowIndex,'Rejected').then(d=>{alert(d.message||'Rejected');if(d.status==='success'){closeAdvanceScheduleApprovalModal();setTimeout(fetchDashboardDataSilently,250);}}).catch(()=>alert('Update failed.'));}
 
     </script>
 </body>
