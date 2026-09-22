@@ -151,9 +151,6 @@
                 <button onclick="openLogWorkModal()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-edit"></i> Log Daily Work
                 </button>
-                <button onclick="openAttendanceRequestModal()" class="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
-                    <i class="fas fa-clock-rotate-left"></i> Attendance Missed Request
-                </button>
                 <button onclick="openAdvanceScheduleModal()" class="w-full bg-[#2a4d53] hover:bg-[#112a2e] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-calendar-plus"></i> Advance Schedule Request
                 </button>
@@ -973,12 +970,12 @@
         }
         setInterval(updateLiveTime, 1000); updateLiveTime();
 
-        // 30 SECONDS AUTO SYNC
+        // 60 SECONDS AUTO SYNC — reduces unnecessary Apps Script calls while keeping data fresh.
         setInterval(() => {
             if(document.getElementById('dashboard-section').style.display === 'flex') {
                 fetchDashboardDataSilently();
             }
-        }, 30000);
+        }, 60000);
 
         function toggleInputs() {
             const action = document.getElementById('attendanceAction').value;
@@ -1243,9 +1240,37 @@
             fetchDataAPI(username, role, dept, true, 0);
         }
 
+        // Fast dashboard cache: show the last successful dashboard immediately, then sync in background.
+        function dashboardCacheKey(username){ return 'office_task_dashboard_cache_v2_' + String(username||'').trim().toLowerCase(); }
+        function restoreDashboardCache(username){
+            try{
+                const raw=localStorage.getItem(dashboardCacheKey(username));
+                if(!raw) return false;
+                const data=JSON.parse(raw);
+                if(!data || data.status!=='success') return false;
+                globalAllTasks=Array.isArray(data.tasks)?data.tasks:[];
+                globalTeamMembers=Array.isArray(data.teamMembers)?data.teamMembers:[];
+                globalTeamMemberMeta=Array.isArray(data.teamMemberMeta)?data.teamMemberMeta:[];
+                globalMonthlyFullAttendance=Array.isArray(data.monthlyFullAttendance)?data.monthlyFullAttendance:[];
+                globalWorkLogs=Array.isArray(data.workLogs)?data.workLogs:[];
+                globalTeamAttendance=Array.isArray(data.teamAttendance)?data.teamAttendance:[];
+                globalAdvanceScheduleRequests=Array.isArray(data.advanceScheduleRequests)?data.advanceScheduleRequests:[];
+                globalAttendanceRequests=Array.isArray(data.attendanceRequests)?data.attendanceRequests:[];
+                attendanceEntryStart=data.todayAttendanceEntryStart||attendanceEntryStart;
+                attendanceEntryEnd=data.todayAttendanceEntryEnd||attendanceEntryEnd;
+                setDateConstraints();
+                const roleNow=String(document.getElementById('displayRole')?.innerText||role||'').toLowerCase();
+                if(roleNow.indexOf('hod')>-1 || roleNow.indexOf('admin')>-1){ populateTeamDropdowns(globalTeamMembers); renderTeamAttendance(globalTeamAttendance); }
+                else { calculateTimeTracker(data.todayAttendance); populateLogTaskDropdown(globalAllTasks); }
+                filterTasksByEmp();
+                return true;
+            }catch(e){ return false; }
+        }
+
         // Dashboard sync: never leave the table stuck on "Loading".
-        // A slow/failed Apps Script response is retried once and then shown to the user.
+        // Cached data is rendered first for instant display; Apps Script refreshes it in the background.
         function fetchDataAPI(username, role, dept, silent = false, retryCount = 0) {
+            if(retryCount===0) restoreDashboardCache(username);
             if(dashboardSyncInProgress) return;
             if(!sessionToken) {
                 dashboardSyncInProgress = false;
@@ -1291,6 +1316,12 @@
                 globalTeamAttendance = Array.isArray(data.teamAttendance) ? data.teamAttendance : [];
                 globalAdvanceScheduleRequests = Array.isArray(data.advanceScheduleRequests) ? data.advanceScheduleRequests : [];
                 globalAttendanceRequests = Array.isArray(data.attendanceRequests) ? data.attendanceRequests : [];
+
+                // Keep the latest successful result locally so the next page/login opens instantly.
+                try {
+                    const cachePayload = Object.assign({}, data, {status:'success', cachedAt:Date.now()});
+                    localStorage.setItem(dashboardCacheKey(username), JSON.stringify(cachePayload));
+                } catch(cacheErr) {}
 
                 if (role.indexOf('hod') > -1 || role.indexOf('admin') > -1) {
                     populateTeamDropdowns(globalTeamMembers);
