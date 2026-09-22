@@ -300,6 +300,9 @@
                     <button onclick="openAssignTaskModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-6 py-3 rounded-xl shadow-md font-bold flex items-center gap-2 transition">
                         <i class="fas fa-plus-circle"></i> Assign New Task
                     </button>
+                    <button onclick="openTaskExcelModal()" class="admin-only bg-[#166534] hover:bg-[#14532d] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
+                        <i class="fas fa-file-excel"></i> Task Excel Upload
+                    </button>
                     <button onclick="openUserManagementModal()" class="admin-only bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
                         <i class="fas fa-user-plus"></i> Manage Users
                     </button>
@@ -461,6 +464,24 @@
                 </div>
                 <button id="saveTaskBtn" onclick="submitNewTask()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-2 transition shadow-lg">Assign Task</button>
             </div>
+        </div>
+    </div>
+
+    <!-- ADMIN ONE-TIME TASK EXCEL UPLOAD MODAL -->
+    <div id="taskExcelModal" class="modal">
+        <div class="modal-content relative max-w-3xl shadow-2xl">
+            <span onclick="closeTaskExcelModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 cursor-pointer text-2xl transition">&times;</span>
+            <h3 class="text-2xl font-bold text-[#112a2e] mb-1"><i class="fas fa-file-excel text-[#166534]"></i> One-Time Task Excel Upload</h3>
+            <p class="text-sm text-gray-500 mb-5">Admin ek Excel file se multiple employees ko one-time tasks assign kar sakta hai. Import ke baad file browser se clear ho jayegi; server par Excel file save nahi hoti.</p>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-4 text-sm text-green-900">
+                <b>Excel Format:</b> Employee Username, Task Name, Start Date, End Date, Priority, Frequency, Weightage, Assigned By, Category, Work, Work Weightage
+            </div>
+            <div class="flex flex-wrap gap-3 mb-4">
+                <button type="button" onclick="downloadTaskExcelTemplate()" class="bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-4 py-2 rounded-lg text-sm font-bold"><i class="fas fa-download"></i> Download Excel Format</button>
+                <label class="bg-[#166534] hover:bg-[#14532d] text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer"><i class="fas fa-upload"></i> Select Excel File<input type="file" id="taskExcelFile" accept=".xlsx,.xls" class="hidden"></label>
+            </div>
+            <div id="taskExcelPreview" class="mb-4"></div>
+            <button id="uploadTaskExcelBtn" onclick="uploadTaskExcelOnce()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg shadow-lg">Upload & Assign Tasks</button>
         </div>
     </div>
 
@@ -1794,6 +1815,27 @@
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
                 if(data.status==='success'){alert('User created successfully.'); document.getElementById('adminNewUsername').value=''; document.getElementById('adminNewLogin').value=''; document.getElementById('adminNewPassword').value=''; document.getElementById('adminNewDepartment').value=''; document.getElementById('adminNewHod').value=''; document.getElementById('adminNewPhotoUrl').value=''; document.getElementById('adminNewPhotoFile').value=''; loadAdminUsers();} else alert(data.message||'User creation failed.');
             }).catch(()=>alert('User creation failed.')).finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create User';});
+        }
+
+        function openTaskExcelModal(){document.getElementById('taskExcelFile').value='';document.getElementById('taskExcelPreview').innerHTML='';document.getElementById('taskExcelModal').style.display='block';}
+        function closeTaskExcelModal(){document.getElementById('taskExcelModal').style.display='none';}
+        function downloadTaskExcelTemplate(){
+            const rows=[{
+                'Employee Username':'employee1','Task Name':'Client Follow-up','Start Date':'2026-09-22','End Date':'2026-09-22','Priority':'Normal','Frequency':'One-time','Weightage':10,'Assigned By':'MasterAdmin','Category':'Calling','Work':'Member Follow-up','Work Weightage':100
+            }];
+            const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Tasks');XLSX.writeFile(wb,'Task_Upload_Format.xlsx');
+        }
+        function uploadTaskExcelOnce(){
+            const f=document.getElementById('taskExcelFile').files[0];if(!f){alert('Excel file select karein.');return;}
+            const rd=new FileReader();rd.onload=function(ev){try{
+                const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],arr=XLSX.utils.sheet_to_json(ws,{defval:''});
+                if(!arr.length){alert('Excel mein task data nahi hai.');return;}
+                const dateVal=v=>{if(v instanceof Date)return v.toISOString().split('T')[0];if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return String(v||'').trim();};
+                const rows=arr.map(r=>({employee:String(r['Employee Username']||r['Employee ID']||r['Employee']||r['Username']||'').trim(),taskName:String(r['Task Name']||r['Task']||'').trim(),startDate:dateVal(r['Start Date']||r['Start']),endDate:dateVal(r['End Date']||r['End']),priority:String(r['Priority']||'Normal').trim(),frequency:String(r['Frequency']||'One-time').trim(),weightage:Number(r['Weightage'])||10,assignedBy:String(r['Assigned By']||'').trim(),category:String(r['Category']||'').trim(),work:String(r['Work']||'').trim(),workWeightage:Number(r['Work Weightage'])||0}));
+                document.getElementById('taskExcelPreview').innerHTML=`<div class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold">${rows.length} task row(s) ready for one-time import.</div>`;
+                const fd=new FormData();fd.append('action','bulkTaskUpload');fd.append('rowsJson',JSON.stringify(rows));fd.append('sessionToken',sessionToken);const btn=document.getElementById('uploadTaskExcelBtn');btn.disabled=true;btn.innerText='Uploading & Assigning...';
+                fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Task import completed');if(d.failed&&d.failed.length)alert(d.failed.join('\n'));if(d.status==='success'){document.getElementById('taskExcelFile').value='';closeTaskExcelModal();fetchDashboardDataSilently();}}).catch(()=>alert('Task Excel upload failed.')).finally(()=>{btn.disabled=false;btn.innerText='Upload & Assign Tasks';});
+            }catch(e){alert('Excel format read nahi ho saka: '+e.message);}};rd.readAsArrayBuffer(f);
         }
 
         function openAssignTaskModal() {
