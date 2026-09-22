@@ -577,7 +577,7 @@
             <p class="text-sm text-gray-500 mb-5">Jo urgent meeting/task pehle se plan nahi tha, uski request yahan HOD/Admin ko bhejein.</p>
             <div class="space-y-4">
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Task / Meeting:</label><input id="emergencyTaskName" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Emergency task name" required></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Date:</label><input type="date" id="emergencyTaskDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
+                <div class="grid grid-cols-2 gap-3"><div><label class="block text-sm font-semibold text-gray-700 mb-1">From Date:</label><input type="date" id="emergencyTaskDate" class="w-full border border-gray-300 p-3 rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">To Date:</label><input type="date" id="emergencyTaskEndDate" class="w-full border border-gray-300 p-3 rounded-lg"></div></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Location:</label><input id="emergencyTaskLocation" class="w-full border border-gray-300 p-3 rounded-lg" placeholder="Office / Meeting location"></div>
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1">Details:</label><textarea id="emergencyTaskDetails" class="w-full border border-gray-300 p-3 rounded-lg" rows="4" placeholder="Urgent task details..."></textarea></div>
                 <button onclick="submitEmergencyTaskRequest()" id="emergencyTaskBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg">Send Request</button>
@@ -593,8 +593,9 @@
             <p class="text-sm text-gray-500 mb-2">Next month ka Advance Schedule running month ki 1 se 15 tareekh tak add karein.</p>
             <div id="advanceScheduleWindowInfo" class="mb-4 rounded-lg bg-[#e6fcf5] border border-[#b2d8d8] px-3 py-2 text-sm font-semibold text-[#1f827c]"></div>
             <div class="space-y-4">
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Next Month Schedule Date:</label><input type="date" id="advanceScheduleDate" class="w-full border border-gray-300 p-3 rounded-lg" required></div>
-                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" onchange="toggleAdvanceScheduleFields()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Leave">Leave</option><option value="Weekoff Adjustment">Weekoff Adjustment</option><option value="Meeting">Meeting</option><option value="Meeting Journey">Meeting Journey</option></select></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Schedule From Date:</label><input type="date" id="advanceScheduleDate" class="w-full border border-gray-300 p-3 rounded-lg" required></div>
+                <div id="advanceScheduleEndDateBox" class="hidden"><label class="block text-sm font-semibold text-gray-700 mb-1">Schedule To Date:</label><input type="date" id="advanceScheduleEndDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Request Type:</label><select id="advanceScheduleType" onchange="toggleAdvanceScheduleFields()" class="w-full border border-gray-300 p-3 rounded-lg"><option value="Leave">Leave</option><option value="Weekoff Adjustment">Weekoff Adjustment</option><option value="Meeting">Meeting</option><option value="Meeting Journey">Meeting Journey</option><option value="3 Din Qafila">3 Din Qafila</option><option value="Tarbiyati Ijtima">Tarbiyati Ijtima</option></select></div>
                 <div id="weekoffAdjustmentBox" class="hidden">
                     <div class="mb-2 text-xs font-semibold text-[#1f827c]">Upar selected Schedule Date aapke configured Weekoff (jaise Sunday) par honi chahiye. Us Weekoff ko kis date par adjust karna hai woh date select karein.</div>
                     <div><label class="block text-xs font-semibold text-gray-600 mb-1">New Weekoff Date:</label><input type="date" id="newWeekoffDate" class="w-full border border-gray-300 p-3 rounded-lg"></div>
@@ -3098,7 +3099,7 @@
             const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             document.getElementById('advanceScheduleDate').min=fmt(minMonth); document.getElementById('advanceScheduleDate').max=fmt(maxMonth); document.getElementById('advanceScheduleDate').value='';
             document.getElementById('advanceScheduleType').value='Leave'; document.getElementById('advanceScheduleReason').value=''; document.getElementById('advanceScheduleLocation').value=''; document.getElementById('meetingMode').value='Online';
-            ['meetingFrom','meetingTo','journeyStart','journeyComplete','newWeekoffDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+            ['meetingFrom','meetingTo','journeyStart','journeyComplete','newWeekoffDate','advanceScheduleEndDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
             const info=document.getElementById('advanceScheduleWindowInfo'); if(info) info.innerText=day<=15 ? `Advance Schedule: next month se future 2+ months tak dates select karein. ${15-day} din baaqi.` : `15 tareekh cross ho chuki hai. Next month band hai; uske baad ke future months select karein.`;
             toggleAdvanceScheduleFields(); document.getElementById('advanceScheduleModal').style.display='block';
         }
@@ -3112,6 +3113,11 @@
         }
         function toggleAdvanceScheduleFields(){
             const type=document.getElementById('advanceScheduleType').value;
+            const rangeBox=document.getElementById('advanceScheduleEndDateBox');
+            const isRange=['3 Din Qafila','Tarbiyati Ijtima'].includes(type);
+            if(rangeBox) rangeBox.classList.toggle('hidden',!isRange);
+            const start=document.getElementById('advanceScheduleDate'), end=document.getElementById('advanceScheduleEndDate');
+            if(start&&end){ end.min=start.value||start.min||''; end.max=start.max||''; if(!isRange) end.value=''; }
             document.getElementById('meetingModeBox').classList.toggle('hidden',type!=='Meeting');
             document.getElementById('journeyTimeBox').classList.toggle('hidden',type!=='Meeting Journey');
             const wob=document.getElementById('weekoffAdjustmentBox');
@@ -3126,6 +3132,7 @@
         }
         document.addEventListener('change',function(ev){
             if(ev.target && ev.target.id==='advanceScheduleDate'){
+                const end=document.getElementById('advanceScheduleEndDate'); if(end){ end.min=ev.target.value||ev.target.min||''; end.max=ev.target.max||''; if(end.value && ev.target.value && end.value<ev.target.value) end.value=ev.target.value; }
                 if(document.getElementById('advanceScheduleType')?.value==='Weekoff Adjustment'){
                     if(!isConfiguredWeekoffDate(ev.target.value)){
                         alert('Weekoff Adjustment sirf aapke configured Weekoff date par select kiya ja sakta hai.');
@@ -3139,11 +3146,12 @@
             const show=document.getElementById('advanceScheduleType').value==='Meeting' && document.getElementById('meetingMode').value==='Online';
             document.getElementById('onlineDurationBox').classList.toggle('hidden',!show);
         }
-        function openEmergencyTaskModal(){const d=document.getElementById('emergencyTaskDate');if(d)d.value=new Date().toISOString().split('T')[0];document.getElementById('emergencyTaskModal').style.display='block';}
+        function openEmergencyTaskModal(){const today=new Date().toISOString().split('T')[0],d=document.getElementById('emergencyTaskDate'),e=document.getElementById('emergencyTaskEndDate');if(d)d.value=today;if(e){e.value=today;e.min=today;}document.getElementById('emergencyTaskModal').style.display='block';}
         function closeEmergencyTaskModal(){document.getElementById('emergencyTaskModal').style.display='none';}
-        function submitEmergencyTaskRequest(){const name=document.getElementById('emergencyTaskName').value.trim(),date=document.getElementById('emergencyTaskDate').value,details=document.getElementById('emergencyTaskDetails').value.trim(),location=document.getElementById('emergencyTaskLocation').value.trim();if(!name){alert('Emergency Task name required hai.');return;}const fd=new FormData();fd.append('action','emergencyTaskRequest');fd.append('taskName',name);fd.append('requestDate',date);fd.append('details',details);fd.append('location',location);fd.append('sessionToken',sessionToken);const b=document.getElementById('emergencyTaskBtn');b.disabled=true;b.innerText='Sending...';fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Request sent');if(d.status==='success'){closeEmergencyTaskModal();fetchDashboardDataSilently();}}).catch(()=>alert('Emergency request failed.')).finally(()=>{b.disabled=false;b.innerText='Send Request';});}
+        function submitEmergencyTaskRequest(){const name=document.getElementById('emergencyTaskName').value.trim(),date=document.getElementById('emergencyTaskDate').value,endDate=document.getElementById('emergencyTaskEndDate').value,details=document.getElementById('emergencyTaskDetails').value.trim(),location=document.getElementById('emergencyTaskLocation').value.trim();if(!name){alert('Emergency Task name required hai.');return;}if(!date||!endDate||endDate<date){alert('From Date aur To Date sahi select karein.');return;}const fd=new FormData();fd.append('action','emergencyTaskRequest');fd.append('taskName',name);fd.append('requestDate',date);fd.append('endDate',endDate);fd.append('details',details);fd.append('location',location);fd.append('sessionToken',sessionToken);const b=document.getElementById('emergencyTaskBtn');b.disabled=true;b.innerText='Sending...';fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Request sent');if(d.status==='success'){closeEmergencyTaskModal();fetchDashboardDataSilently();}}).catch(()=>alert('Emergency request failed.')).finally(()=>{b.disabled=false;b.innerText='Send Request';});}
         function submitAdvanceScheduleRequest(){
             const date=document.getElementById('advanceScheduleDate').value;
+            const endDate=['3 Din Qafila','Tarbiyati Ijtima'].includes(document.getElementById('advanceScheduleType').value)?document.getElementById('advanceScheduleEndDate').value:'';
             const type=document.getElementById('advanceScheduleType').value;
             const reason=document.getElementById('advanceScheduleReason').value.trim(); const scheduleLocation=document.getElementById('advanceScheduleLocation').value.trim();
             const weekoffDate=type==='Weekoff Adjustment'?date:'';
@@ -3156,10 +3164,11 @@
             const journeyStart=type==='Meeting Journey'?document.getElementById('journeyStart').value:'';
             const journeyComplete=type==='Meeting Journey'?document.getElementById('journeyComplete').value:'';
             if(!date){alert('Please select future date.');return;}
+            if(['3 Din Qafila','Tarbiyati Ijtima'].includes(type) && (!endDate||endDate<date)){alert('From Date aur To Date sahi select karein.');return;}
             if(type==='Meeting'&&mode==='Online'&&(!meetingFrom||!meetingTo)){alert('Online Meeting ke liye From aur To time select karein.');return;}
             if(type==='Meeting Journey'&&(!journeyStart||!journeyComplete)){alert('Journey Start aur Journey Complete time select karein.');return;}
             const btn=document.getElementById('advanceScheduleBtn'); btn.disabled=true; btn.innerText='Submitting...';
-            const fd=new FormData(); fd.append('action','advanceScheduleRequest'); fd.append('requestDate',date); fd.append('requestType',type); fd.append('reason',reason); fd.append('location',scheduleLocation); fd.append('weekoffDate',weekoffDate); fd.append('newWeekoffDate',newWeekoffDate); fd.append('meetingMode',mode); fd.append('meetingFrom',meetingFrom); fd.append('meetingTo',meetingTo); fd.append('journeyStart',journeyStart); fd.append('journeyComplete',journeyComplete); fd.append('sessionToken',sessionToken);
+            const fd=new FormData(); fd.append('action','advanceScheduleRequest'); fd.append('requestDate',date); fd.append('endDate',endDate); fd.append('requestType',type); fd.append('reason',reason); fd.append('location',scheduleLocation); fd.append('weekoffDate',weekoffDate); fd.append('newWeekoffDate',newWeekoffDate); fd.append('meetingMode',mode); fd.append('meetingFrom',meetingFrom); fd.append('meetingTo',meetingTo); fd.append('journeyStart',journeyStart); fd.append('journeyComplete',journeyComplete); fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
                 alert(data.message||'Request submitted.');
                 if(data.status==='success'){closeAdvanceScheduleModal();fetchDashboardDataSilently();}
