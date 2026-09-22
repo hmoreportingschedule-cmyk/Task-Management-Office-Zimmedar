@@ -553,12 +553,21 @@
             <div class="mt-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Dashboard Overview" checked> Dashboard Overview</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Attendance Report" checked> Attendance Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Task Report" checked> Task Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Progress Chart" checked> Progress Chart</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Import Center" checked> Import Center</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Export Excel" checked> Export Excel</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="WhatsApp Report" checked> WhatsApp Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Notifications" checked> Notifications</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Advance Schedule" checked> Advance Schedule</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Emergency Task" checked> Emergency Task</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Office Events" checked> Office Events</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Employee ID" checked> Employee ID</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="User Management" checked> User Management</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Audit Log" checked> Audit Log</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Backup & System Health" checked> Backup & System Health</label>
                 </div>
             </div>
             <button id="createUserBtn" onclick="submitAdminUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-user-plus"></i> Create User</button>
@@ -589,12 +598,21 @@
             <div class="mt-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Access Options (Multiple):</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Dashboard Overview"> Dashboard Overview</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Attendance Report"> Attendance Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Task Report"> Task Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Progress Chart"> Progress Chart</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Import Center"> Import Center</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Export Excel"> Export Excel</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="WhatsApp Report"> WhatsApp Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Notifications"> Notifications</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Advance Schedule"> Advance Schedule</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Emergency Task"> Emergency Task</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Office Events"> Office Events</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Employee ID"> Employee ID</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="User Management"> User Management</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Audit Log"> Audit Log</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Backup & System Health"> Backup & System Health</label>
                 </div>
             </div>
             <button id="saveEditUserBtn" onclick="submitEditUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-save"></i> Save User Changes</button>
