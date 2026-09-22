@@ -1056,7 +1056,8 @@
 
                     if(role.indexOf('admin') > -1) {
                         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-                        try{ const wf=new FormData(); wf.append('action','setupWhatsAppReminders'); wf.append('sessionToken',sessionToken); fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:wf}).catch(()=>{}); }catch(e){}
+                        // Keep login fast: install the WhatsApp reminder trigger in the background after the dashboard opens.
+                        try{ setTimeout(()=>{ const wf=new FormData(); wf.append('action','setupWhatsAppReminders'); wf.append('sessionToken',sessionToken); fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:wf}).catch(()=>{}); },1500); }catch(e){}
                         document.querySelectorAll('.hod-only').forEach(el => el.style.display = 'flex');
                         document.getElementById('hodNoticeBox').style.display = 'block';
                         document.getElementById('teamAttendanceSection').style.display = 'block';
@@ -1225,9 +1226,10 @@
 
         // ================= FETCH ALL DATA =================
         function fetchDashboardData(username, role, dept) {
+            const hasCache = restoreDashboardCache(username);
             const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
-            fetchDataAPI(username, role, dept, false, 0);
+            if(!hasCache) tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-gray-500 font-semibold animate-pulse">Loading workspace data...</td></tr>';
+            fetchDataAPI(username, role, dept, !!hasCache, 0);
         }
 
         function fetchDashboardDataSilently() {
