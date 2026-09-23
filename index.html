@@ -22,6 +22,40 @@
         .emp-only { display: block; }
         
         .modern-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e1ebea; }
+        /* Professional manager controls: responsive, same-height, no horizontal overflow */
+        #hodActionBar.manager-controls-pro {
+            display:block !important;
+            overflow:visible;
+        }
+        .manager-controls-header {
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+            margin-bottom:16px;
+        }
+        .manager-controls-grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+            gap:10px;
+            width:100%;
+        }
+        .manager-control-btn {
+            min-width:0; width:100%; min-height:66px;
+            padding:10px 12px !important;
+            border-radius:12px !important;
+            display:flex !important; align-items:center; justify-content:center;
+            text-align:center; line-height:1.15;
+            white-space:normal; word-break:normal;
+            box-sizing:border-box;
+        }
+        .manager-control-btn i { font-size:15px; flex:0 0 auto; }
+        @media (max-width:900px){
+            .manager-controls-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+        }
+        @media (max-width:640px){
+            .manager-controls-header{align-items:flex-start; flex-direction:column;}
+            .manager-controls-grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+            .manager-control-btn{min-height:60px; font-size:12px !important;}
+        }
+
         
         .perf-table th { background-color: #2a4d53; color: white; padding: 12px; text-align: left; border-bottom: 2px solid #5fd3cc; font-size: 0.875rem; }
         .perf-table td { padding: 12px; border-bottom: 1px solid #e1ebea; font-size: 0.875rem; color: #4b5563; }
@@ -305,47 +339,31 @@
             </div>
 
             <!-- HOD ACTION BAR -->
-            <div id="hodActionBar" class="hod-only modern-card p-6 mb-8 flex flex-col md:flex-row justify-between items-center bg-[#e6fcf5] border-[#b2d8d8]">
-                <div class="mb-4 md:mb-0">
-                    <h3 class="text-xl font-bold text-[#112a2e] mb-1">Manager Controls</h3>
-                    <p class="text-sm text-[#2a4d53] font-medium">Assign tasks and approve team requests below.</p>
+            <div id="hodActionBar" class="hod-only modern-card p-5 mb-8 bg-[#e6fcf5] border-[#b2d8d8] manager-controls-pro">
+                <div class="manager-controls-header">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-[#259b94] text-white flex items-center justify-center shadow-sm"><i class="fas fa-sliders"></i></div>
+                            <h3 class="text-xl font-bold text-[#112a2e]">Manager Controls</h3>
+                        </div>
+                        <p class="text-sm text-[#2a4d53] font-medium mt-1 ml-11">Assign, monitor, import aur management reports ek hi jagah.</p>
+                    </div>
+                    <div class="text-xs font-bold text-[#2a4d53] bg-white/70 border border-[#b2d8d8] rounded-full px-3 py-1.5 whitespace-nowrap">Quick Actions</div>
                 </div>
-                <div class="flex gap-3 items-center">
-                    <button onclick="openAssignTaskModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-6 py-3 rounded-xl shadow-md font-bold flex items-center gap-2 transition">
-                        <i class="fas fa-plus-circle"></i> Assign New Task
-                    </button>
-                    <button onclick="openImportCenterModal()" class="hod-only bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-layer-group"></i> Import Center
-                    </button>
-                    <button onclick="openChecklistCenter()" class="bg-[#0f766e] hover:bg-[#115e59] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-list-check"></i> Checklist
-                    </button>
-                    <button onclick="openUserManagementModal()" class="admin-only bg-[#2a4d53] hover:bg-[#1e3e43] text-white px-6 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-user-plus"></i> Manage Users
-                    </button>
-                    <button onclick="openAuditLogModal()" class="admin-only bg-[#4c1d95] hover:bg-[#3b0764] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-history"></i> Audit Log
-                    </button>
-                    <button onclick="openDelayAnalyticsModal()" class="admin-only bg-[#9a3412] hover:bg-[#7c2d12] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-chart-column"></i> Delay Analytics
-                    </button>
-                    <button onclick="runManualBackup()" class="admin-only bg-[#475569] hover:bg-[#334155] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-database"></i> Backup Now
-                    </button>
-                    <button onclick="openSystemHealthModal()" class="admin-only bg-[#0f766e] hover:bg-[#115e59] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-heart-pulse"></i> System Health
-                    </button>
-                    <button onclick="openImportHistoryModal()" class="admin-only bg-[#0369a1] hover:bg-[#075985] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-file-circle-check"></i> Import History
-                    </button>
-                    <button onclick="openImportErrorsModal()" class="admin-only bg-[#b45309] hover:bg-[#92400e] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-triangle-exclamation"></i> Import Errors
-                    </button>
-                    <button onclick="openEmailAlertsModal()" class="admin-only bg-[#be123c] hover:bg-[#9f1239] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
-                        <i class="fas fa-envelope-circle-check"></i> Email Alerts
-                    </button>
-                    <button onclick="openTaskTemplatesModal()" class="admin-only bg-[#155e75] hover:bg-[#164e63] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition"><i class="fas fa-layer-group"></i> Task Templates</button>
-                    <button onclick="openReportCardModal()" class="admin-only bg-[#166534] hover:bg-[#14532d] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition"><i class="fas fa-file-invoice"></i> Monthly Report Card</button>
+                <div class="manager-controls-grid">
+                    <button onclick="openAssignTaskModal()" class="manager-control-btn bg-[#259b94] hover:bg-[#1f827c] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-plus-circle"></i><span>Assign New Task</span></button>
+                    <button onclick="openImportCenterModal()" class="manager-control-btn hod-only bg-[#7c3aed] hover:bg-[#6d28d9] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Import Center</span></button>
+                    <button onclick="openChecklistCenter()" class="manager-control-btn bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-list-check"></i><span>Checklist</span></button>
+                    <button onclick="openUserManagementModal()" class="manager-control-btn admin-only bg-[#2a4d53] hover:bg-[#1e3e43] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-user-plus"></i><span>Manage Users</span></button>
+                    <button onclick="openAuditLogModal()" class="manager-control-btn admin-only bg-[#4c1d95] hover:bg-[#3b0764] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-history"></i><span>Audit Log</span></button>
+                    <button onclick="openDelayAnalyticsModal()" class="manager-control-btn admin-only bg-[#9a3412] hover:bg-[#7c2d12] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-chart-column"></i><span>Delay Analytics</span></button>
+                    <button onclick="runManualBackup()" class="manager-control-btn admin-only bg-[#475569] hover:bg-[#334155] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-database"></i><span>Backup Now</span></button>
+                    <button onclick="openSystemHealthModal()" class="manager-control-btn admin-only bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-heart-pulse"></i><span>System Health</span></button>
+                    <button onclick="openImportHistoryModal()" class="manager-control-btn admin-only bg-[#0369a1] hover:bg-[#075985] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-circle-check"></i><span>Import History</span></button>
+                    <button onclick="openImportErrorsModal()" class="manager-control-btn admin-only bg-[#b45309] hover:bg-[#92400e] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-triangle-exclamation"></i><span>Import Errors</span></button>
+                    <button onclick="openEmailAlertsModal()" class="manager-control-btn admin-only bg-[#be123c] hover:bg-[#9f1239] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-envelope-circle-check"></i><span>Email Alerts</span></button>
+                    <button onclick="openTaskTemplatesModal()" class="manager-control-btn admin-only bg-[#155e75] hover:bg-[#164e63] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Task Templates</span></button>
+                    <button onclick="openReportCardModal()" class="manager-control-btn admin-only bg-[#166534] hover:bg-[#14532d] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-invoice"></i><span>Report Card</span></button>
                 </div>
             </div>
 
