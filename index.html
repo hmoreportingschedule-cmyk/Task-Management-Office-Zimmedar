@@ -518,6 +518,9 @@
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Username</label><input id="myProfileUsername" class="w-full border p-3 rounded-lg bg-gray-100" readonly></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Contact Number</label><input id="myProfileContact" type="tel" class="w-full border p-3 rounded-lg" placeholder="+91..."></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Email Address</label><input id="myProfileEmail" type="email" class="w-full border p-3 rounded-lg" placeholder="name@example.com"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee ID</label><input id="myProfileEmployeeId" class="w-full border p-3 rounded-lg bg-gray-100" readonly></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Office Location</label><input id="myProfileOfficeLocation" class="w-full border p-3 rounded-lg" placeholder="Mumbai"></div>
+                <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 mb-1">Office Address</label><input id="myProfileOfficeAddress" class="w-full border p-3 rounded-lg" placeholder="Office address"></div>
                 <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-600 mb-1">Profile Photo</label><input id="myProfilePhoto" type="file" accept="image/*" class="w-full border p-3 rounded-lg bg-white"></div>
             </div>
             <div class="mt-6 border-t pt-5">
@@ -1217,7 +1220,7 @@
             .then(data=>{
                 if(data.status!=='success'){alert(data.message||"Invalid Credentials");btn.innerText="Login to Dashboard";btn.disabled=false;return;}
                 document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='flex';
-                sessionToken=data.sessionToken||""; window.currentUsername=data.username||user; window.currentUserDisplayName=data.actualName||data.username||user; currentUserEmail=data.emailAddress||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
+                sessionToken=data.sessionToken||""; window.currentUsername=data.username||user; window.currentUserDisplayName=data.actualName||data.username||user; currentUserEmail=data.emailAddress||""; window.currentUserEmployeeId=data.employeeId||""; window.currentUserOfficeLocation=data.officeLocation||""; window.currentUserOfficeAddress=data.officeAddress||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
                 setDateConstraints(); document.getElementById('displayUser').innerText=data.actualName||data.username; window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
                 document.getElementById('displayDept').innerText=data.department||'--'; document.getElementById('displayOfficeTime').innerText=data.officeTime||'--'; window.currentUserWeekoff=data.weekoff||'Sunday'; document.getElementById('displayWeekoff').innerText=data.weekoff||'Sunday';
                 document.getElementById('displayOfficeLocation').innerText=[data.officeLocation,data.officeAddress].filter(Boolean).join(' : ')||'--'; setDisplayedProfilePhoto(data.profilePhotoUrl||'');
@@ -2012,63 +2015,16 @@
 
         // ================= MY PROFILE =================
         let currentUserEmail='';
-        function openMyProfileModal(){const name=document.getElementById('displayUser').innerText||'';document.getElementById('myProfileName').value=window.currentUserDisplayName||name;document.getElementById('myProfileUsername').value=window.currentUsername||name;document.getElementById('myProfileContact').value=window.currentUserContactNumber||'';document.getElementById('myProfileEmail').value=currentUserEmail||'';document.getElementById('myProfilePhoto').value='';document.getElementById('myProfileCurrentPassword').value='';document.getElementById('myProfileNewPassword').value='';document.getElementById('myProfileConfirmPassword').value='';document.getElementById('myProfileModal').style.display='block';}
+        function openMyProfileModal(){const name=document.getElementById('displayUser').innerText||'';document.getElementById('myProfileName').value=window.currentUserDisplayName||name;document.getElementById('myProfileUsername').value=window.currentUsername||name;document.getElementById('myProfileContact').value=window.currentUserContactNumber||'';document.getElementById('myProfileEmail').value=currentUserEmail||'';document.getElementById('myProfileEmployeeId').value=window.currentUserEmployeeId||'';document.getElementById('myProfileOfficeLocation').value=window.currentUserOfficeLocation||'';document.getElementById('myProfileOfficeAddress').value=window.currentUserOfficeAddress||'';document.getElementById('myProfilePhoto').value='';document.getElementById('myProfileCurrentPassword').value='';document.getElementById('myProfileNewPassword').value='';document.getElementById('myProfileConfirmPassword').value='';document.getElementById('myProfileModal').style.display='block';}
         function closeMyProfileModal(){document.getElementById('myProfileModal').style.display='none';}
         function generateMyPassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';let p='';for(let i=0;i<12;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('myProfileNewPassword').value=p;document.getElementById('myProfileConfirmPassword').value=p;alert('New password generate ho gaya. Save karne se pehle isey note kar lein.');}
-        async function saveMyProfile(){const next=document.getElementById('myProfileNewPassword').value,current=document.getElementById('myProfileCurrentPassword').value,confirm=document.getElementById('myProfileConfirmPassword').value;if(next&&next!==confirm){alert('New Password aur Confirm Password same hona chahiye.');return;}if(next&&next.length<8){alert('New Password kam az kam 8 characters ka ho.');return;}const btn=document.getElementById('saveMyProfileBtn');btn.disabled=true;btn.innerText='Saving...';try{let photoUrl='';const input=document.getElementById('myProfilePhoto');if(input.files&&input.files[0]){const photo=await prepareProfilePhoto(input.files[0]);const pfd=new FormData();pfd.append('action','uploadProfilePhoto');pfd.append('sessionToken',sessionToken);pfd.append('username',window.currentUsername||'');pfd.append('photoBase64',photo.base64);pfd.append('photoMime',photo.mime);pfd.append('photoName',photo.name);const pr=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:pfd,credentials:'omit'}).then(r=>r.json());if(pr.status!=='success')throw new Error(pr.message||'Photo upload failed.');photoUrl=pr.url||'';}const fd=new FormData();fd.append('action','updateOwnProfile');fd.append('sessionToken',sessionToken);fd.append('displayName',document.getElementById('myProfileName').value.trim());fd.append('contactNumber',document.getElementById('myProfileContact').value.trim());fd.append('emailAddress',document.getElementById('myProfileEmail').value.trim());if(photoUrl)fd.append('profilePhotoUrl',photoUrl);if(next){fd.append('currentPassword',current);fd.append('newPassword',next);}const d=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,credentials:'omit'}).then(r=>r.json());if(d.status!=='success')throw new Error(d.message||'Profile update failed.');window.currentUserDisplayName=d.displayName||document.getElementById('myProfileName').value.trim();window.currentUserContactNumber=d.contactNumber||document.getElementById('myProfileContact').value.trim();currentUserEmail=d.emailAddress||document.getElementById('myProfileEmail').value.trim();document.getElementById('displayUser').innerText=window.currentUserDisplayName||window.currentUsername;if(photoUrl)setDisplayedProfilePhoto(photoUrl);alert(d.message||'Profile updated successfully.');closeMyProfileModal();}catch(err){alert(err.message||'Profile update failed.');}finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save Profile';}}
+        async function saveMyProfile(){const next=document.getElementById('myProfileNewPassword').value,current=document.getElementById('myProfileCurrentPassword').value,confirm=document.getElementById('myProfileConfirmPassword').value;if(next&&next!==confirm){alert('New Password aur Confirm Password same hona chahiye.');return;}if(next&&next.length<8){alert('New Password kam az kam 8 characters ka ho.');return;}const btn=document.getElementById('saveMyProfileBtn');btn.disabled=true;btn.innerText='Saving...';try{let photoUrl='';const input=document.getElementById('myProfilePhoto');if(input.files&&input.files[0]){const photo=await prepareProfilePhoto(input.files[0]);const pfd=new FormData();pfd.append('action','uploadProfilePhoto');pfd.append('sessionToken',sessionToken);pfd.append('username',window.currentUsername||'');pfd.append('photoBase64',photo.base64);pfd.append('photoMime',photo.mime);pfd.append('photoName',photo.name);const pr=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:pfd,credentials:'omit'}).then(r=>r.json());if(pr.status!=='success')throw new Error(pr.message||'Photo upload failed.');photoUrl=pr.url||'';}const fd=new FormData();fd.append('action','updateOwnProfile');fd.append('sessionToken',sessionToken);fd.append('displayName',document.getElementById('myProfileName').value.trim());fd.append('contactNumber',document.getElementById('myProfileContact').value.trim());fd.append('emailAddress',document.getElementById('myProfileEmail').value.trim());fd.append('officeLocation',document.getElementById('myProfileOfficeLocation').value.trim());fd.append('officeAddress',document.getElementById('myProfileOfficeAddress').value.trim());if(photoUrl)fd.append('profilePhotoUrl',photoUrl);if(next){fd.append('currentPassword',current);fd.append('newPassword',next);}const d=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,credentials:'omit'}).then(r=>r.json());if(d.status!=='success')throw new Error(d.message||'Profile update failed.');window.currentUserDisplayName=d.displayName||document.getElementById('myProfileName').value.trim();window.currentUserContactNumber=d.contactNumber||document.getElementById('myProfileContact').value.trim();currentUserEmail=d.emailAddress||document.getElementById('myProfileEmail').value.trim();window.currentUserOfficeLocation=d.officeLocation||document.getElementById('myProfileOfficeLocation').value.trim();window.currentUserOfficeAddress=d.officeAddress||document.getElementById('myProfileOfficeAddress').value.trim();document.getElementById('displayUser').innerText=window.currentUserDisplayName||window.currentUsername;document.getElementById('displayOfficeLocation').innerText=[window.currentUserOfficeLocation,window.currentUserOfficeAddress].filter(Boolean).join(' : ')||'--';if(photoUrl)setDisplayedProfilePhoto(photoUrl);alert(d.message||'Profile updated successfully.');closeMyProfileModal();}catch(err){alert(err.message||'Profile update failed.');}finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save Profile';}}
         // ================= UNIVERSAL IMPORT CENTER =================
         let importCenterType='attendance';
         let importCenterRows=[];
         let importCenterFiles=[];
         let importCenterBusy=false;
 
-        function openImportCenterModal(){
-            const modal=document.getElementById('importCenterModal');
-            if(!modal)return;
-            importCenterType='attendance';
-            importCenterRows=[];
-            importCenterFiles=[];
-            importCenterBusy=false;
-            const input=document.getElementById('importCenterFile');
-            if(input)input.value='';
-            const selected=document.getElementById('importSelectedFile');
-            if(selected)selected.innerText='';
-            const preview=document.getElementById('importPreview');
-            if(preview)preview.innerHTML='';
-            selectImportType('attendance');
-            resetConfirmImportButton();
-            modal.style.display='block';
-        }
-        function closeImportCenterModal(){
-            const modal=document.getElementById('importCenterModal');
-            if(modal)modal.style.display='none';
-            const input=document.getElementById('importCenterFile');
-            if(input)input.value='';
-            importCenterRows=[];
-            importCenterFiles=[];
-            importCenterBusy=false;
-            const selected=document.getElementById('importSelectedFile');
-            if(selected)selected.innerText='';
-            const preview=document.getElementById('importPreview');
-            if(preview)preview.innerHTML='';
-            resetConfirmImportButton();
-        }
-        function selectImportType(type){
-            importCenterType=type==='tasks'?'tasks':(type==='events'?'events':'attendance');
-            ['attendance','tasks','events'].forEach(t=>{
-                const tab=document.getElementById('importTab'+(t==='attendance'?'Attendance':t==='tasks'?'Tasks':'Events'));
-                if(tab)tab.classList.toggle('active',t===importCenterType);
-            });
-            importCenterRows=[];
-            importCenterFiles=[];
-            const input=document.getElementById('importCenterFile');
-            if(input)input.value='';
-            const selected=document.getElementById('importSelectedFile');
-            if(selected)selected.innerText='';
-            const preview=document.getElementById('importPreview');
-            if(preview)preview.innerHTML='';
-            resetConfirmImportButton();
-        }
         function resetConfirmImportButton(){const b=document.getElementById('confirmImportBtn');if(!b)return;b.disabled=true;b.className='bg-gray-300 text-gray-500 font-bold py-3 rounded-lg cursor-not-allowed';b.innerHTML='<i class="fas fa-check"></i> Confirm Import';}
         function enableConfirmImportButton(){const b=document.getElementById('confirmImportBtn');if(!b)return;b.disabled=false;b.className='bg-[#91d3ce] hover:bg-[#73c3bd] text-white font-bold py-3 rounded-lg shadow-md cursor-pointer';b.innerHTML='<i class="fas fa-check"></i> Confirm Import';}
         function importExcelDate(v){if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}const x=String(v??'').trim();if(/^\d{2}\/\d{2}\/\d{4}$/.test(x)){const p=x.split('/');return `${p[2]}-${p[1]}-${p[0]}`;}return x;}
