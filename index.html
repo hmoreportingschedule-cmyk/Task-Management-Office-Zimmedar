@@ -9,6 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Add SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ecf3f3; }
@@ -41,7 +43,9 @@
         .oneview-table th { border: 1px solid #cbd5e1; }
         .oneview-table td { border: 1px solid #e2e8f0; }
         .ov-teal { background-color: #259b94; color: white; }
-        .ov-yellow { background-color: #fbbf24; color: #78350f; }
+        .ov-yellow { background-color: #e6f4f2; color: #112a2e; font-weight: 400 !important; }
+        .oneview-table td, .oneview-table td * { font-weight: 400 !important; }
+        .oneview-table th { font-weight: 400 !important; }
         .ov-light-teal { background-color: #e6fcf5; }
 
         .sched-main-header { background-color: #259b94; color: white; padding: 15px; font-size: 1.5rem; }
@@ -340,6 +344,8 @@
                     <button onclick="openEmailAlertsModal()" class="admin-only bg-[#be123c] hover:bg-[#9f1239] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
                         <i class="fas fa-envelope-circle-check"></i> Email Alerts
                     </button>
+                    <button onclick="openTaskTemplatesModal()" class="admin-only bg-[#155e75] hover:bg-[#164e63] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition"><i class="fas fa-layer-group"></i> Task Templates</button>
+                    <button onclick="openReportCardModal()" class="admin-only bg-[#166534] hover:bg-[#14532d] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition"><i class="fas fa-file-invoice"></i> Monthly Report Card</button>
                 </div>
             </div>
 
@@ -459,6 +465,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Task Name:</label>
                     <input type="text" id="newTaskName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#259b94] focus:outline-none transition" placeholder="Describe the task..." required>
+                    <div class="mt-3"><label class="block text-sm font-semibold text-gray-700 mb-1">Task Template (Optional):</label><select id="newTaskTemplate" onchange="applyTaskTemplate(this.value)" class="w-full border border-[#b2d8d8] p-3 rounded-lg bg-[#f7fbfb]"><option value="">-- Select Saved Template --</option></select></div>
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/2">
@@ -1101,9 +1108,12 @@
             <div id="oneViewLoading" class="hidden text-sm text-teal-600 italic mb-3 font-semibold animate-pulse">Loading attendance...</div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
                 <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL EMPLOYEE</div><div id="attTotalEmployees" class="text-2xl font-extrabold text-[#2a4d53]">0</div></div>
-                <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL AVAILABILITY</div><div id="attTotalAvailability" class="text-2xl font-extrabold text-[#2a4d53]">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-gray-500">TOTAL WORKING DAYS</div><div id="attTotalAvailability" class="text-2xl font-extrabold text-[#2a4d53]">0</div></div>
                 <div class="modern-card p-4"><div class="text-xs font-bold text-green-600">TOTAL PRESENCE</div><div id="attTotalPresence" class="text-2xl font-extrabold text-green-600">0</div></div>
                 <div class="modern-card p-4"><div class="text-xs font-bold text-red-600">TOTAL ABSENCE</div><div id="attTotalAbsence" class="text-2xl font-extrabold text-red-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-yellow-600">TOTAL LEAVE</div><div id="attTotalLeave" class="text-2xl font-extrabold text-yellow-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-blue-600">WEEKOFF</div><div id="attTotalWeekoff" class="text-2xl font-extrabold text-blue-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-xs font-bold text-purple-600">OFFICE CLOSED / EVENT</div><div id="attTotalEvent" class="text-2xl font-extrabold text-purple-600">0</div></div>
                 <div class="modern-card p-4"><div class="text-xs font-bold text-[#259b94]">PRESENCE %</div><div id="attPresencePercent" class="text-2xl font-extrabold text-[#259b94]">0%</div></div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
@@ -1119,6 +1129,35 @@
             <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0"><span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span><span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span><span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span><span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span><span class="text-purple-600 ml-3"><i class="fas fa-calendar-day"></i> E = Office Closed/Event</span></div>
             <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200"><table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm"><thead id="oneViewThead"></thead><tbody id="oneViewTbody"></tbody></table></div>
         </div>
+    </div>
+
+
+    <!-- TASK TEMPLATES MODAL -->
+    <div id="taskTemplatesModal" class="modal">
+      <div class="modal-content relative max-w-4xl shadow-2xl">
+        <span onclick="closeTaskTemplatesModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+        <h3 class="text-2xl font-extrabold text-[#112a2e] mb-1"><i class="fas fa-layer-group text-[#155e75]"></i> Task Templates</h3>
+        <p class="text-sm text-gray-500 mb-5">Pehle se saved task templates select karke New Task jaldi assign karein.</p>
+        <div class="flex flex-wrap gap-3 mb-5">
+          <button onclick="downloadTaskTemplateFormat()" class="bg-[#2a4d53] text-white px-4 py-2 rounded-lg font-bold"><i class="fas fa-download"></i> Download Format</button>
+          <label class="bg-[#155e75] text-white px-4 py-2 rounded-lg font-bold cursor-pointer"><i class="fas fa-upload"></i> Upload Templates<input id="taskTemplateFile" type="file" accept=".csv,.xls,.xlsx" multiple class="hidden" onchange="uploadTaskTemplates(this.files)"></label>
+          <button onclick="loadTaskTemplates()" class="bg-gray-100 text-[#2a4d53] px-4 py-2 rounded-lg font-bold"><i class="fas fa-refresh"></i> Refresh</button>
+        </div>
+        <div id="taskTemplatesStatus" class="text-sm text-gray-500 mb-3"></div>
+        <div class="overflow-x-auto border rounded-xl"><table class="w-full text-sm"><thead class="bg-[#e6f4f2]"><tr><th class="p-3 text-left">Template</th><th class="p-3 text-left">Task</th><th class="p-3">Date Range</th><th class="p-3">Priority</th><th class="p-3">Frequency</th><th class="p-3">Status</th></tr></thead><tbody id="taskTemplatesBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- REPORT CARD MODAL -->
+    <div id="reportCardModal" class="modal">
+      <div class="modal-content relative max-w-6xl shadow-2xl">
+        <span onclick="closeReportCardModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-2xl">&times;</span>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5"><div><h3 class="text-2xl font-extrabold text-[#112a2e]"><i class="fas fa-file-invoice text-green-700"></i> Employee Report Card</h3><p class="text-sm text-gray-500">Daily, Weekly, Monthly aur Yearly management report.</p></div><div class="flex gap-2"><button onclick="generateReportCardPDF()" class="bg-[#166534] text-white px-4 py-2 rounded-lg font-bold"><i class="fas fa-file-pdf"></i> Generate PDF</button><button onclick="printReportCard()" class="bg-[#2a4d53] text-white px-4 py-2 rounded-lg font-bold"><i class="fas fa-print"></i> Print</button></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-[#f0f7f7] p-4 rounded-xl mb-5"><select id="reportCardType" class="border p-3 rounded-lg"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="yearly">Yearly</option></select><input id="reportCardDate" type="date" class="border p-3 rounded-lg"><select id="reportCardEmployee" class="border p-3 rounded-lg"><option value="All">All Employees</option></select><button onclick="renderReportCard()" class="bg-[#259b94] text-white rounded-lg font-bold p-3">Generate Report Card</button></div>
+        <div id="reportCardSummary" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-5"></div>
+        <div class="overflow-x-auto border rounded-xl"><table class="w-full text-sm"><thead class="bg-[#e6f4f2]"><tr><th class="p-3 text-left">Employee</th><th class="p-3">Total Task</th><th class="p-3">On Time</th><th class="p-3">Delay</th><th class="p-3">Completed</th><th class="p-3">Pending</th><th class="p-3">In Process</th><th class="p-3">Completion %</th></tr></thead><tbody id="reportCardBody"></tbody></table></div>
+        <div id="reportCardDetail" class="hidden mt-6 border-t pt-5"></div>
+      </div>
     </div>
 
     <script>
@@ -1141,6 +1180,7 @@
         let globalAdvanceScheduleRequests = [];
         let globalAttendanceRequests = [];
         let globalOfficeEvents = [];
+        function escapeHtml(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 
         function setDateConstraints() {
             const dateInput = document.getElementById('attendanceDate');
@@ -2086,6 +2126,7 @@
 
         function openAssignTaskModal() {
             document.getElementById('assignTaskModal').style.display = 'block';
+            loadTaskTemplates();
             document.getElementById('taskWorksBuilder').innerHTML='';
             addTaskWorkRow();
             const role=String(document.getElementById('displayRole').innerText||'').toLowerCase();
@@ -2328,6 +2369,31 @@
             const deptScoreEl = document.getElementById('deptScore'); if (deptScoreEl) deptScoreEl.innerText = (finalScore * 0.85).toFixed(1); 
             const metricEfficiencyEl = document.getElementById('metricEfficiency'); if (metricEfficiencyEl) metricEfficiencyEl.innerText = `${taskPerc}%`;
         }
+
+
+        // ================= TASK TEMPLATES =================
+        let globalTaskTemplates=[];
+        function openTaskTemplatesModal(){document.getElementById('taskTemplatesModal').style.display='block';loadTaskTemplates();}
+        function closeTaskTemplatesModal(){document.getElementById('taskTemplatesModal').style.display='none';}
+        function loadTaskTemplates(){const body=document.getElementById('taskTemplatesBody'),st=document.getElementById('taskTemplatesStatus');if(!body)return;st.innerText='Loading templates...';const fd=new FormData();fd.append('action','getTaskTemplates');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status!=='success')throw new Error(d.message||'Templates load failed.');globalTaskTemplates=d.templates||[];body.innerHTML=globalTaskTemplates.length?globalTaskTemplates.map(t=>`<tr class="border-t"><td class="p-3 font-semibold">${escapeHtml(t.templateName)}</td><td class="p-3">${escapeHtml(t.taskName)}</td><td class="p-3 text-center">${escapeHtml(t.startDate||'-')} → ${escapeHtml(t.endDate||'-')}</td><td class="p-3 text-center">${escapeHtml(t.priority||'Normal')}</td><td class="p-3 text-center">${escapeHtml(t.frequency||'One-time')}</td><td class="p-3 text-center text-green-700 font-semibold">Active</td></tr>`).join(''):'<tr><td colspan="6" class="p-8 text-center text-gray-500">No templates found. Excel upload karein.</td></tr>';st.innerText=`${globalTaskTemplates.length} template(s) available.`;populateTaskTemplateSelect();}).catch(e=>{st.innerText=e.message;});}
+        function populateTaskTemplateSelect(){const sel=document.getElementById('newTaskTemplate');if(!sel)return;sel.innerHTML='<option value="">-- Select Saved Template --</option>';globalTaskTemplates.forEach((t,i)=>sel.innerHTML+=`<option value="${i}">${escapeHtml(t.templateName||t.taskName)}</option>`);}
+        function applyTaskTemplate(idx){const t=globalTaskTemplates[Number(idx)];if(!t)return;document.getElementById('newTaskName').value=t.taskName||'';document.getElementById('newTaskStart').value=t.startDate||'';document.getElementById('newTaskEnd').value=t.endDate||'';document.getElementById('newTaskPriority').value=t.priority||'Normal';document.getElementById('newTaskFreq').value=t.frequency||'One-time';document.getElementById('newTaskWeightage').value=t.weightage||10;const wrap=document.getElementById('taskWorksBuilder');wrap.innerHTML='';(t.works||[]).forEach(w=>addTaskWorkRow({category:w.category,work:w.work,weightage:w.weightage}));if(!(t.works||[]).length)addTaskWorkRow();}
+        function downloadTaskTemplateFormat(){if(typeof XLSX==='undefined'){alert('Excel library loading hai.');return;}const wb=XLSX.utils.book_new();const rows=[{'Template Name':'Daily Reporting','Task Name':'Daily Office Report','Start Date':'2026-09-01','End Date':'2026-09-30','Priority':'Normal','Frequency':'Daily','Weightage':10,'Category':'Reporting','Work':'Daily Report','Work Weightage':100,'Assigned By':'MasterAdmin'}];const ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Task Templates');XLSX.writeFile(wb,'Task_Templates_Import_Format.xlsx');}
+        async function uploadTaskTemplates(files){if(!files||!files.length)return;if(!sessionToken){alert('Login session not found.');return;}try{const all=[];for(const f of files){const buf=await f.arrayBuffer();const wb=XLSX.read(buf,{type:'array',cellDates:true});wb.SheetNames.forEach(n=>{const arr=XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''});arr.forEach(r=>{const dateVal=v=>{if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:'';}return String(v||'').trim();};if(r['Template Name']||r['Task Name'])all.push({templateName:String(r['Template Name']||r['Task']||'').trim(),taskName:String(r['Task Name']||'').trim(),startDate:dateVal(r['Start Date']),endDate:dateVal(r['End Date']),priority:String(r['Priority']||'Normal').trim(),frequency:String(r['Frequency']||'One-time').trim(),weightage:Number(r['Weightage'])||10,category:String(r['Category']||'').trim(),work:String(r['Work']||'').trim(),workWeightage:Number(r['Work Weightage'])||0,assignedBy:String(r['Assigned By']||'').trim()});});});}if(!all.length){alert('Template Excel mein valid rows nahi mili.');return;}const fd=new FormData();fd.append('action','uploadTaskTemplates');fd.append('templatesJson',JSON.stringify(all));fd.append('sessionToken',sessionToken);const d=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json());alert(d.message||'Template upload completed.');if(d.status==='success'){for(const f of files){}loadTaskTemplates();document.getElementById('taskTemplateFile').value='';}}catch(e){alert('Template upload failed: '+e.message);}}
+
+        // ================= EMPLOYEE REPORT CARD =================
+        function openReportCardModal(){const m=document.getElementById('reportCardModal');m.style.display='block';const now=new Date();document.getElementById('reportCardDate').value=now.toISOString().slice(0,10);const sel=document.getElementById('reportCardEmployee');sel.innerHTML='<option value="All">All Employees</option>';(globalTeamMembers||[]).forEach(n=>sel.innerHTML+=`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`);renderReportCard();}
+        function closeReportCardModal(){document.getElementById('reportCardModal').style.display='none';}
+        function reportRange(){const type=document.getElementById('reportCardType').value, v=document.getElementById('reportCardDate').value||new Date().toISOString().slice(0,10), base=new Date(v+'T12:00:00');let start=new Date(base),end=new Date(base);if(type==='daily'){}else if(type==='weekly'){const day=start.getDay();start.setDate(start.getDate()-day);end=new Date(start);end.setDate(end.getDate()+6);}else if(type==='monthly'){start=new Date(start.getFullYear(),start.getMonth(),1,12);end=new Date(start.getFullYear(),start.getMonth()+1,0,12);}else{start=new Date(start.getFullYear(),0,1,12);end=new Date(start.getFullYear(),11,31,12);}return {type,start,end};}
+        function taskInRange(t,start,end){const a=parseReportDate(t.startDate),b=parseReportDate(t.endDate);if(!a||!b)return false;return a<=end&&b>=start;}
+        function reportTaskStats(tasks,start,end){let total=tasks.length,completed=0,onTime=0,delay=0,pending=0,inProcess=0;tasks.forEach(t=>{const st=String(t.empStatus||'').toLowerCase(),due=parseReportDate(t.endDate),done=parseReportDate(t.completedAt);if(st==='completed'){completed++;if(due&&done&&done<=due)onTime++;else if(due&&done&&done>due)delay++;}else{pending++;if((Number(t.timeSpent)||0)>0)inProcess++;if(due&&new Date()>due)delay++;}});return {total,completed,onTime,delay,pending,inProcess,completion:total?Math.round(completed/total*100):0};}
+        function renderReportCard(){const {start,end}=reportRange();const selected=document.getElementById('reportCardEmployee').value;let names=(globalTeamMembers||[]).slice();if(selected&&selected!=='All')names=[selected];const rows=names.map(n=>{const ts=(globalAllTasks||[]).filter(t=>String(t.assignedTo||'').toLowerCase()===String(n).toLowerCase()&&taskInRange(t,start,end));return {name:n,...reportTaskStats(ts,start,end)};});const all=rows.reduce((a,r)=>{['total','completed','onTime','delay','pending','inProcess'].forEach(k=>a[k]+=r[k]);return a;},{total:0,completed:0,onTime:0,delay:0,pending:0,inProcess:0});all.completion=all.total?Math.round(all.completed/all.total*100):0;document.getElementById('reportCardSummary').innerHTML=[['Total Employee',rows.length,'text-[#2a4d53]'],['Total On Time',all.onTime,'text-green-700'],['Total Delay',all.delay,'text-red-600'],['Total Task',all.total,'text-blue-700'],['Completed Task',all.completed,'text-green-700'],['Total Pending',all.pending,'text-yellow-700'],['In Process',all.inProcess,'text-orange-600'],['Completion %',all.completion+'%','text-[#259b94]']].map(x=>`<div class="modern-card p-3"><div class="text-[10px] uppercase text-gray-500 font-normal">${x[0]}</div><div class="text-2xl font-normal ${x[2]}">${x[1]}</div></div>`).join('');document.getElementById('reportCardBody').innerHTML=rows.length?rows.map((r,i)=>`<tr class="border-t hover:bg-[#f0f7f7] cursor-pointer" onclick="showReportEmployee(${i})"><td class="p-3 font-normal">${escapeHtml(r.name)}</td><td class="p-3 text-center">${r.total}</td><td class="p-3 text-center text-green-700">${r.onTime}</td><td class="p-3 text-center text-red-600">${r.delay}</td><td class="p-3 text-center">${r.completed}</td><td class="p-3 text-center">${r.pending}</td><td class="p-3 text-center">${r.inProcess}</td><td class="p-3 text-center font-normal">${r.completion}%</td></tr>`).join(''):'<tr><td colspan="8" class="p-8 text-center text-gray-500">No report data.</td></tr>';window._reportCardRows=rows;window._reportCardRange={start,end};document.getElementById('reportCardDetail').classList.add('hidden');}
+        function showReportEmployee(i){const r=(window._reportCardRows||[])[i];if(!r)return;const box=document.getElementById('reportCardDetail');box.classList.remove('hidden');box.innerHTML=`<div class="flex justify-between items-center mb-3"><div><h4 class="text-xl font-extrabold text-[#112a2e]">${escapeHtml(r.name)}</h4><p class="text-sm text-gray-500">Employee Report Details</p></div><button onclick="generateEmployeePDF(${i})" class="bg-[#166534] text-white px-4 py-2 rounded-lg font-bold"><i class="fas fa-file-pdf"></i> Employee PDF</button></div><div class="grid grid-cols-2 md:grid-cols-6 gap-3">${[['Total Task',r.total],['On Time',r.onTime],['Delay',r.delay],['Completed',r.completed],['Pending',r.pending],['In Process',r.inProcess]].map(x=>`<div class="bg-[#f7fbfb] border rounded-xl p-3"><div class="text-xs text-gray-500">${x[0]}</div><div class="text-xl font-normal text-[#2a4d53]">${x[1]}</div></div>`).join('')}</div>`;box.scrollIntoView({behavior:'smooth',block:'start'});}
+        function makePdfDoc(title){const C=window.jspdf;if(!C||!C.jsPDF){alert('PDF library load nahi hui. Internet connection check karke dobara try karein.');return null;}return new C.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});}
+        function pdfHeader(doc,title,range){doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text(title,14,15);doc.setFontSize(9);doc.setFont(undefined,'normal');doc.text(`Period: ${range.start.toLocaleDateString('en-IN')} - ${range.end.toLocaleDateString('en-IN')}`,14,22);doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`,14,27);}
+        function generateReportCardPDF(){const doc=makePdfDoc('Employee Report Card');if(!doc)return;const range=window._reportCardRange||reportRange();const rows=window._reportCardRows||[];pdfHeader(doc,'Office Zimmedar - Employee Report Card',range);const total=rows.reduce((a,r)=>{a.total+=r.total;a.onTime+=r.onTime;a.delay+=r.delay;a.completed+=r.completed;a.pending+=r.pending;a.inProcess+=r.inProcess;return a;},{total:0,onTime:0,delay:0,completed:0,pending:0,inProcess:0});doc.setFontSize(11);doc.text(`Employees: ${rows.length} | Total Task: ${total.total} | On Time: ${total.onTime} | Delay: ${total.delay} | Completed: ${total.completed} | Pending: ${total.pending} | In Process: ${total.inProcess}`,14,34);doc.autoTable({startY:40,head:[['Employee','Total Task','On Time','Delay','Completed','Pending','In Process','Completion %']],body:rows.map(r=>[r.name,r.total,r.onTime,r.delay,r.completed,r.pending,r.inProcess,r.completion+'%']),theme:'grid',styles:{fontSize:8}});rows.forEach(r=>{doc.addPage();pdfHeader(doc,`Employee Detail - ${r.name}`,range);doc.autoTable({startY:35,head:[['Metric','Value']],body:[['Total Task',r.total],['On Time',r.onTime],['Delay',r.delay],['Completed',r.completed],['Pending',r.pending],['In Process',r.inProcess],['Completion %',r.completion+'%']],theme:'grid',styles:{fontSize:10}});});doc.save(`Office_Zimmedar_Report_${range.type}_${new Date().toISOString().slice(0,10)}.pdf`);}
+        function generateEmployeePDF(i){const rows=window._reportCardRows||[];const r=rows[i];if(!r)return;const doc=makePdfDoc('Employee Report');if(!doc)return;const range=window._reportCardRange||reportRange();pdfHeader(doc,`Employee Detail - ${r.name}`,range);doc.autoTable({startY:35,head:[['Metric','Value']],body:[['Total Task',r.total],['On Time',r.onTime],['Delay',r.delay],['Completed',r.completed],['Pending',r.pending],['In Process',r.inProcess],['Completion %',r.completion+'%']],theme:'grid',styles:{fontSize:10}});doc.save(`Employee_${String(r.name).replace(/\s+/g,'_')}_Report.pdf`);}
+        function printReportCard(){const old=document.title;document.title='Office Zimmedar Report Card';window.print();document.title=old;}
 
         // ================= EXCEL EXPORT (SHEETJS) =================
         function autoFitWorksheet(ws) {
@@ -3229,71 +3295,42 @@
         }
 
         function renderAttendanceAnalytics(type, selectedUser, sourceRecords) {
-            const allUsers=(globalTeamMembers||[]).slice();
-            const users = selectedUser && selectedUser !== 'All' ? [selectedUser] : allUsers;
-            const dates=attendancePeriodDates(type);
-            const records=uniqueAttendanceRecords(sourceRecords !== undefined ? sourceRecords : (globalMonthlyFullAttendance||[]));
-            let totalAvailability=0,totalPresence=0,totalAbsence=0,totalLeave=0,totalWeekoff=0;
-            const daily=[];
-            const cutoff=new Date(); cutoff.setHours(0,0,0,0);
-
+            const monthYear=document.getElementById('oneViewMonthPicker').value;
+            const parts=monthYear.split('-'), y=Number(parts[0]), m=Number(parts[1]);
+            let dates=[];
+            if(type==='daily'){ dates=[new Date(y,m-1,Number(document.getElementById('attendanceDayPicker')?.value||1))]; }
+            else if(type==='weekly'){ const base=new Date(y,m-1,1); const end=new Date(y,m-1+1,0); for(let d=new Date(base);d<=end;d.setDate(d.getDate()+1))dates.push(new Date(d)); }
+            else if(type==='yearly'){ for(let mm=0;mm<12;mm++){ for(let dd=1,lim=new Date(y,mm+1,0).getDate();dd<=lim;dd++)dates.push(new Date(y,mm,dd)); } }
+            else { const lim=new Date(y,m,0).getDate(); for(let d=1;d<=lim;d++)dates.push(new Date(y,m-1,d)); }
+            let users=selectedUser&&selectedUser!=='All'?[selectedUser]:(globalTeamMembers||[]);
+            if(!users.length) users=[document.getElementById('displayUser')?.innerText||''];
+            const records=uniqueAttendanceRecords(sourceRecords!==undefined?sourceRecords:(globalMonthlyFullAttendance||[]));
+            let totalPresence=0,totalAbsence=0,totalLeave=0,totalWeekoff=0,totalEvent=0;
+            const cutoff=new Date();cutoff.setHours(0,0,0,0);
             users.forEach(user=>{
                 const meta=attendanceMetaForUser(user);
                 dates.forEach(dt=>{
-                    const isPast=dt<=cutoff;
-                    const event=officeEventForDate(dt);
-                    if(event) return;
-                    const working=attendanceIsWorkingDay(dt,meta.weekoff);
-                    if(!working){ totalWeekoff++; return; }
-                    totalAvailability++;
-                    const key=attendanceDateKey(dt);
-                    const rec=attendanceRecordFor(records,user,key);
-                    if(rec && rec.InTime) totalPresence++;
-                    else if(rec && String(rec.Leave||'').toLowerCase().includes('leave')) totalLeave++;
-                    else if(isPast) totalAbsence++;
+                    const ev=officeEventForDate(dt); if(ev){totalEvent++;return;}
+                    if(!attendanceIsWorkingDay(dt,meta.weekoff)){totalWeekoff++;return;}
+                    const rec=attendanceRecordFor(records,user,attendanceDateKey(dt));
+                    if(rec&&rec.InTime) totalPresence++;
+                    else if(rec&&String(rec.Leave||'').toLowerCase().includes('leave')) totalLeave++;
+                    else if(dt<=cutoff) totalAbsence++;
                 });
             });
-
-            const denom=totalPresence+totalAbsence+totalLeave;
-            const pct=denom?Math.round(totalPresence/denom*100):0;
-            document.getElementById('attTotalEmployees').innerText=users.length;
-            document.getElementById('attTotalAvailability').innerText=totalAvailability;
-            document.getElementById('attTotalPresence').innerText=totalPresence;
-            document.getElementById('attTotalAbsence').innerText=totalAbsence;
-            document.getElementById('attPresencePercent').innerText=pct+'%';
-            document.getElementById('attLegendPresent').innerText=totalPresence;
-            document.getElementById('attLegendAbsent').innerText=totalAbsence;
-            document.getElementById('attLegendLeave').innerText=totalLeave;
-
-            const presentDeg=denom?Math.round(totalPresence/denom*360):0;
-            const absentDeg=denom?Math.round(totalAbsence/denom*360):0;
-            const leaveDeg=Math.max(0,360-presentDeg-absentDeg);
-            document.getElementById('attendanceDonut').style.background=`conic-gradient(#8fb0b9 0deg ${presentDeg}deg,#d1d5db ${presentDeg}deg ${presentDeg+absentDeg}deg,#cfe3b7 ${presentDeg+absentDeg}deg ${presentDeg+absentDeg+leaveDeg}deg)`;
-            document.getElementById('attendanceDonutText').innerText=pct+'%';
-
-            const trend=document.getElementById('attendanceTrendChart');
-            trend.innerHTML='';
+            const working=totalPresence+totalAbsence+totalLeave;
+            const pct=working?Math.round(totalPresence/working*100):0;
+            const set=(id,v)=>{const e=document.getElementById(id);if(e)e.innerText=v;};
+            set('attTotalEmployees',users.length);set('attTotalAvailability',working);set('attTotalPresence',totalPresence);set('attTotalAbsence',totalAbsence);set('attTotalLeave',totalLeave);set('attTotalWeekoff',totalWeekoff);set('attTotalEvent',totalEvent);set('attPresencePercent',pct+'%');set('attLegendPresent',totalPresence);set('attLegendAbsent',totalAbsence);set('attLegendLeave',totalLeave);set('attLegendWeekoff',totalWeekoff);set('attLegendEvent',totalEvent);
+            const presentDeg=working?Math.round(totalPresence/working*360):0,absentDeg=working?Math.round(totalAbsence/working*360):0,leaveDeg=working?Math.max(0,360-presentDeg-absentDeg):0;
+            const donut=document.getElementById('attendanceDonut');if(donut)donut.style.background=`conic-gradient(#8fb0b9 0deg ${presentDeg}deg,#d1d5db ${presentDeg}deg ${presentDeg+absentDeg}deg,#cfe3b7 ${presentDeg+absentDeg}deg ${presentDeg+absentDeg+leaveDeg}deg)`;
+            set('attendanceDonutText',pct+'%');
+            const trend=document.getElementById('attendanceTrendChart');if(!trend)return;trend.innerHTML='';
             let groups=[];
-            if(type==='yearly'){
-                for(let m=0;m<12;m++) groups.push({label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m],dates:dates.filter(d=>d.getMonth()===m)});
-            } else if(type==='monthly'){
-                groups=dates.map(d=>({label:String(d.getDate()),dates:[d]}));
-            } else {
-                groups=dates.map(d=>({label:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],dates:[d]}));
-            }
-            groups.forEach(g=>{
-                let gp=0, ga=0;
-                users.forEach(user=>{
-                    const meta=attendanceMetaForUser(user);
-                    g.dates.forEach(dt=>{
-                        if(officeEventForDate(dt) || !attendanceIsWorkingDay(dt,meta.weekoff) || dt>cutoff) return;
-                        const rec=attendanceRecordFor(records,user,attendanceDateKey(dt));
-                        if(rec&&rec.InTime) gp++; else if(!(rec&&String(rec.Leave||'').toLowerCase().includes('leave'))) ga++;
-                    });
-                });
-                const max=Math.max(1,gp+ga), h=Math.max(4,Math.round(gp/max*120));
-                trend.innerHTML+=`<div class="flex flex-col items-center justify-end min-w-[30px] h-full"><div class="text-[9px] font-bold text-[#2a4d53] mb-1">${gp}</div><div class="w-5 bg-[#8fb0b9] rounded-t" style="height:${h}px"></div><div class="text-[9px] text-gray-500 mt-1">${g.label}</div></div>`;
-            });
+            if(type==='yearly'){for(let mm=0;mm<12;mm++)groups.push({label:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mm],dates:dates.filter(d=>d.getMonth()===mm)});}
+            else if(type==='weekly'){for(let i=0;i<7;i++)groups.push({label:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i],dates:dates.filter(d=>d.getDay()===i)});}
+            else groups=dates.map(d=>({label:String(d.getDate()),dates:[d]}));
+            groups.forEach(g=>{let gp=0;users.forEach(user=>g.dates.forEach(dt=>{if(officeEventForDate(dt)||!attendanceIsWorkingDay(dt,attendanceMetaForUser(user).weekoff)||dt>cutoff)return;const rec=attendanceRecordFor(records,user,attendanceDateKey(dt));if(rec&&rec.InTime)gp++;}));const max=Math.max(1,users.length*g.dates.length),h=Math.max(4,Math.round(gp/max*120));trend.innerHTML+=`<div class="flex flex-col items-center justify-end min-w-[30px] h-full"><div class="text-[9px] font-normal text-[#2a4d53] mb-1">${gp}</div><div class="w-5 bg-[#8fb0b9] rounded-t" style="height:${h}px"></div><div class="text-[9px] text-gray-500 mt-1 font-normal">${g.label}</div></div>`;});
         }
 
         function fetchOneViewData() {
@@ -3331,7 +3368,7 @@
             let visibleMembers=(selectedUser&&selectedUser!=='All')?[selectedUser]:members;
             let theadHtml=`<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[150px]">Employee Name</th>`;
             for(let d=1;d<=daysInMonth;d++) theadHtml+=`<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
-            theadHtml+=`<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-purple-200">E</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
+            theadHtml+=`<th class="p-2 border text-center text-green-200 font-normal">P</th><th class="p-2 border text-center text-red-200 font-normal">A</th><th class="p-2 border text-center text-yellow-200 font-normal">L</th><th class="p-2 border text-center text-blue-200 font-normal">W</th><th class="p-2 border text-center text-purple-200 font-normal">E</th><th class="p-2 border text-center text-white font-normal">%</th></tr>`;
             document.getElementById('oneViewThead').innerHTML=theadHtml;
 
             const matrix={}; visibleMembers.forEach(m=>matrix[m]={});
