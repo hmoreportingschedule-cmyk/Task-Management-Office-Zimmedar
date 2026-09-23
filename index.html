@@ -339,7 +339,7 @@
             </div>
 
             <!-- HOD ACTION BAR -->
-            <div id="hodActionBar" class="hod-only modern-card p-5 mb-8 bg-[#e6fcf5] border-[#b2d8d8] manager-controls-pro">
+            <div id="hodActionBar" class="modern-card p-5 mb-8 bg-[#e6fcf5] border-[#b2d8d8] manager-controls-pro">
                 <div class="manager-controls-header">
                     <div>
                         <div class="flex items-center gap-2">
@@ -351,19 +351,19 @@
                     <div class="text-xs font-bold text-[#2a4d53] bg-white/70 border border-[#b2d8d8] rounded-full px-3 py-1.5 whitespace-nowrap">Quick Actions</div>
                 </div>
                 <div class="manager-controls-grid">
-                    <button onclick="openAssignTaskModal()" class="manager-control-btn bg-[#259b94] hover:bg-[#1f827c] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-plus-circle"></i><span>Assign New Task</span></button>
-                    <button onclick="openImportCenterModal()" class="manager-control-btn hod-only bg-[#7c3aed] hover:bg-[#6d28d9] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Import Center</span></button>
-                    <button onclick="openChecklistCenter()" class="manager-control-btn bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-list-check"></i><span>Checklist</span></button>
-                    <button onclick="openUserManagementModal()" class="manager-control-btn admin-only bg-[#2a4d53] hover:bg-[#1e3e43] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-user-plus"></i><span>Manage Users</span></button>
-                    <button onclick="openAuditLogModal()" class="manager-control-btn admin-only bg-[#4c1d95] hover:bg-[#3b0764] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-history"></i><span>Audit Log</span></button>
-                    <button onclick="openDelayAnalyticsModal()" class="manager-control-btn admin-only bg-[#9a3412] hover:bg-[#7c2d12] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-chart-column"></i><span>Delay Analytics</span></button>
-                    <button onclick="runManualBackup()" class="manager-control-btn admin-only bg-[#475569] hover:bg-[#334155] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-database"></i><span>Backup Now</span></button>
-                    <button onclick="openSystemHealthModal()" class="manager-control-btn admin-only bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-heart-pulse"></i><span>System Health</span></button>
-                    <button onclick="openImportHistoryModal()" class="manager-control-btn admin-only bg-[#0369a1] hover:bg-[#075985] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-circle-check"></i><span>Import History</span></button>
-                    <button onclick="openImportErrorsModal()" class="manager-control-btn admin-only bg-[#b45309] hover:bg-[#92400e] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-triangle-exclamation"></i><span>Import Errors</span></button>
-                    <button onclick="openEmailAlertsModal()" class="manager-control-btn admin-only bg-[#be123c] hover:bg-[#9f1239] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-envelope-circle-check"></i><span>Email Alerts</span></button>
-                    <button onclick="openTaskTemplatesModal()" class="manager-control-btn admin-only bg-[#155e75] hover:bg-[#164e63] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Task Templates</span></button>
-                    <button onclick="openReportCardModal()" class="manager-control-btn admin-only bg-[#166534] hover:bg-[#14532d] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-invoice"></i><span>Report Card</span></button>
+                    <button onclick="openAssignTaskModal()" data-access="Assign New Task" class="manager-control-btn bg-[#259b94] hover:bg-[#1f827c] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-plus-circle"></i><span>Assign New Task</span></button>
+                    <button onclick="openImportCenterModal()" data-access="Import Center" class="manager-control-btn bg-[#7c3aed] hover:bg-[#6d28d9] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Import Center</span></button>
+                    <button onclick="openChecklistCenter()" data-access="Checklist" class="manager-control-btn bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-list-check"></i><span>Checklist</span></button>
+                    <button onclick="openUserManagementModal()" data-access="Manage Users" class="manager-control-btn bg-[#2a4d53] hover:bg-[#1e3e43] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-user-plus"></i><span>Manage Users</span></button>
+                    <button onclick="openAuditLogModal()" data-access="Audit Log" class="manager-control-btn bg-[#4c1d95] hover:bg-[#3b0764] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-history"></i><span>Audit Log</span></button>
+                    <button onclick="openDelayAnalyticsModal()" data-access="Delay Analytics" class="manager-control-btn bg-[#9a3412] hover:bg-[#7c2d12] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-chart-column"></i><span>Delay Analytics</span></button>
+                    <button onclick="runManualBackup()" data-access="Backup Now" class="manager-control-btn bg-[#475569] hover:bg-[#334155] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-database"></i><span>Backup Now</span></button>
+                    <button onclick="openSystemHealthModal()" data-access="System Health" class="manager-control-btn bg-[#0f766e] hover:bg-[#115e59] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-heart-pulse"></i><span>System Health</span></button>
+                    <button onclick="openImportHistoryModal()" data-access="Import History" class="manager-control-btn bg-[#0369a1] hover:bg-[#075985] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-circle-check"></i><span>Import History</span></button>
+                    <button onclick="openImportErrorsModal()" data-access="Import Errors" class="manager-control-btn bg-[#b45309] hover:bg-[#92400e] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-triangle-exclamation"></i><span>Import Errors</span></button>
+                    <button onclick="openEmailAlertsModal()" data-access="Email Alerts" class="manager-control-btn bg-[#be123c] hover:bg-[#9f1239] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-envelope-circle-check"></i><span>Email Alerts</span></button>
+                    <button onclick="openTaskTemplatesModal()" data-access="Task Templates" class="manager-control-btn bg-[#155e75] hover:bg-[#164e63] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-layer-group"></i><span>Task Templates</span></button>
+                    <button onclick="openReportCardModal()" data-access="Report Card" class="manager-control-btn bg-[#166534] hover:bg-[#14532d] text-white shadow-md font-bold gap-2 transition"><i class="fas fa-file-invoice"></i><span>Report Card</span></button>
                 </div>
             </div>
 
@@ -659,7 +659,19 @@
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="User Management" checked> User Management</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Audit Log" checked> Audit Log</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Backup & System Health" checked> Backup & System Health</label>
-                </div>
+                
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Assign New Task" checked> Assign New Task</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Checklist" checked> Checklist</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Manage Users" checked> Manage Users</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Audit Log" checked> Audit Log</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Delay Analytics" checked> Delay Analytics</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Backup Now" checked> Backup Now</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="System Health" checked> System Health</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Import History" checked> Import History</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Import Errors" checked> Import Errors</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Email Alerts" checked> Email Alerts</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Task Templates" checked> Task Templates</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Report Card" checked> Report Card</label></div>
             </div>
             <button id="createUserBtn" onclick="submitAdminUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-user-plus"></i> Create User</button>
             <div class="mt-6 border-t pt-4">
@@ -705,7 +717,19 @@
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="User Management"> User Management</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Audit Log"> Audit Log</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Backup & System Health"> Backup & System Health</label>
-                </div>
+                
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Assign New Task" checked> Assign New Task</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Checklist" checked> Checklist</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Manage Users" checked> Manage Users</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Audit Log" checked> Audit Log</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Delay Analytics" checked> Delay Analytics</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Backup Now" checked> Backup Now</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="System Health" checked> System Health</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Import History" checked> Import History</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Import Errors" checked> Import Errors</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Email Alerts" checked> Email Alerts</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Task Templates" checked> Task Templates</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Report Card" checked> Report Card</label></div>
             </div>
             <button id="saveEditUserBtn" onclick="submitEditUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-save"></i> Save User Changes</button>
         </div>
@@ -1282,6 +1306,27 @@
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
         }
 
+        function applyManagerControlPermissions(role, accessPermissions){
+            const bar=document.getElementById('hodActionBar');
+            if(!bar)return;
+            const roleText=String(role||'').toLowerCase();
+            const raw=String(accessPermissions||'').trim();
+            const hasConfigured=!!raw;
+            const allowed=new Set(raw.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean));
+            let visible=0;
+            bar.querySelectorAll('.manager-control-btn[data-access]').forEach(btn=>{
+                const key=String(btn.getAttribute('data-access')||'').trim().toLowerCase();
+                let show=false;
+                if(hasConfigured) show=allowed.has(key);
+                else if(roleText.includes('admin')) show=true;
+                else if(roleText.includes('hod')) show=!['Manage Users','Backup Now','System Health'].includes(btn.getAttribute('data-access'));
+                else show=false;
+                btn.style.display=show?'flex':'none';
+                if(show) visible++;
+            });
+            bar.style.display=visible?'block':'none';
+        }
+
         function handleLogin(event) {
             event.preventDefault();
             if(GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"){ alert("Please update GOOGLE_SCRIPT_URL in index.html first!"); return; }
@@ -1294,11 +1339,11 @@
             .then(data=>{
                 if(data.status!=='success'){alert(data.message||"Invalid Credentials");btn.innerText="Login to Dashboard";btn.disabled=false;return;}
                 document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='flex';
-                sessionToken=data.sessionToken||""; window.currentUsername=data.username||user; window.currentUserDisplayName=data.actualName||data.username||user; currentUserEmail=data.emailAddress||""; window.currentUserEmployeeId=data.employeeId||""; window.currentUserOfficeLocation=data.officeLocation||""; window.currentUserOfficeAddress=data.officeAddress||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
+                sessionToken=data.sessionToken||""; window.currentAccessPermissions=data.accessPermissions||""; window.currentUsername=data.username||user; window.currentUserDisplayName=data.actualName||data.username||user; currentUserEmail=data.emailAddress||""; window.currentUserEmployeeId=data.employeeId||""; window.currentUserOfficeLocation=data.officeLocation||""; window.currentUserOfficeAddress=data.officeAddress||""; whatsappGroupLink=data.whatsappGroupLink||""; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
                 setDateConstraints(); document.getElementById('displayUser').innerText=data.actualName||data.username; window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
                 document.getElementById('displayDept').innerText=data.department||'--'; document.getElementById('displayOfficeTime').innerText=data.officeTime||'--'; window.currentUserWeekoff=data.weekoff||'Sunday'; document.getElementById('displayWeekoff').innerText=data.weekoff||'Sunday';
                 document.getElementById('displayOfficeLocation').innerText=[data.officeLocation,data.officeAddress].filter(Boolean).join(' : ')||'--'; setDisplayedProfilePhoto(data.profilePhotoUrl||'');
-                const role=String(data.role||'').toLowerCase(); document.getElementById('displayRole').innerText=role;
+                const role=String(data.role||'').toLowerCase(); document.getElementById('displayRole').innerText=role; applyManagerControlPermissions(role,data.accessPermissions||'');
                 if(role.indexOf('admin')>-1){
                     document.querySelectorAll('.admin-only').forEach(el=>el.style.display='flex'); document.querySelectorAll('.hod-only').forEach(el=>el.style.display='flex');
                     document.getElementById('hodNoticeBox').style.display='block'; document.getElementById('teamAttendanceSection').style.display='block'; document.getElementById('taskTableTitle').innerText='System Overview';
