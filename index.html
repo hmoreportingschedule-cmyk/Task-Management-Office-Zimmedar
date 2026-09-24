@@ -1332,7 +1332,7 @@
                 globalTeamMembers=Array.isArray(data.teamMembers)?data.teamMembers:[];
                 globalTeamMemberMeta=Array.isArray(data.teamMemberMeta)?data.teamMemberMeta:[];
                 globalMonthlyFullAttendance=Array.isArray(data.monthlyFullAttendance)?data.monthlyFullAttendance:[];
-                globalWorkLogs=Array.isArray(data.workLogs)?data.workLogs:[]; window.globalDelayReports=Array.isArray(data.delayReports)?data.delayReports:[];
+                globalWorkLogs=[]; window.globalDelayReports=[];
                 globalTeamAttendance=Array.isArray(data.teamAttendance)?data.teamAttendance:[];
                 globalAdvanceScheduleRequests=Array.isArray(data.advanceScheduleRequests)?data.advanceScheduleRequests:[];
                 globalAttendanceRequests=Array.isArray(data.attendanceRequests)?data.attendanceRequests:[]; globalOfficeEvents=Array.isArray(data.officeEvents)?data.officeEvents:[]; window.serverNotifications=Array.isArray(data.serverNotifications)?data.serverNotifications:[]; window.serverDashboardSummary=Array.isArray(data.dashboardSummary)?data.dashboardSummary:[];
@@ -1345,6 +1345,20 @@
                 filterTasksByEmp();
                 return true;
             }catch(e){ return false; }
+        }
+
+        let workLogsLoadPromise = null;
+        function ensureWorkLogsLoaded(force=false){
+            if(!sessionToken) return Promise.resolve([]);
+            if(!force && Array.isArray(globalWorkLogs) && globalWorkLogs.length) return Promise.resolve(globalWorkLogs);
+            if(workLogsLoadPromise) return workLogsLoadPromise;
+            const fd=new FormData(); fd.append('action','getWorkLogs'); fd.append('sessionToken',sessionToken);
+            workLogsLoadPromise=fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{
+                if(d.status!=='success') throw new Error(d.message||'Work logs load failed.');
+                globalWorkLogs=Array.isArray(d.workLogs)?d.workLogs:[];
+                return globalWorkLogs;
+            }).finally(()=>{workLogsLoadPromise=null;});
+            return workLogsLoadPromise;
         }
 
         function fetchDashboardSummaryFast(){
@@ -1395,7 +1409,7 @@
                 globalTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : [];
                 globalTeamMemberMeta = Array.isArray(data.teamMemberMeta) ? data.teamMemberMeta : [];
                 globalMonthlyFullAttendance = Array.isArray(data.monthlyFullAttendance) ? data.monthlyFullAttendance : [];
-                globalWorkLogs = Array.isArray(data.workLogs) ? data.workLogs : []; window.globalDelayReports=Array.isArray(data.delayReports)?data.delayReports:[];
+                globalWorkLogs = []; window.globalDelayReports=[];
                 attendanceEntryStart = data.todayAttendanceEntryStart || attendanceEntryStart;
                 attendanceEntryEnd = data.todayAttendanceEntryEnd || attendanceEntryEnd;
                 setDateConstraints();
@@ -2317,7 +2331,8 @@
             ws['!cols'] = widths;
         }
 
-        function exportToExcel() {
+        async function exportToExcel() {
+            await ensureWorkLogsLoaded();
             if(typeof XLSX === 'undefined') {
                 alert("Excel library is loading, please try again in a few seconds.");
                 return;
@@ -2442,6 +2457,7 @@
                 : 'No group is assigned yet. You can still share the report through WhatsApp.';
             toggleWhatsAppReportInputs();
             generateWhatsAppReportPreview();
+            ensureWorkLogsLoaded().then(()=>generateWhatsAppReportPreview()).catch(()=>{});
         }
         function closeWhatsAppReportModal() { document.getElementById('whatsappReportModal').style.display = 'none'; }
         function toggleWhatsAppReportInputs() {
@@ -2814,7 +2830,8 @@
         }
         function markNotificationRead(id){const ids=getReadNotificationIds();if(!ids.includes(id)){ids.push(id);setReadNotificationIds(ids);}renderNotifications();}
         function markAllNotificationsRead(){const items=notificationItems();setReadNotificationIds(items.map(notificationId));renderNotifications();}
-        function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications();}
+        function toggleNotifications(){const p=document.getElementById('notificationPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden')){fetchServerNotifications();renderNotifications();}}
+        function fetchServerNotifications(){if(!sessionToken)return;const fd=new FormData();fd.append('action','getServerNotifications');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{if(d.status==='success'){window.serverNotifications=Array.isArray(d.notifications)?d.notifications:[];renderNotifications();}}).catch(()=>{});}
         function notificationItems(){
             const role=(document.getElementById('displayRole')?.innerText||'').toLowerCase(),items=[],tasks=globalAllTasks||[],atts=globalTeamAttendance||[],sched=globalAdvanceScheduleRequests||[],attReqs=globalAttendanceRequests||[],delayReports=window.globalDelayReports||[];
             (window.serverNotifications||[]).forEach(n=>items.push({type:'server',key:n.id,title:n.title,text:n.text,action:n.action,date:n.timestamp,priority:n.priority}));
