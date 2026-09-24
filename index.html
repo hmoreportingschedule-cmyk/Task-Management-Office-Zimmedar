@@ -73,10 +73,18 @@
         .progress-report-mini-table{width:100%;border-collapse:collapse;font-size:11px;}
         .progress-report-mini-table th{background:#2a4d53;color:#fff;padding:7px;text-align:left;}
         .progress-report-mini-table td{border-bottom:1px solid #e5eeee;padding:7px;}
-            @media (max-width:640px){
-            .login-shell{padding:10px!important}.login-card{padding:22px!important;border-radius:22px!important;max-width:100%!important}
-            .login-card h1{font-size:1.55rem!important;line-height:1.2!important}.login-card input,.login-card button{min-height:48px;font-size:16px!important}
+            .login-status{display:none;margin-top:14px;border-radius:12px;padding:11px 13px;font-size:.82rem;font-weight:700;line-height:1.35}
+        .login-status.error{display:block;background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+        .login-status.info{display:block;background:#ecfeff;color:#155e75;border:1px solid #a5f3fc}
+        .login-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;display:inline-block;animation:loginSpin .7s linear infinite;vertical-align:-4px;margin-right:8px}
+        @keyframes loginSpin{to{transform:rotate(360deg)}}
+        .web-switch{position:relative;display:inline-flex;width:42px;height:23px;align-items:center}
+        .web-switch input{opacity:0;width:0;height:0}.web-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s;cursor:pointer}.web-slider:before{content:"";position:absolute;width:17px;height:17px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}.web-switch input:checked+.web-slider{background:#259b94}.web-switch input:checked+.web-slider:before{transform:translateX(19px)}
+        @media (max-width:640px){
+            .login-shell{padding:10px!important;align-items:center!important}.login-card{padding:22px!important;border-radius:22px!important;max-width:100%!important;box-shadow:0 18px 45px rgba(0,0,0,.18)!important}
+            .login-card h1{font-size:1.55rem!important;line-height:1.2!important}.login-card input,.login-card button{min-height:50px;font-size:16px!important}
             #dashboard-section{overflow-y:auto!important}
+            .login-card .w-20{width:64px!important;height:64px!important}
         }
 ''</style>
 </head>
@@ -91,6 +99,7 @@
                 <div><label class="block text-xs font-bold text-gray-600 mb-2">USERNAME</label><div class="relative"><i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="text" id="username" name="username" autocomplete="off" autocapitalize="none" spellcheck="false" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter username" required></div></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-2">PASSWORD</label><div class="relative"><i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-[#259b94]"></i><input type="password" id="password" name="password" autocomplete="new-password" class="w-full border border-gray-200 bg-gray-50 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#5fd3cc]" placeholder="Enter password" required></div></div>
                 <button type="submit" id="loginBtn" class="w-full bg-[#112a2e] hover:bg-[#1e3e43] text-white font-bold py-3.5 rounded-xl transition shadow-lg">Login to Dashboard <i class="fas fa-arrow-right ml-2"></i></button>
+                <div id="loginStatus" class="login-status" role="alert"></div>
             </form>
             <p class="text-center text-xs text-gray-400 mt-7"><i class="fas fa-shield-alt mr-1"></i> Authorized office users only</p>
         </div>
@@ -327,6 +336,9 @@
                     </button>
                     <button onclick="runManualBackup()" class="admin-only bg-[#475569] hover:bg-[#334155] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
                         <i class="fas fa-database"></i> Backup Now
+                    </button>
+                    <button onclick="mergeExistingEmployeeFiles()" class="admin-only bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
+                        <i class="fas fa-code-merge"></i> Merge Old Files
                     </button>
                     <button onclick="openSystemHealthModal()" class="admin-only bg-[#0f766e] hover:bg-[#115e59] text-white px-5 py-3 rounded-xl shadow-md font-bold items-center gap-2 transition">
                         <i class="fas fa-heart-pulse"></i> System Health
@@ -583,7 +595,7 @@
             <button id="createUserBtn" onclick="submitAdminUser()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg mt-5 transition shadow-lg"><i class="fas fa-user-plus"></i> Create User</button>
             <div class="mt-6 border-t pt-4">
                 <h4 class="font-bold text-[#112a2e] mb-2">Existing Users</h4>
-                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Email</th><th class="p-2 text-left">Contact</th><th class="p-2 text-left">WhatsApp</th><th class="p-2 text-left">Access</th><th class="p-2 text-left">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
+                <div class="overflow-x-auto max-h-56 border rounded-lg"><table class="w-full text-sm"><thead class="bg-[#f0f7f7] sticky top-0"><tr><th class="p-2 text-left">User</th><th class="p-2 text-left">Role</th><th class="p-2 text-left">Department</th><th class="p-2 text-left">HOD</th><th class="p-2 text-left">Email</th><th class="p-2 text-left">Contact</th><th class="p-2 text-left">WhatsApp</th><th class="p-2 text-left">Web Link</th><th class="p-2 text-left">Access</th><th class="p-2 text-left">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
             </div>
         </div>
     </div>
@@ -1213,17 +1225,22 @@
             return (parseInt(hours, 10) * 60) + parseInt(minutes, 10);
         }
 
+        function showLoginStatus(message,type){const box=document.getElementById('loginStatus');if(!box)return;box.className='login-status '+(type||'error');box.innerHTML=message;}
         function handleLogin(event) {
             event.preventDefault();
-            if(GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"){ alert("Please update GOOGLE_SCRIPT_URL in index.html first!"); return; }
+            if(GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"){ showLoginStatus('Please update the Google Apps Script Web App URL first.','error'); return; }
             const user=document.getElementById('username').value.trim(), pass=document.getElementById('password').value, btn=document.getElementById('loginBtn');
-            btn.innerText="Authenticating..."; btn.disabled=true;
+            showLoginStatus('<span class="login-spinner"></span>Secure login check ho raha hai…','info'); btn.innerHTML='<span class="login-spinner"></span>Authenticating…'; btn.disabled=true;
             const formData=new FormData(); formData.append('action','login'); formData.append('username',user); formData.append('password',pass);
-            const controller=new AbortController(), timeoutId=setTimeout(()=>controller.abort(),15000);
+            const controller=new AbortController(), timeoutId=setTimeout(()=>controller.abort(),30000);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:formData,cache:'no-store',signal:controller.signal,credentials:'omit'})
             .then(res=>{if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
             .then(data=>{
-                if(data.status!=='success'){alert(data.message||"Invalid Credentials");btn.innerText="Login to Dashboard";btn.disabled=false;return;}
+                if(data.status!=='success'){
+                    const msg=data.code==='WEB_LINK_OFF' ? '🔒 '+(data.message||'Aapka Web Link access abhi OFF hai.') : '❌ '+(data.message||'Aap ne galat User ID ya Password add kiya hai.');
+                    showLoginStatus(msg,'error');btn.innerHTML='Login to Dashboard <i class="fas fa-arrow-right ml-2"></i>';btn.disabled=false;return;
+                }
+                showLoginStatus('Login successful. Dashboard load ho raha hai…','info');
                 document.getElementById('login-section').style.display='none'; document.getElementById('dashboard-section').style.display='flex';
                 sessionToken=data.sessionToken||""; whatsappGroupLink=data.whatsappGroupLink||""; performanceWeights=data.performanceWeights||{attendance:50,task:50}; attendanceEntryStart=data.attendanceEntryStart||""; attendanceEntryEnd=data.attendanceEntryEnd||"";
                 setDateConstraints(); document.getElementById('displayUser').innerText=data.actualName||data.username; window.currentUserContactNumber=data.contactNumber||''; window.currentUserWhatsappNumber=data.whatsappNumber||'';
@@ -1248,7 +1265,7 @@
                 }
                 requestAnimationFrame(()=>fetchDashboardData(data.username||user,role,data.department||''));
             })
-            .catch(err=>{alert(err&&err.name==='AbortError'?"Login is taking too long. Please check the connection and try again.":"Error connecting to Sheet");btn.innerText="Login to Dashboard";btn.disabled=false;})
+            .catch(err=>{showLoginStatus(err&&err.name==='AbortError'?'⏱️ Server response mein zyada time lag raha hai. Please 10–15 seconds baad dobara try karein.':'⚠️ Server se connection nahi ho pa raha. Please connection check karke dobara try karein.','error');btn.innerHTML='Login to Dashboard <i class="fas fa-arrow-right ml-2"></i>';btn.disabled=false;})
             .finally(()=>clearTimeout(timeoutId));
         }
 
@@ -1936,11 +1953,27 @@
                     const safe=encodeURIComponent(u.username);
                     const self=String(u.username||'').trim().toLowerCase()===String(document.getElementById('displayUser').innerText||'').trim().toLowerCase();
                     const action=self ? '<span class="text-xs text-gray-400 font-semibold">Owner only</span>' : `<button onclick="openEditUserModal(decodeURIComponent('${safe}'))" class="text-xs bg-[#e6fcf5] text-[#1f827c] border border-[#b2d8d8] px-3 py-1.5 rounded-md font-bold"><i class="fas fa-pen"></i> Edit</button>`;
-                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.emailAddress?`<a href="mailto:${u.emailAddress}" class="text-[#259b94] font-bold">${u.emailAddress}</a>`:'-'}</td><td class="p-2 text-xs">${u.contactNumber?`<a href="tel:${u.contactNumber}" class="text-[#259b94] font-bold">${u.contactNumber}</a>`:'-'}</td><td class="p-2 text-xs">${u.whatsappNumber?`<a target="_blank" href="https://wa.me/${String(u.whatsappNumber).replace(/\D/g,'')}" class="text-green-600 font-bold">${u.whatsappNumber}</a>`:'-'}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}${u.attendanceEntryStart&&u.attendanceEntryEnd?`<br><span class="text-[#259b94]">Att: ${u.attendanceEntryStart} → ${u.attendanceEntryEnd}</span>`:''}</td><td class="p-2">${action}</td></tr>`;
+                    const webToggle=self ? `<span class="text-xs text-gray-400 font-semibold">Current Admin</span>` : `<label class="web-switch" title="Turn user Web Link ON/OFF"><input type="checkbox" ${u.webLinkEnabled!==false?'checked':''} onchange="toggleUserWebLink('${safe}',this.checked)"><span class="web-slider"></span></label>`;
+                    body.innerHTML+=`<tr class="border-t"><td class="p-2 font-semibold">${u.username}</td><td class="p-2">${u.role}</td><td class="p-2">${u.department||'-'}</td><td class="p-2">${u.hod||'-'}</td><td class="p-2 text-xs">${u.emailAddress?`<a href="mailto:${u.emailAddress}" class="text-[#259b94] font-bold">${u.emailAddress}</a>`:'-'}</td><td class="p-2 text-xs">${u.contactNumber?`<a href="tel:${u.contactNumber}" class="text-[#259b94] font-bold">${u.contactNumber}</a>`:'-'}</td><td class="p-2 text-xs">${u.whatsappNumber?`<a target="_blank" href="https://wa.me/${String(u.whatsappNumber).replace(/\D/g,'')}" class="text-green-600 font-bold">${u.whatsappNumber}</a>`:'-'}</td><td class="p-2">${webToggle}</td><td class="p-2 text-xs">${u.accessPermissions||'All / Not Set'}${u.attendanceEntryStart&&u.attendanceEntryEnd?`<br><span class="text-[#259b94]">Att: ${u.attendanceEntryStart} → ${u.attendanceEntryEnd}</span>`:''}</td><td class="p-2">${action}</td></tr>`;
                 });
                 toggleAdminUserHod();
             }).catch(()=>alert('Unable to load users.'));
         }
+        function toggleUserWebLink(encodedUsername, enabled){
+            const username=decodeURIComponent(encodedUsername);
+            const fd=new FormData(); fd.append('action','adminSetWebLink'); fd.append('sessionToken',sessionToken); fd.append('username',username); fd.append('enabled',enabled?'true':'false');
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{
+                if(d.status!=='success'){alert(d.message||'Web Link update failed.');loadAdminUsers();return;}
+                loadAdminUsers();
+            }).catch(()=>{alert('Web Link update failed.');loadAdminUsers();});
+        }
+        function mergeExistingEmployeeFiles(){
+            if(!confirm('Existing employee files ko ek format mein merge karke Annual Backup folder mein move karna hai? Ye one-time migration hai.'))return;
+            const fd=new FormData();fd.append('action','mergeExistingEmployeeFiles');fd.append('sessionToken',sessionToken);
+            const btn=[...document.querySelectorAll('button')].find(b=>b.innerText&&b.innerText.includes('Merge Old Files'));if(btn){btn.disabled=true;btn.innerText='Merging...';}
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Merge complete.');if(d.errors&&d.errors.length)console.warn('Merge errors:',d.errors);}).catch(()=>alert('Merge request failed.')).finally(()=>{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-code-merge"></i> Merge Old Files';}});
+        }
+
         function openEditUserModal(username) {
             const fd=new FormData(); fd.append('action','adminGetUser'); fd.append('sessionToken',sessionToken); fd.append('username',username);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
@@ -3141,17 +3174,28 @@
             const c=document.createElement('canvas');c.width=1000;c.height=360;const x=c.getContext('2d');x.fillStyle='#ffffff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#112a2e';x.font='bold 24px Arial';x.fillText(title,30,38);const max=100,base=305,chartH=230,barW=Math.max(24,Math.min(70,(c.width-80)/Math.max(labels.length,1)-16));labels.forEach((lab,i)=>{const v=Math.max(0,Math.min(max,Number(values[i])||0)),h=chartH*v/max,bx=55+i*((c.width-90)/Math.max(labels.length,1));x.fillStyle='#259b94';x.fillRect(bx,base-h,barW,h);x.fillStyle='#112a2e';x.font='bold 14px Arial';x.fillText(v+'%',bx,base-h-8);x.font='12px Arial';x.fillText(String(lab).slice(0,14),bx,base+18);});return c.toDataURL('image/png',1.0);}
         async function generateProgressReportPDF(){
             if(!window.currentProgressReport)renderProgressReport(); const report=window.currentProgressReport; if(!report||!report.stats?.length){alert('Report data available nahi hai.');return;}
-            try{const ok=await loadJsPdfForProgressReport();if(!ok)throw new Error('PDF library load failed');const {jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');const W=210,H=297;const month=progressReportMonthKey();
-                const addHeader=(title,sub)=>{doc.setFillColor(17,42,46);doc.rect(0,0,W,30,'F');doc.setTextColor(255,255,255);doc.setFontSize(19);doc.setFont('helvetica','bold');doc.text(title,15,13);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(sub,15,22);};
-                const generatedAt=new Date(), generatedAtText=generatedAt.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}), generatedBy=document.getElementById('displayUser')?.innerText||'User'; addHeader('OFFICE ZIMMEDAR — PROGRESS REPORT','Management Summary | '+month+' | Generated: '+generatedAtText+' | By: '+generatedBy);doc.setTextColor(17,42,46);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('SUMMARY',15,43);
+            try{
+                const ok=await loadJsPdfForProgressReport();if(!ok)throw new Error('PDF library load failed');
+                const {jsPDF}=window.jspdf, doc=new jsPDF('l','mm','a4'), W=297,H=210, margin=10;
+                const generatedAt=new Date(), generatedAtText=generatedAt.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}), generatedBy=document.getElementById('displayUser')?.innerText||'User', month=progressReportMonthKey();
+                const header=(title,sub)=>{doc.setFillColor(17,42,46);doc.rect(0,0,W,24,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(title,12,10);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(sub,12,18);};
+                const footer=()=>{doc.setFontSize(7);doc.setTextColor(110,120,120);doc.text('Generated: '+generatedAtText+' | By: '+generatedBy,12,H-6);};
+                const text=(v,max=45)=>String(v??'-').replace(/[\r\n]+/g,' ').slice(0,max);
+                const drawTable=(headers,rows,widths,startY,rowH=5.5)=>{let y=startY;doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setFillColor(42,77,83);let x=margin;headers.forEach((h,i)=>{doc.setFillColor(42,77,83);doc.rect(x,y,widths[i],rowH,'F');doc.setTextColor(255,255,255);doc.text(text(h,22),x+2,y+3.7);x+=widths[i];});y+=rowH;doc.setFont('helvetica','normal');rows.forEach((r,ri)=>{if(y>H-15){footer();doc.addPage('a4','landscape');header('OFFICE ZIMMEDAR — REPORT','Continued | '+month);y=30;}x=margin;if(ri%2===0){doc.setFillColor(247,250,250);doc.rect(margin,y,widths.reduce((a,b)=>a+b,0),rowH,'F');}r.forEach((v,i)=>{doc.setTextColor(55,65,81);doc.text(text(v,Math.max(10,Math.floor(widths[i]/2))),x+2,y+3.7);x+=widths[i];});y+=rowH;});return y;};
                 const total=report.stats.length,totalTasks=report.stats.reduce((n,s)=>n+s.tasks.length,0),done=report.stats.reduce((n,s)=>n+s.completed,0),on=report.stats.filter(s=>s.rows.some(a=>{const d=progressReportDateObj(a.Date),t=new Date();t.setHours(0,0,0,0);return d&&d.getTime()===t.getTime()&&a.InTime;})).length,taskPct=totalTasks?Math.round(done/totalTasks*100):0;
-                const cards=[['Total Employee',total],['On Time Available',on],['Total Task',totalTasks],['Total Task Complete',done],['Task Progress',taskPct+'%']]; cards.forEach((c,i)=>{const x=15+(i%2)*92,y=52+Math.floor(i/2)*30;doc.setFillColor(240,247,247);doc.roundedRect(x,y,86,23,3,3,'F');doc.setTextColor(75,109,112);doc.setFontSize(8);doc.text(c[0],x+5,y+7);doc.setTextColor(17,42,46);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text(String(c[1]),x+5,y+17);doc.setFont('helvetica','normal');});
-                let y=132;const labels=report.stats.map(s=>s.emp),att=report.stats.map(s=>s.attendancePct),tsk=report.stats.map(s=>s.taskPct);doc.addImage(progressReportCanvasData(labels,att,'Attendance Performance'),'PNG',15,y,180,58);y+=65;doc.addImage(progressReportCanvasData(labels,tsk,'Task Progress'),'PNG',15,y,180,58);doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text('Generated Date & Time: '+generatedAtText+' | Generated By: '+generatedBy,15,289);
-                report.stats.forEach((s,idx)=>{doc.addPage();addHeader('EMPLOYEE REPORT',s.emp+' | '+month);doc.setTextColor(17,42,46);doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('Performance Summary',15,42);const vals=[['Attendance',s.attendancePct+'%'],['Present',s.present],['Absent',s.absent],['Leave',s.leave],['Weekoff',s.weekoff],['Total Tasks',s.tasks.length],['Completed',s.completed],['Task Progress',s.taskPct+'%'],['Overall',s.overall+'%']];vals.forEach((v,i)=>{const x=15+(i%3)*62,y2=50+Math.floor(i/3)*21;doc.setFillColor(248,250,250);doc.roundedRect(x,y2,57,16,2,2,'F');doc.setFontSize(7);doc.setTextColor(90,100,100);doc.text(v[0],x+3,y2+5);doc.setFontSize(10);doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.text(String(v[1]),x+3,y2+12);doc.setFont('helvetica','normal');});
-                    let yy=120;doc.addImage(progressReportCanvasData([s.emp], [s.attendancePct], 'Attendance %'),'PNG',15,yy,85,42);doc.addImage(progressReportCanvasData([s.emp], [s.taskPct], 'Task %'),'PNG',110,yy,85,42);yy=169;doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('Attendance Details',15,yy);yy+=6;doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text('Date',15,yy);doc.text('In',45,yy);doc.text('Out',70,yy);doc.text('Status',100,yy);doc.text('Reason',135,yy);yy+=5;s.rows.slice(0,18).forEach(a=>{if(yy>285){doc.addPage();yy=18;}const status=a.InTime?'Present':(String(a.Leave||'').toLowerCase().includes('leave')?'Leave':String(a.Leave||'').toLowerCase().includes('weekoff')?'Weekoff':'Absent');doc.text(String(a.Date||'-'),15,yy);doc.text(String(a.InTime||'-'),45,yy);doc.text(String(a.OutTime||'-'),70,yy);doc.text(status,100,yy);doc.text(String(a.Reason||'-').slice(0,38),135,yy);yy+=4.5;});
-                    if(yy>255){doc.addPage();yy=18;}else yy+=7;doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Task Details',15,yy);yy+=6;doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text('Task',15,yy);doc.text('End Date',95,yy);doc.text('Status',130,yy);doc.text('Time',165,yy);yy+=5;s.tasks.slice(0,24).forEach(t=>{if(yy>285){doc.addPage();yy=18;}doc.text(String(t.taskName||'-').slice(0,42),15,yy);doc.text(String(t.endDate||'-'),95,yy);doc.text(String(t.empStatus||'Pending').slice(0,18),130,yy);doc.text((Number(t.timeSpent)||0)+'m',165,yy);yy+=4.5;});
+                header('OFFICE ZIMMEDAR — PROGRESS REPORT','Desktop / Landscape View | '+month+' | Generated: '+generatedAtText+' | By: '+generatedBy);
+                const cards=[['Employees',total],['On Time Available',on],['Total Tasks',totalTasks],['Completed',done],['Task Progress',taskPct+'%']];cards.forEach((c,i)=>{const x=margin+i*55;doc.setFillColor(240,247,247);doc.roundedRect(x,31,50,18,3,3,'F');doc.setTextColor(75,109,112);doc.setFontSize(7);doc.text(c[0],x+3,37);doc.setTextColor(17,42,46);doc.setFontSize(12);doc.setFont('helvetica','bold');doc.text(String(c[1]),x+3,45);doc.setFont('helvetica','normal');});
+                doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.attendancePct),'Attendance Performance'),'PNG',10,55,135,52);doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.taskPct),'Task Progress'),'PNG',152,55,135,52);
+                let y=112; y=drawTable(['Employee','Attendance %','Present','Absent','Leave','Weekoff','Tasks','Completed','Task %','Overall'],report.stats.map(s=>[s.emp,s.attendancePct+'%',s.present,s.absent,s.leave,s.weekoff,s.tasks.length,s.completed,s.taskPct+'%',s.overall+'%']),[45,23,20,20,20,22,20,23,23,23],y,6);footer();
+                report.stats.forEach(s=>{
+                    doc.addPage('a4','landscape');header('EMPLOYEE REPORT',s.emp+' | '+month);
+                    const vals=[['Attendance',s.attendancePct+'%'],['Present',s.present],['Absent',s.absent],['Leave',s.leave],['Weekoff',s.weekoff],['Tasks',s.tasks.length],['Completed',s.completed],['Task Progress',s.taskPct+'%'],['Overall',s.overall+'%']];vals.forEach((v,i)=>{const x=10+(i%9)*31.5;doc.setFillColor(248,250,250);doc.roundedRect(x,31,29,17,2,2,'F');doc.setFontSize(6.5);doc.setTextColor(90,100,100);doc.text(v[0],x+2,37);doc.setFontSize(9);doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.text(String(v[1]),x+2,44);doc.setFont('helvetica','normal');});
+                    doc.addImage(progressReportCanvasData([s.emp],[s.attendancePct],'Attendance %'),'PNG',10,53,90,45);doc.addImage(progressReportCanvasData([s.emp],[s.taskPct],'Task %'),'PNG',105,53,90,45);
+                    let yy=103;yy=drawTable(['Date','In Time','Out Time','Status','Reason'],s.rows.map(a=>[a.Date||'-',a.InTime||'-',a.OutTime||'-',a.InTime?'Present':(String(a.Leave||'').toLowerCase().includes('leave')?'Leave':String(a.Leave||'').toLowerCase().includes('weekoff')?'Weekoff':'Absent'),a.Reason||a.Leave||'-']),[28,30,30,30,120],yy,5.2);
+                    if(yy>H-55){doc.addPage('a4','landscape');header('EMPLOYEE REPORT — TASK DETAILS',s.emp+' | '+month);yy=30;}
+                    yy+=5;drawTable(['Task','Timeline','Priority','Status','Time'],s.tasks.map(t=>[t.taskName||'-',(t.startDate||'-')+' → '+(t.endDate||'-'),t.priority||'Normal',t.empStatus||'Pending',(Number(t.timeSpent)||0)+' min']),[120,55,30,45,25],yy,5.2);footer();
                 });
-                const safe='Progress_Report_'+month.replace('-','_')+'_'+generatedAt.toISOString().replace(/[:.]/g,'-').slice(0,19)+'.pdf';doc.save(safe);alert('Progress Report PDF ready.');
+                const safe='Progress_Report_Desktop_'+month.replace('-','_')+'_'+generatedAt.toISOString().replace(/[:.]/g,'-').slice(0,19)+'.pdf';doc.save(safe);alert('Desktop-view PDF ready.');
             }catch(e){console.error(e);alert('PDF generate nahi ho saka. Please try again.');}
         }
 
