@@ -172,7 +172,7 @@
                 <button onclick="openEmergencyTaskModal()" class="w-full bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-bolt"></i> Emergency New Task Request
                 </button>
-                <button onclick="openOwnProfileModal()" class="emp-only w-full bg-white border border-[#5fd3cc] text-[#2a4d53] hover:bg-[#e6fcf5] font-bold text-sm py-3 rounded-lg shadow-md transition mb-4">
+                <button onclick="openOwnProfileModal()" class="emp-only w-full bg-[#5fd3cc] hover:bg-[#48b8b1] text-[#112a2e] border border-[#259b94] font-extrabold text-sm py-3 rounded-lg shadow-md transition mb-4">
                     <i class="fas fa-user-cog"></i> My Profile
                 </button>
             </div>
@@ -1080,7 +1080,7 @@
             <h2 class="text-2xl font-extrabold text-[#112a2e] mb-1"><i class="fab fa-whatsapp text-[#25D366]"></i> Follow-up / Reminder</h2>
             <p class="text-sm text-gray-500 mb-5">Jis employee ne Attendance ya Task update nahi ki, uske liye reminder prepare/send karein.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="followupEmployee" class="w-full border p-3 rounded-lg"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="followupEmployee" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></select></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Reminder Type</label><select id="followupType" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"><option value="both">Attendance + Task — No Update</option><option value="attendance">Attendance Update Missing</option><option value="task">Task Update Missing</option></select></div>
             </div>
             <div class="mt-4 bg-[#f0f7f7] border border-[#cfe7e5] rounded-xl p-4">
