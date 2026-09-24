@@ -68,6 +68,11 @@
         .login-shell{background:radial-gradient(circle at top right,#5fd3cc 0,transparent 35%),linear-gradient(135deg,#112a2e,#259b94);}
         .login-card{backdrop-filter:blur(14px);background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.55);}
         .profile-photo{object-fit:cover;width:48px;height:48px;border-radius:9999px;border:2px solid #5fd3cc;background:#259b94;}
+        .progress-report-section{background:#fff;border:1px solid #e1ebea;border-radius:14px;padding:16px;margin-bottom:16px;}
+        .progress-report-page{page-break-after:always;}
+        .progress-report-mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+        .progress-report-mini-table th{background:#2a4d53;color:#fff;padding:7px;text-align:left;}
+        .progress-report-mini-table td{border-bottom:1px solid #e5eeee;padding:7px;}
             @media (max-width:640px){
             .login-shell{padding:10px!important}.login-card{padding:22px!important;border-radius:22px!important;max-width:100%!important}
             .login-card h1{font-size:1.55rem!important;line-height:1.2!important}.login-card input,.login-card button{min-height:48px;font-size:16px!important}
@@ -233,11 +238,8 @@
                         <button onclick="openOneViewModal()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-calendar-alt"></i> Attendance Report
                         </button>
-                        <button onclick="openTaskReportModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-list-check text-[#259b94]"></i> Task Report
-                        </button>
-                        <button onclick="openProgressChartModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
-                            <i class="fas fa-chart-line text-orange-500"></i> Progress Chart
+                        <button onclick="openProgressReportModal()" class="bg-white border border-[#b2d8d8] hover:bg-[#e6fcf5] text-[#2a4d53] px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
+                            <i class="fas fa-chart-line text-orange-500"></i> Progress Report
                         </button>
                         <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2 text-sm transition">
                             <i class="fas fa-file-excel"></i> Export Excel
@@ -557,8 +559,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Dashboard Overview" checked> Dashboard Overview</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Attendance Report" checked> Attendance Report</label>
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Task Report" checked> Task Report</label>
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Progress Chart" checked> Progress Chart</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Progress Report" checked> Progress Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Import Center" checked> Import Center</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="Export Excel" checked> Export Excel</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="admin-access" value="WhatsApp Report" checked> WhatsApp Report</label>
@@ -603,8 +604,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Dashboard Overview"> Dashboard Overview</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Attendance Report"> Attendance Report</label>
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Task Report"> Task Report</label>
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Progress Chart"> Progress Chart</label>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Progress Report"> Progress Report</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Import Center"> Import Center</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="Export Excel"> Export Excel</label>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="edit-admin-access" value="WhatsApp Report"> WhatsApp Report</label>
@@ -874,6 +874,43 @@
                     <tbody id="taskReportBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL PROGRESS REPORT MODAL -->
+    <div id="progressReportModal" class="modal">
+        <div class="modal-content relative bg-white border border-gray-200 shadow-2xl" style="max-width:1400px">
+            <span onclick="closeProgressReportModal()" class="absolute top-2 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
+            <div class="flex flex-wrap justify-between items-center gap-3 mb-5 pr-8">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-[#112a2e]"><i class="fas fa-chart-line text-orange-500"></i> Progress Report</h2>
+                    <p class="text-sm text-gray-500 mt-1">Attendance + Task performance ka professional management report.</p>
+                </div>
+                <button onclick="generateProgressReportPDF()" class="bg-[#112a2e] hover:bg-[#1e3e43] text-white px-5 py-2.5 rounded-lg shadow font-bold text-sm flex items-center gap-2"><i class="fas fa-file-pdf text-red-300"></i> Generate PDF Report</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-[#f0f7f7] border border-[#cfe7e5] rounded-xl mb-5">
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Month & Year</label><input type="month" id="progressReportMonth" class="w-full border p-2.5 rounded-lg bg-white"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressReportEmployee" class="w-full border p-2.5 rounded-lg bg-white"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="progressReportAttWeight" type="number" min="0" max="100" value="15" class="w-full border p-2.5 rounded-lg bg-white"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="progressReportTaskWeight" type="number" min="0" max="100" value="85" class="w-full border p-2.5 rounded-lg bg-white"></div>
+                <div class="md:col-span-4 flex justify-end"><button onclick="renderProgressReport()" class="bg-[#259b94] hover:bg-[#1f827c] text-white px-6 py-2.5 rounded-lg font-bold"><i class="fas fa-sync-alt"></i> Generate Report</button></div>
+            </div>
+            <div id="progressReportError" class="hidden text-red-600 text-sm font-bold mb-3"></div>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+                <div class="modern-card p-4"><div class="text-[11px] font-bold text-gray-500 uppercase">Total Employee</div><div id="prTotalEmployees" class="text-2xl font-extrabold text-[#112a2e]">0</div></div>
+                <div class="modern-card p-4"><div class="text-[11px] font-bold text-gray-500 uppercase">On Time Available</div><div id="prOnTimeAvailable" class="text-2xl font-extrabold text-green-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-[11px] font-bold text-gray-500 uppercase">Total Task</div><div id="prTotalTasks" class="text-2xl font-extrabold text-[#259b94]">0</div></div>
+                <div class="modern-card p-4"><div class="text-[11px] font-bold text-gray-500 uppercase">Total Task Complete</div><div id="prCompletedTasks" class="text-2xl font-extrabold text-green-600">0</div></div>
+                <div class="modern-card p-4"><div class="text-[11px] font-bold text-gray-500 uppercase">Task Progress</div><div id="prTaskProgress" class="text-2xl font-extrabold text-orange-500">0%</div></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+                <div class="modern-card p-4"><div class="font-bold text-[#112a2e] mb-2">Attendance Report</div><div class="relative h-64"><canvas id="progressReportAttendanceChart"></canvas></div></div>
+                <div class="modern-card p-4"><div class="font-bold text-[#112a2e] mb-2">Task Report</div><div class="relative h-64"><canvas id="progressReportTaskChart"></canvas></div></div>
+            </div>
+            <div class="overflow-x-auto border rounded-xl mb-5">
+                <table class="w-full text-sm border-collapse"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Employee</th><th class="p-3">Attendance %</th><th class="p-3">Present</th><th class="p-3">Absent</th><th class="p-3">Leave</th><th class="p-3">Weekoff</th><th class="p-3">Tasks</th><th class="p-3">Completed</th><th class="p-3">Task Progress</th><th class="p-3">Overall</th></tr></thead><tbody id="progressReportEmployeeBody"></tbody></table>
+            </div>
+            <div id="progressReportDetails"></div>
         </div>
     </div>
 
@@ -2929,6 +2966,105 @@
             const body=document.getElementById('taskReportBody'); body.innerHTML='';
             if(!tasks.length){body.innerHTML='<tr><td colspan="6" class="p-8 text-center text-gray-500 italic">No task data available.</td></tr>';return;}
             tasks.forEach(t=>{const info=taskDeadlineInfo(t);const status=String(t.empStatus||'').toLowerCase()==='completed'?'✅ Completed':'⏳ Pending';body.innerHTML+=`<tr class="border-t hover:bg-gray-50"><td class="p-3 font-bold">${t.taskName||'-'}${((document.getElementById('displayRole').innerText.indexOf('hod')>-1)||(document.getElementById('displayRole').innerText.indexOf('admin')>-1))?`<br><span class="text-xs text-[#259b94]">${t.assignedTo||''}</span>`:''}</td><td class="p-3 text-xs">${t.startDate||'-'}<br>to<br>${t.endDate||'-'}</td><td class="p-3 font-bold">${t.priority||'Normal'}</td><td class="p-3 font-bold">${t.timeSpent||0} mins</td><td class="p-3">${status}</td><td class="p-3 font-bold ${info.className}">${info.label}</td></tr>`;});
+        }
+
+        // ================= PROFESSIONAL PROGRESS REPORT =================
+        let progressReportAttendanceChart = null, progressReportTaskChart = null;
+        function closeProgressReportModal(){ document.getElementById('progressReportModal').style.display='none'; }
+        function progressReportEscape(v){ return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+        function progressReportMonthKey(){ const v=document.getElementById('progressReportMonth')?.value||''; return v; }
+        function progressReportDateObj(v){ const d=parseReportDate(v); return d; }
+        function progressReportEmployees(){
+            const role=String(document.getElementById('displayRole')?.innerText||'').toLowerCase();
+            const all=Array.isArray(globalTeamMembers)?globalTeamMembers.slice():[];
+            if(role.includes('admin')||role.includes('hod')) return all.length?all:[document.getElementById('displayUser')?.innerText||''];
+            return [document.getElementById('displayUser')?.innerText||''];
+        }
+        function progressReportTasksFor(emp, start, end){
+            return (globalAllTasks||[]).filter(t=>{
+                if(String(t.assignedTo||'').toLowerCase()!==String(emp||'').toLowerCase()) return false;
+                const s=progressReportDateObj(t.startDate), e=progressReportDateObj(t.endDate)||s;
+                return s&&e&&e>=start&&s<=end;
+            });
+        }
+        function progressReportAttendanceFor(emp, start, end){
+            const seen=new Map();
+            (globalMonthlyFullAttendance||[]).forEach(a=>{
+                if(String(a.Employee||'').toLowerCase()!==String(emp||'').toLowerCase()) return;
+                const d=progressReportDateObj(a.Date); if(!d||d<start||d>end)return;
+                const key=d.getTime(); if(!seen.has(key)||(!seen.get(key).InTime&&a.InTime))seen.set(key,a);
+            });
+            return Array.from(seen.values()).sort((a,b)=>(progressReportDateObj(a.Date)||0)-(progressReportDateObj(b.Date)||0));
+        }
+        function progressReportEmployeeStats(emp,start,end){
+            const rows=progressReportAttendanceFor(emp,start,end), tasks=progressReportTasksFor(emp,start,end);
+            let present=0,absent=0,leave=0,weekoff=0,closed=0;
+            rows.forEach(a=>{const l=String(a.Leave||'').toLowerCase(); if(l.includes('weekoff'))weekoff++; else if(l.includes('leave'))leave++; else if(l.includes('office closed')||l.includes('event'))closed++; else if(a.InTime)present++; else absent++;});
+            const working=Math.max(0,rows.length-weekoff-leave-closed), attendancePct=working?Math.round((present/working)*100):0;
+            const completed=tasks.filter(t=>String(t.empStatus||'').toLowerCase()==='completed').length;
+            const taskPct=tasks.length?Math.round(completed/tasks.length*100):0;
+            const aw=Math.max(0,Number(document.getElementById('progressReportAttWeight')?.value)||15),tw=Math.max(0,Number(document.getElementById('progressReportTaskWeight')?.value)||85);
+            const overall=Math.round((attendancePct*aw+taskPct*tw)/100);
+            return {emp,rows,tasks,present,absent,leave,weekoff,closed,working,attendancePct,completed,taskPct,overall};
+        }
+        function progressReportRange(){
+            const raw=progressReportMonthKey(), p=raw.split('-');
+            if(p.length!==2)return null;
+            return {start:new Date(+p[0],+p[1]-1,1),end:new Date(+p[0],+p[1],0)};
+        }
+        function progressReportBuildChart(canvasId, labels, values, label, type){
+            const ctx=document.getElementById(canvasId)?.getContext('2d'); if(!ctx)return null;
+            const old=type==='attendance'?progressReportAttendanceChart:progressReportTaskChart; if(old)old.destroy();
+            const inst=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label,data:values,backgroundColor:'#259b94',borderRadius:5,barPercentage:.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+            if(type==='attendance')progressReportAttendanceChart=inst; else progressReportTaskChart=inst; return inst;
+        }
+        function progressReportRenderDetails(stats){
+            const box=document.getElementById('progressReportDetails'); if(!box)return;
+            box.innerHTML=stats.map(s=>{
+                const taskRows=s.tasks.slice().sort((a,b)=>(progressReportDateObj(a.endDate)||new Date(0))-(progressReportDateObj(b.endDate)||new Date(0))).map(t=>`<tr><td>${progressReportEscape(t.taskName||'-')}</td><td>${progressReportEscape(t.startDate||'-')} → ${progressReportEscape(t.endDate||'-')}</td><td>${progressReportEscape(t.priority||'Normal')}</td><td>${progressReportEscape(t.empStatus||'Pending')}</td><td>${Number(t.timeSpent)||0} min</td></tr>`).join('')||'<tr><td colspan="5" class="p-4 text-center text-gray-500">No tasks found.</td></tr>';
+                const attRows=s.rows.map(a=>`<tr><td>${progressReportEscape(a.Date||'-')}</td><td>${a.InTime||'-'}</td><td>${a.OutTime||'-'}</td><td>${progressReportEscape(a.Leave||'-')}</td><td>${progressReportEscape(a.Reason||'-')}</td></tr>`).join('')||'<tr><td colspan="5" class="p-4 text-center text-gray-500">No attendance records found.</td></tr>';
+                return `<div class="progress-report-section"><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div><h3 class="text-xl font-extrabold text-[#112a2e]">${progressReportEscape(s.emp)}</h3><div class="text-xs text-gray-500">Attendance ${s.attendancePct}% · Task ${s.taskPct}% · Overall ${s.overall}%</div></div><div class="text-sm font-bold text-[#259b94]">${s.completed}/${s.tasks.length} Tasks Complete</div></div><div class="grid grid-cols-2 md:grid-cols-6 gap-2 mb-4"><div class="bg-[#f0f7f7] p-3 rounded-lg"><b>${s.present}</b><small class="block text-gray-500">Present</small></div><div class="bg-red-50 p-3 rounded-lg"><b>${s.absent}</b><small class="block text-gray-500">Absent</small></div><div class="bg-amber-50 p-3 rounded-lg"><b>${s.leave}</b><small class="block text-gray-500">Leave</small></div><div class="bg-blue-50 p-3 rounded-lg"><b>${s.weekoff}</b><small class="block text-gray-500">Weekoff</small></div><div class="bg-green-50 p-3 rounded-lg"><b>${s.completed}</b><small class="block text-gray-500">Completed</small></div><div class="bg-orange-50 p-3 rounded-lg"><b>${s.tasks.length-s.completed}</b><small class="block text-gray-500">Pending</small></div></div><div class="overflow-x-auto mb-4"><h4 class="font-bold mb-2">Attendance Details</h4><table class="progress-report-mini-table"><thead><tr><th>Date</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Reason</th></tr></thead><tbody>${attRows}</tbody></table></div><div class="overflow-x-auto"><h4 class="font-bold mb-2">Task Details</h4><table class="progress-report-mini-table"><thead><tr><th>Task</th><th>Timeline</th><th>Priority</th><th>Status</th><th>Time</th></tr></thead><tbody>${taskRows}</tbody></table></div></div>`;
+            }).join('');
+        }
+        function renderProgressReport(){
+            const range=progressReportRange(),err=document.getElementById('progressReportError'); if(!range){err.textContent='Please select Month & Year.';err.classList.remove('hidden');return;}
+            const aw=Number(document.getElementById('progressReportAttWeight').value),tw=Number(document.getElementById('progressReportTaskWeight').value); if(!Number.isFinite(aw)||!Number.isFinite(tw)||aw+tw!==100){err.textContent='Attendance + Task weightage must equal 100%.';err.classList.remove('hidden');return;} err.classList.add('hidden');
+            const selected=document.getElementById('progressReportEmployee').value, emps=progressReportEmployees().filter(e=>!selected||selected==='__ALL__'||String(e).toLowerCase()===String(selected).toLowerCase());
+            const stats=emps.map(e=>progressReportEmployeeStats(e,range.start,range.end));
+            const totalTasks=stats.reduce((n,s)=>n+s.tasks.length,0),completed=stats.reduce((n,s)=>n+s.completed,0);
+            const today=new Date(); today.setHours(0,0,0,0); const onTime=stats.filter(s=>s.rows.some(a=>{const d=progressReportDateObj(a.Date);return d&&d.getTime()===today.getTime()&&a.InTime;})).length;
+            document.getElementById('prTotalEmployees').innerText=stats.length; document.getElementById('prOnTimeAvailable').innerText=onTime; document.getElementById('prTotalTasks').innerText=totalTasks; document.getElementById('prCompletedTasks').innerText=completed; document.getElementById('prTaskProgress').innerText=(totalTasks?Math.round(completed/totalTasks*100):0)+'%';
+            const body=document.getElementById('progressReportEmployeeBody'); body.innerHTML=stats.map(s=>`<tr class="border-t hover:bg-gray-50"><td class="p-3 font-bold">${progressReportEscape(s.emp)}</td><td class="p-3 text-center">${s.attendancePct}%</td><td class="p-3 text-center text-green-600 font-bold">${s.present}</td><td class="p-3 text-center text-red-600">${s.absent}</td><td class="p-3 text-center text-amber-600">${s.leave}</td><td class="p-3 text-center text-blue-600">${s.weekoff}</td><td class="p-3 text-center">${s.tasks.length}</td><td class="p-3 text-center text-green-600 font-bold">${s.completed}</td><td class="p-3 text-center text-orange-600 font-bold">${s.taskPct}%</td><td class="p-3 text-center font-extrabold">${s.overall}%</td></tr>`).join('')||'<tr><td colspan="10" class="p-6 text-center text-gray-500">No report data.</td></tr>';
+            const labels=stats.map(s=>s.emp.length>16?s.emp.slice(0,16)+'…':s.emp), att=stats.map(s=>s.attendancePct), task=stats.map(s=>s.taskPct); progressReportBuildChart('progressReportAttendanceChart',labels,att,'Attendance %','attendance'); progressReportBuildChart('progressReportTaskChart',labels,task,'Task %','task'); progressReportRenderDetails(stats);
+            window.currentProgressReport={range,stats,aw,tw};
+        }
+        function openProgressReportModal(){
+            document.getElementById('progressReportModal').style.display='block';
+            const month=document.getElementById('progressReportMonth'), n=new Date(); month.value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+            const sel=document.getElementById('progressReportEmployee'), role=String(document.getElementById('displayRole')?.innerText||'').toLowerCase(); sel.innerHTML='';
+            const emps=progressReportEmployees(); if(role.includes('admin')||role.includes('hod')) sel.innerHTML='<option value="__ALL__">All Employees</option>'+emps.map(e=>`<option value="${progressReportEscape(e)}">${progressReportEscape(e)}</option>`).join(''); else sel.innerHTML=emps.map(e=>`<option value="${progressReportEscape(e)}">${progressReportEscape(e)}</option>`).join('');
+            document.getElementById('progressReportAttWeight').value=localStorage.getItem('zim_att_weight')||15; document.getElementById('progressReportTaskWeight').value=localStorage.getItem('zim_task_weight')||85; renderProgressReport();
+        }
+        async function loadJsPdfForProgressReport(){
+            if(window.jspdf?.jsPDF)return true;
+            return new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';sc.onload=()=>resolve(!!window.jspdf?.jsPDF);sc.onerror=reject;document.head.appendChild(sc);});
+        }
+        function progressReportCanvasData(labels,values,title){
+            const c=document.createElement('canvas');c.width=1000;c.height=360;const x=c.getContext('2d');x.fillStyle='#ffffff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#112a2e';x.font='bold 24px Arial';x.fillText(title,30,38);const max=100,base=305,chartH=230,barW=Math.max(24,Math.min(70,(c.width-80)/Math.max(labels.length,1)-16));labels.forEach((lab,i)=>{const v=Math.max(0,Math.min(max,Number(values[i])||0)),h=chartH*v/max,bx=55+i*((c.width-90)/Math.max(labels.length,1));x.fillStyle='#259b94';x.fillRect(bx,base-h,barW,h);x.fillStyle='#112a2e';x.font='bold 14px Arial';x.fillText(v+'%',bx,base-h-8);x.font='12px Arial';x.fillText(String(lab).slice(0,14),bx,base+18);});return c.toDataURL('image/png',1.0);}
+        async function generateProgressReportPDF(){
+            if(!window.currentProgressReport)renderProgressReport(); const report=window.currentProgressReport; if(!report||!report.stats?.length){alert('Report data available nahi hai.');return;}
+            try{const ok=await loadJsPdfForProgressReport();if(!ok)throw new Error('PDF library load failed');const {jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');const W=210,H=297;const month=progressReportMonthKey();
+                const addHeader=(title,sub)=>{doc.setFillColor(17,42,46);doc.rect(0,0,W,30,'F');doc.setTextColor(255,255,255);doc.setFontSize(19);doc.setFont('helvetica','bold');doc.text(title,15,13);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(sub,15,22);};
+                addHeader('OFFICE ZIMMEDAR — PROGRESS REPORT','Management Summary | '+month);doc.setTextColor(17,42,46);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('SUMMARY',15,43);
+                const total=report.stats.length,totalTasks=report.stats.reduce((n,s)=>n+s.tasks.length,0),done=report.stats.reduce((n,s)=>n+s.completed,0),on=report.stats.filter(s=>s.rows.some(a=>{const d=progressReportDateObj(a.Date),t=new Date();t.setHours(0,0,0,0);return d&&d.getTime()===t.getTime()&&a.InTime;})).length,taskPct=totalTasks?Math.round(done/totalTasks*100):0;
+                const cards=[['Total Employee',total],['On Time Available',on],['Total Task',totalTasks],['Total Task Complete',done],['Task Progress',taskPct+'%']]; cards.forEach((c,i)=>{const x=15+(i%2)*92,y=52+Math.floor(i/2)*30;doc.setFillColor(240,247,247);doc.roundedRect(x,y,86,23,3,3,'F');doc.setTextColor(75,109,112);doc.setFontSize(8);doc.text(c[0],x+5,y+7);doc.setTextColor(17,42,46);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text(String(c[1]),x+5,y+17);doc.setFont('helvetica','normal');});
+                let y=132;const labels=report.stats.map(s=>s.emp),att=report.stats.map(s=>s.attendancePct),tsk=report.stats.map(s=>s.taskPct);doc.addImage(progressReportCanvasData(labels,att,'Attendance Performance'),'PNG',15,y,180,58);y+=65;doc.addImage(progressReportCanvasData(labels,tsk,'Task Progress'),'PNG',15,y,180,58);doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text('Generated: '+new Date().toLocaleString(),15,289);
+                report.stats.forEach((s,idx)=>{doc.addPage();addHeader('EMPLOYEE REPORT',s.emp+' | '+month);doc.setTextColor(17,42,46);doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('Performance Summary',15,42);const vals=[['Attendance',s.attendancePct+'%'],['Present',s.present],['Absent',s.absent],['Leave',s.leave],['Weekoff',s.weekoff],['Total Tasks',s.tasks.length],['Completed',s.completed],['Task Progress',s.taskPct+'%'],['Overall',s.overall+'%']];vals.forEach((v,i)=>{const x=15+(i%3)*62,y2=50+Math.floor(i/3)*21;doc.setFillColor(248,250,250);doc.roundedRect(x,y2,57,16,2,2,'F');doc.setFontSize(7);doc.setTextColor(90,100,100);doc.text(v[0],x+3,y2+5);doc.setFontSize(10);doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.text(String(v[1]),x+3,y2+12);doc.setFont('helvetica','normal');});
+                    let yy=120;doc.addImage(progressReportCanvasData([s.emp], [s.attendancePct], 'Attendance %'),'PNG',15,yy,85,42);doc.addImage(progressReportCanvasData([s.emp], [s.taskPct], 'Task %'),'PNG',110,yy,85,42);yy=169;doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('Attendance Details',15,yy);yy+=6;doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text('Date',15,yy);doc.text('In',45,yy);doc.text('Out',70,yy);doc.text('Status',100,yy);doc.text('Reason',135,yy);yy+=5;s.rows.slice(0,18).forEach(a=>{if(yy>285){doc.addPage();yy=18;}const status=a.InTime?'Present':(String(a.Leave||'').toLowerCase().includes('leave')?'Leave':String(a.Leave||'').toLowerCase().includes('weekoff')?'Weekoff':'Absent');doc.text(String(a.Date||'-'),15,yy);doc.text(String(a.InTime||'-'),45,yy);doc.text(String(a.OutTime||'-'),70,yy);doc.text(status,100,yy);doc.text(String(a.Reason||'-').slice(0,38),135,yy);yy+=4.5;});
+                    if(yy>255){doc.addPage();yy=18;}else yy+=7;doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Task Details',15,yy);yy+=6;doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text('Task',15,yy);doc.text('End Date',95,yy);doc.text('Status',130,yy);doc.text('Time',165,yy);yy+=5;s.tasks.slice(0,24).forEach(t=>{if(yy>285){doc.addPage();yy=18;}doc.text(String(t.taskName||'-').slice(0,42),15,yy);doc.text(String(t.endDate||'-'),95,yy);doc.text(String(t.empStatus||'Pending').slice(0,18),130,yy);doc.text((Number(t.timeSpent)||0)+'m',165,yy);yy+=4.5;});
+                });
+                const safe='Progress_Report_'+month.replace('-','_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';doc.save(safe);alert('Progress Report PDF ready.');
+            }catch(e){console.error(e);alert('PDF generate nahi ho saka. Please try again.');}
         }
 
         // ================= PROGRESS CHART =================
