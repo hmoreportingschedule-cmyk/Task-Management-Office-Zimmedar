@@ -1176,7 +1176,6 @@
             <p class="text-sm text-gray-500 mb-5">Sirf password change kar sakte hain.</p>
             <div class="space-y-4">
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Old Password</label><input id="ownOldPassword" type="password" class="w-full border p-3 rounded-lg" autocomplete="current-password" required></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Old Password</label><input id="ownOldPassword" type="password" class="w-full border p-3 rounded-lg" autocomplete="current-password" required></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">New Password</label><input id="ownNewPassword" type="password" minlength="6" class="w-full border p-3 rounded-lg" autocomplete="new-password"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Confirm Password</label><input id="ownConfirmPassword" type="password" minlength="6" class="w-full border p-3 rounded-lg" autocomplete="new-password"></div>
                 <button onclick="changeOwnPassword()" class="w-full bg-[#259b94] hover:bg-[#1f827c] text-white font-bold py-3 rounded-lg">Change Password</button>
@@ -3173,7 +3172,7 @@
             const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Reminder result');if(d.status==='success')closeFollowupReminderModal();}).catch(()=>alert('Reminder send failed.'));
         }
-        function openOwnProfileModal(){document.getElementById('ownProfileModal').style.display='block';document.getElementById('ownOldPassword').value='';document.getElementById('ownOldPassword').value='';document.getElementById('ownNewPassword').value='';document.getElementById('ownConfirmPassword').value='';}
+        function openOwnProfileModal(){document.getElementById('ownProfileModal').style.display='block';document.getElementById('ownOldPassword').value='';document.getElementById('ownNewPassword').value='';document.getElementById('ownConfirmPassword').value='';}
         function closeOwnProfileModal(){document.getElementById('ownProfileModal').style.display='none';}
         function changeOwnPassword(){
             const old=document.getElementById('ownOldPassword').value,a=document.getElementById('ownNewPassword').value,b=document.getElementById('ownConfirmPassword').value;
@@ -3589,8 +3588,9 @@
         }
 
         function attendanceMetaForUser(name) {
-            const found=(globalTeamMemberMeta||[]).find(x=>[x.username,x.displayName].some(v=>String(v||'').trim().toLowerCase()===String(name||'').trim().toLowerCase()));
-            return found || {username:name,weekoff:'Sunday'};
+            const needle=String(name||'').trim().toLowerCase();
+            const found=(globalTeamMemberMeta||[]).find(x=>[x.username,x.displayName,x.employeeId].some(v=>String(v||'').trim().toLowerCase()===needle));
+            return found || {username:name,weekoff:'Sunday',department:'',employeeId:''};
         }
 
         function officeEventForDate(date){ const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; return (globalOfficeEvents||[]).find(ev=>key>=String(ev.fromDate||"") && key<=String(ev.toDate||ev.fromDate||""))||null; }
