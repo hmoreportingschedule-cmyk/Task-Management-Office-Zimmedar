@@ -65,24 +65,54 @@
             .grid-cols-2 { grid-template-columns:repeat(1,minmax(0,1fr)); }
             #topActionButtons { flex-wrap:wrap; }
         }
+
+        .oneview-shell{border:1px solid #d7e7e7;border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(17,42,46,.08);overflow:hidden;}
+        .oneview-toolbar{background:linear-gradient(135deg,#f7fffd,#eef8f7);border-bottom:1px solid #dcebea;}
+        .oneview-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px;}
+        .oneview-table th,.oneview-table td{border-right:1px solid #dbe6e7;border-bottom:1px solid #dbe6e7;}
+        .oneview-table th:first-child,.oneview-table td:first-child{position:sticky;left:0;z-index:5;width:42px;min-width:42px;background:#fff;}
+        .oneview-table th:nth-child(2),.oneview-table td:nth-child(2){position:sticky;left:42px;z-index:5;background:#e9fbf6;min-width:210px;}
+        .oneview-table thead th{position:sticky;top:0;z-index:8;}
+        .oneview-table thead th:first-child{z-index:12;background:#259b94;}
+        .oneview-table thead th:nth-child(2){z-index:12;background:#259b94;color:#fff;}
+        .oneview-employee-link{cursor:pointer;transition:.15s;}
+        .oneview-employee-link:hover{background:#dff8f0!important;transform:translateX(1px);}
+        .employee-name-line{font-weight:800;color:#112a2e;line-height:1.15;}
+        .employee-dept-line{font-size:10px;color:#668083;margin-top:3px;font-weight:700;}
+        .employee-id-line{font-size:9px;color:#259b94;font-weight:800;margin-top:2px;}
+        .progress-click-row{cursor:pointer;transition:background .15s,transform .15s;}
+        .progress-click-row:hover{background:#effcf8!important;}
+        .pdf-index-row{cursor:pointer;}
+        .manager-controls{background:linear-gradient(135deg,#f1fffb 0%,#e7f8f5 50%,#f7fbfb 100%);border:1px solid #b9ded9!important;box-shadow:0 12px 28px rgba(17,42,46,.07)!important;}
+        .manager-controls > .flex:last-child{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));width:100%;gap:10px;}
+        .manager-controls > .flex:last-child button{min-height:74px;justify-content:center;text-align:center;border-radius:16px!important;}
+        @media(max-width:767px){
+            .oneview-shell{border-radius:14px;}
+            .oneview-table{font-size:11px;}
+            .oneview-table th:nth-child(2),.oneview-table td:nth-child(2){min-width:185px;left:42px;}
+            .manager-controls{padding:14px!important;align-items:stretch!important;}
+            .manager-controls > .flex:last-child{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+            .manager-controls > .flex:last-child button{min-height:64px;padding:10px 6px!important;font-size:11px!important;}
+            #progressReportEmployeeBody td:first-child{min-width:180px;}
+            #progressReportModal .modal-content{padding:12px!important;}
+            .login-status{font-size:.78rem;}
+        }
+
         .login-shell{background:radial-gradient(circle at top right,#5fd3cc 0,transparent 35%),linear-gradient(135deg,#112a2e,#259b94);}
         .login-card{backdrop-filter:blur(14px);background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.55);}
         .profile-photo{object-fit:cover;width:48px;height:48px;border-radius:9999px;border:2px solid #5fd3cc;background:#259b94;}
+
+        .progress-report-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #dce8e7;border-radius:14px;overflow:hidden;}
+        .progress-report-table th{background:linear-gradient(135deg,#214e54,#2f7074);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+        .progress-report-table td{border-bottom:1px solid #edf2f2;color:#33464a;font-size:12px;}
+        .progress-report-table tbody tr:last-child td{border-bottom:0;}
+        .progress-report-table tbody tr:hover td{background:#f0fbf8;}
+
         .progress-report-section{background:#fff;border:1px solid #e1ebea;border-radius:14px;padding:16px;margin-bottom:16px;}
         .progress-report-page{page-break-after:always;}
         .progress-report-mini-table{width:100%;border-collapse:collapse;font-size:11px;}
         .progress-report-mini-table th{background:#2a4d53;color:#fff;padding:7px;text-align:left;}
         .progress-report-mini-table td{border-bottom:1px solid #e5eeee;padding:7px;}
-        .attendance-pro-table th{position:sticky;top:0;z-index:2;background:linear-gradient(135deg,#1f5d63,#2a8f8b);color:#fff;font-weight:800;letter-spacing:.02em;}
-        .attendance-pro-table td{height:42px;border-color:#e4ecec;}
-        .attendance-employee-cell{position:sticky;left:0;z-index:1;background:linear-gradient(90deg,#effbf8,#e7f7f3);min-width:190px;}
-        .attendance-employee-btn{display:block;width:100%;text-align:left;cursor:pointer;padding:2px 0;}
-        .attendance-employee-btn:hover .attendance-employee-name{text-decoration:underline;color:#0f766e;}
-        .attendance-dept{font-size:10px;color:#647b7d;font-weight:700;margin-top:2px;}
-        .attendance-status-pill{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:7px;font-weight:900;}
-        .progress-click-row{cursor:pointer;}
-        .progress-click-row:hover{background:#effbf8!important;}
-        .progress-report-section{scroll-margin-top:18px;}
             .login-status{display:none;margin-top:14px;border-radius:12px;padding:11px 13px;font-size:.82rem;font-weight:700;line-height:1.35}
         .login-status.error{display:block;background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
         .login-status.info{display:block;background:#ecfeff;color:#155e75;border:1px solid #a5f3fc}
@@ -918,7 +948,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-[#f0f7f7] border border-[#cfe7e5] rounded-xl mb-5">
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Month & Year</label><input type="month" id="progressReportMonth" class="w-full border p-2.5 rounded-lg bg-white"></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressReportEmployee" onchange="renderProgressReport(); focusSelectedProgressEmployee()" class="w-full border p-2.5 rounded-lg bg-white"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="progressReportEmployee" onchange="if(this.value && this.value!=='__ALL__') openEmployeeProgressDirect(this.value); else renderProgressReport();" class="w-full border p-2.5 rounded-lg bg-white"></select></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Attendance Weightage %</label><input id="progressReportAttWeight" type="number" min="0" max="100" value="50" readonly class="w-full border p-2.5 rounded-lg bg-gray-100 cursor-not-allowed"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Task Weightage %</label><input id="progressReportTaskWeight" type="number" min="0" max="100" value="50" readonly class="w-full border p-2.5 rounded-lg bg-gray-100 cursor-not-allowed"></div>
                 <div class="md:col-span-4 flex flex-wrap justify-end gap-2">
@@ -939,7 +969,7 @@
                 <div class="modern-card p-4"><div class="font-bold text-[#112a2e] mb-2">Task Report</div><div class="relative h-64"><canvas id="progressReportTaskChart"></canvas></div></div>
             </div>
             <div class="overflow-x-auto border rounded-xl mb-5">
-                <table class="w-full text-sm border-collapse"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Employee</th><th class="p-3">Attendance %</th><th class="p-3">Present</th><th class="p-3">Absent</th><th class="p-3">Leave</th><th class="p-3">Weekoff</th><th class="p-3">Tasks</th><th class="p-3">Completed</th><th class="p-3">Task Progress</th><th class="p-3">Overall</th></tr></thead><tbody id="progressReportEmployeeBody"></tbody></table>
+                <table class="progress-report-table"><thead><tr><th class="p-3 text-left">Employee</th><th class="p-3">Attendance %</th><th class="p-3">Present</th><th class="p-3">Absent</th><th class="p-3">Leave</th><th class="p-3">Weekoff</th><th class="p-3">Tasks</th><th class="p-3">Completed</th><th class="p-3">Task Progress</th><th class="p-3">Overall</th></tr></thead><tbody id="progressReportEmployeeBody"></tbody></table>
             </div>
             <div id="progressReportDetails"></div>
         </div>
@@ -969,7 +999,7 @@
                 <div class="modern-card p-4 text-center"><div class="text-xs font-bold text-gray-500">WEIGHTAGE</div><div id="weightageText" class="text-xl font-extrabold">15 / 85</div><div class="text-sm font-bold text-gray-500">Attendance / Task</div></div>
             </div>
             <div class="overflow-x-auto border rounded-lg mb-5">
-                <table class="w-full border-collapse text-sm"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Period</th><th class="p-3">Attendance</th><th class="p-3">Tasks</th><th class="p-3">Overall</th><th class="p-3">Grade</th></tr></thead><tbody id="progressScoreBody"></tbody></table>
+                <table class="oneview-table"><thead><tr class="bg-[#2a4d53] text-white"><th class="p-3 text-left">Period</th><th class="p-3">Attendance</th><th class="p-3">Tasks</th><th class="p-3">Overall</th><th class="p-3">Grade</th></tr></thead><tbody id="progressScoreBody"></tbody></table>
             </div>
             <div class="relative h-72 w-full"><canvas id="monthlyPerformanceChart"></canvas></div>
         </div>
@@ -1091,7 +1121,7 @@
                 <div class="border rounded-lg p-4 bg-white"><h3 class="font-bold text-[#2a4d53] mb-3">Attendance Trend</h3><div id="attendanceTrendChart" class="h-44 flex items-end gap-2 overflow-x-auto border-b border-gray-200 px-2"></div></div>
             </div>
             <div class="flex gap-4 mb-2 text-xs font-bold justify-end bg-gray-50 p-2 border rounded-t-lg border-b-0"><span class="text-green-600"><i class="fas fa-check-circle"></i> P = Present</span><span class="text-red-500"><i class="fas fa-times-circle"></i> A = Absent</span><span class="text-yellow-600"><i class="fas fa-bed"></i> L = Leave</span><span class="text-blue-500"><i class="fas fa-calendar-day"></i> W = Weekoff</span><span class="text-purple-600 ml-3"><i class="fas fa-calendar-day"></i> E = Office Closed/Event</span></div>
-            <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200"><table class="w-full text-left border-collapse oneview-table attendance-pro-table whitespace-nowrap text-sm"><thead id="oneViewThead"></thead><tbody id="oneViewTbody"></tbody></table></div>
+            <div class="overflow-x-auto shadow rounded-b-lg border border-gray-200"><table class="w-full text-left border-collapse oneview-table whitespace-nowrap text-sm"><thead id="oneViewThead"></thead><tbody id="oneViewTbody"></tbody></table></div>
         </div>
     </div>
 
@@ -1433,7 +1463,7 @@
         }
 
         // Fast dashboard cache: show the last successful dashboard immediately, then sync in background.
-        function dashboardCacheKey(username){ return 'office_task_dashboard_cache_v3_' + String(username||'').trim().toLowerCase(); }
+        function dashboardCacheKey(username){ return 'office_task_dashboard_cache_v2_' + String(username||'').trim().toLowerCase(); }
         function restoreDashboardCache(username){
             try{
                 const raw=localStorage.getItem(dashboardCacheKey(username));
@@ -3136,7 +3166,19 @@
             const taskPct=tasks.length?Math.round(completed/tasks.length*100):0;
             const aw=Number(performanceWeights.attendance)||50,tw=Number(performanceWeights.task)||50;
             const overall=Math.round((attendancePct*aw+taskPct*tw)/100);
-            return {emp,rows,tasks,present,absent,leave,weekoff,closed,working,attendancePct,completed,taskPct,overall};
+            const meta=attendanceMetaForUser(emp);
+            return {emp,rows,tasks,present,absent,leave,weekoff,closed,working,attendancePct,completed,taskPct,overall,department:meta.department||'',employeeId:meta.employeeId||''};
+        }
+        function openEmployeeProgressDirect(emp){
+            const modal=document.getElementById('progressReportModal');
+            if(modal && modal.style.display!=='block') openProgressReportModal();
+            const sel=document.getElementById('progressReportEmployee');
+            if(sel){
+                const match=Array.from(sel.options).find(o=>String(o.value).toLowerCase()===String(emp).toLowerCase());
+                if(match) sel.value=match.value;
+            }
+            renderProgressReport();
+            setTimeout(()=>document.getElementById('progressReportDetails')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
         }
         function progressReportRange(){
             const raw=progressReportMonthKey(), p=raw.split('-');
@@ -3149,36 +3191,13 @@
             const inst=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label,data:values,backgroundColor:'#259b94',borderRadius:5,barPercentage:.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
             if(type==='attendance')progressReportAttendanceChart=inst; else progressReportTaskChart=inst; return inst;
         }
-        function progressReportMetaFor(emp){
-            const found=(globalTeamMemberMeta||[]).find(x=>String(x.username||'').toLowerCase()===String(emp||'').toLowerCase());
-            return found||{username:emp,displayName:emp,employeeId:'',department:''};
-        }
         function progressReportRenderDetails(stats){
             const box=document.getElementById('progressReportDetails'); if(!box)return;
-            box.innerHTML=stats.map((s,idx)=>{
-                const meta=progressReportMetaFor(s.emp);
+            box.innerHTML=stats.map(s=>{
                 const taskRows=s.tasks.slice().sort((a,b)=>(progressReportDateObj(a.endDate)||new Date(0))-(progressReportDateObj(b.endDate)||new Date(0))).map(t=>`<tr><td>${progressReportEscape(t.taskName||'-')}</td><td>${progressReportEscape(t.startDate||'-')} → ${progressReportEscape(t.endDate||'-')}</td><td>${progressReportEscape(t.priority||'Normal')}</td><td>${progressReportEscape(t.empStatus||'Pending')}</td><td>${Number(t.timeSpent)||0} min</td></tr>`).join('')||'<tr><td colspan="5" class="p-4 text-center text-gray-500">No tasks found.</td></tr>';
                 const attRows=s.rows.map(a=>`<tr><td>${progressReportEscape(a.Date||'-')}</td><td>${a.InTime||'-'}</td><td>${a.OutTime||'-'}</td><td>${progressReportEscape(a.Leave||'-')}</td><td>${progressReportEscape(a.Reason||'-')}</td></tr>`).join('')||'<tr><td colspan="5" class="p-4 text-center text-gray-500">No attendance records found.</td></tr>';
-                return `<div class="progress-report-section" id="progressEmployeeDetail_${idx}"><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div><h3 class="text-xl font-extrabold text-[#112a2e]">${progressReportEscape(meta.displayName||s.emp)}</h3><div class="text-xs text-gray-500">Employee ID: ${progressReportEscape(meta.employeeId||'-')} · Department: ${progressReportEscape(meta.department||'-')}</div><div class="text-xs text-gray-500 mt-1">Attendance ${s.attendancePct}% · Task ${s.taskPct}% · Overall ${s.overall}%</div></div><div class="text-sm font-bold text-[#259b94]">${s.completed}/${s.tasks.length} Tasks Complete</div></div><div class="grid grid-cols-2 md:grid-cols-6 gap-2 mb-4"><div class="bg-[#f0f7f7] p-3 rounded-lg"><b>${s.present}</b><small class="block text-gray-500">Present</small></div><div class="bg-red-50 p-3 rounded-lg"><b>${s.absent}</b><small class="block text-gray-500">Absent</small></div><div class="bg-amber-50 p-3 rounded-lg"><b>${s.leave}</b><small class="block text-gray-500">Leave</small></div><div class="bg-blue-50 p-3 rounded-lg"><b>${s.weekoff}</b><small class="block text-gray-500">Weekoff</small></div><div class="bg-green-50 p-3 rounded-lg"><b>${s.completed}</b><small class="block text-gray-500">Completed</small></div><div class="bg-orange-50 p-3 rounded-lg"><b>${s.tasks.length-s.completed}</b><small class="block text-gray-500">Pending</small></div></div><div class="overflow-x-auto mb-4"><h4 class="font-bold mb-2">Attendance Details</h4><table class="progress-report-mini-table"><thead><tr><th>Date</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Reason</th></tr></thead><tbody>${attRows}</tbody></table></div><div class="overflow-x-auto"><h4 class="font-bold mb-2">Task Details</h4><table class="progress-report-mini-table"><thead><tr><th>Task</th><th>Timeline</th><th>Priority</th><th>Status</th><th>Time</th></tr></thead><tbody>${taskRows}</tbody></table></div></div>`;
+                return `<div class="progress-report-section"><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div><h3 class="text-xl font-extrabold text-[#112a2e]">${progressReportEscape(s.emp)}</h3><div class="text-xs text-gray-500">Attendance ${s.attendancePct}% · Task ${s.taskPct}% · Overall ${s.overall}%</div></div><div class="text-sm font-bold text-[#259b94]">${s.completed}/${s.tasks.length} Tasks Complete</div></div><div class="grid grid-cols-2 md:grid-cols-6 gap-2 mb-4"><div class="bg-[#f0f7f7] p-3 rounded-lg"><b>${s.present}</b><small class="block text-gray-500">Present</small></div><div class="bg-red-50 p-3 rounded-lg"><b>${s.absent}</b><small class="block text-gray-500">Absent</small></div><div class="bg-amber-50 p-3 rounded-lg"><b>${s.leave}</b><small class="block text-gray-500">Leave</small></div><div class="bg-blue-50 p-3 rounded-lg"><b>${s.weekoff}</b><small class="block text-gray-500">Weekoff</small></div><div class="bg-green-50 p-3 rounded-lg"><b>${s.completed}</b><small class="block text-gray-500">Completed</small></div><div class="bg-orange-50 p-3 rounded-lg"><b>${s.tasks.length-s.completed}</b><small class="block text-gray-500">Pending</small></div></div><div class="overflow-x-auto mb-4"><h4 class="font-bold mb-2">Attendance Details</h4><table class="progress-report-mini-table"><thead><tr><th>Date</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Reason</th></tr></thead><tbody>${attRows}</tbody></table></div><div class="overflow-x-auto"><h4 class="font-bold mb-2">Task Details</h4><table class="progress-report-mini-table"><thead><tr><th>Task</th><th>Timeline</th><th>Priority</th><th>Status</th><th>Time</th></tr></thead><tbody>${taskRows}</tbody></table></div></div>`;
             }).join('');
-        }
-        function focusSelectedProgressEmployee(){
-            const sel=document.getElementById('progressReportEmployee'), value=sel&&sel.value;
-            if(!value||value==='__ALL__')return;
-            const emps=progressReportEmployees(), idx=emps.findIndex(e=>String(e).toLowerCase()===String(value).toLowerCase());
-            if(idx<0)return;
-            requestAnimationFrame(()=>document.getElementById('progressEmployeeDetail_'+idx)?.scrollIntoView({behavior:'smooth',block:'start'}));
-        }
-        function openEmployeeProgressDetail(emp){
-            const sel=document.getElementById('progressReportEmployee');
-            if(!sel)return;
-            sel.value=emp;
-            renderProgressReport();
-            focusSelectedProgressEmployee();
-        }
-        function openEmployeeProgressFromAttendance(emp){
-            openProgressReportModal();
-            setTimeout(()=>openEmployeeProgressDetail(emp),80);
         }
         function renderProgressReport(){
             const range=progressReportRange(),err=document.getElementById('progressReportError'); if(!range){err.textContent='Please select Month & Year.';err.classList.remove('hidden');return;}
@@ -3188,7 +3207,7 @@
             const totalTasks=stats.reduce((n,s)=>n+s.tasks.length,0),completed=stats.reduce((n,s)=>n+s.completed,0);
             const today=new Date(); today.setHours(0,0,0,0); const onTime=stats.filter(s=>s.rows.some(a=>{const d=progressReportDateObj(a.Date);return d&&d.getTime()===today.getTime()&&a.InTime;})).length;
             document.getElementById('prTotalEmployees').innerText=stats.length; document.getElementById('prOnTimeAvailable').innerText=onTime; document.getElementById('prTotalTasks').innerText=totalTasks; document.getElementById('prCompletedTasks').innerText=completed; document.getElementById('prTaskProgress').innerText=(totalTasks?Math.round(completed/totalTasks*100):0)+'%';
-            const body=document.getElementById('progressReportEmployeeBody'); body.innerHTML=stats.map(s=>{const meta=progressReportMetaFor(s.emp);return `<tr class="border-t progress-click-row" onclick="openEmployeeProgressDetail(${JSON.stringify(s.emp)})" title="Click to open this employee's detailed report"><td class="p-3 font-bold"><div>${progressReportEscape(meta.displayName||s.emp)}</div><div class="text-[10px] text-gray-500 font-semibold">${progressReportEscape(meta.employeeId||'-')} · ${progressReportEscape(meta.department||'-')}</div></td><td class="p-3 text-center">${s.attendancePct}%</td><td class="p-3 text-center text-green-600 font-bold">${s.present}</td><td class="p-3 text-center text-red-600">${s.absent}</td><td class="p-3 text-center text-amber-600">${s.leave}</td><td class="p-3 text-center text-blue-600">${s.weekoff}</td><td class="p-3 text-center">${s.tasks.length}</td><td class="p-3 text-center text-green-600 font-bold">${s.completed}</td><td class="p-3 text-center text-orange-600 font-bold">${s.taskPct}%</td><td class="p-3 text-center font-extrabold">${s.overall}%</td></tr>`;}).join('')||'<tr><td colspan="10" class="p-6 text-center text-gray-500">No report data.</td></tr>';
+            const body=document.getElementById('progressReportEmployeeBody'); body.innerHTML=stats.map(s=>`<tr class="border-t progress-click-row" data-employee="${progressReportEscape(s.emp)}" onclick="openEmployeeProgressDirect(this.dataset.employee)" title="Open ${progressReportEscape(s.emp)} detailed report"><td class="p-3 font-bold"><div>${progressReportEscape(s.emp)}</div><div class="text-[10px] text-gray-500 font-semibold">${progressReportEscape(s.department||'Department not set')}${s.employeeId?' · '+progressReportEscape(s.employeeId):''}</div></td><td class="p-3 text-center">${s.attendancePct}%</td><td class="p-3 text-center text-green-600 font-bold">${s.present}</td><td class="p-3 text-center text-red-600">${s.absent}</td><td class="p-3 text-center text-amber-600">${s.leave}</td><td class="p-3 text-center text-blue-600">${s.weekoff}</td><td class="p-3 text-center">${s.tasks.length}</td><td class="p-3 text-center text-green-600 font-bold">${s.completed}</td><td class="p-3 text-center text-orange-600 font-bold">${s.taskPct}%</td><td class="p-3 text-center font-extrabold">${s.overall}%</td></tr>`).join('')||'<tr><td colspan="10" class="p-6 text-center text-gray-500">No report data.</td></tr>';
             const labels=stats.map(s=>s.emp.length>16?s.emp.slice(0,16)+'…':s.emp), att=stats.map(s=>s.attendancePct), task=stats.map(s=>s.taskPct); progressReportBuildChart('progressReportAttendanceChart',labels,att,'Attendance %','attendance'); progressReportBuildChart('progressReportTaskChart',labels,task,'Task %','task'); progressReportRenderDetails(stats);
             window.currentProgressReport={range,stats,aw,tw};
         }
@@ -3206,53 +3225,62 @@
         function progressReportCanvasData(labels,values,title){
             const c=document.createElement('canvas');c.width=1000;c.height=360;const x=c.getContext('2d');x.fillStyle='#ffffff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#112a2e';x.font='bold 24px Arial';x.fillText(title,30,38);const max=100,base=305,chartH=230,barW=Math.max(24,Math.min(70,(c.width-80)/Math.max(labels.length,1)-16));labels.forEach((lab,i)=>{const v=Math.max(0,Math.min(max,Number(values[i])||0)),h=chartH*v/max,bx=55+i*((c.width-90)/Math.max(labels.length,1));x.fillStyle='#259b94';x.fillRect(bx,base-h,barW,h);x.fillStyle='#112a2e';x.font='bold 14px Arial';x.fillText(v+'%',bx,base-h-8);x.font='12px Arial';x.fillText(String(lab).slice(0,14),bx,base+18);});return c.toDataURL('image/png',1.0);}
         async function generateProgressReportPDF(){
-            if(!window.currentProgressReport)renderProgressReport(); const report=window.currentProgressReport; if(!report||!report.stats?.length){alert('Report data available nahi hai.');return;}
+            if(!window.currentProgressReport) renderProgressReport();
+            const report=window.currentProgressReport;
+            if(!report||!report.stats?.length){alert('Report data available nahi hai.');return;}
             try{
-                const ok=await loadJsPdfForProgressReport();if(!ok)throw new Error('PDF library load failed');
-                const {jsPDF}=window.jspdf, doc=new jsPDF('l','mm','a4'), W=297,H=210, margin=10;
-                const generatedAt=new Date(), generatedAtText=generatedAt.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}), generatedBy=document.getElementById('displayUser')?.innerText||'User', month=progressReportMonthKey();
-                const pageMap=[];
+                const ok=await loadJsPdfForProgressReport(); if(!ok) throw new Error('PDF library load failed');
+                const {jsPDF}=window.jspdf, doc=new jsPDF('l','mm','a4');
+                const W=297,H=210,margin=10, generatedAt=new Date();
+                const month=progressReportMonthKey(), generatedBy=document.getElementById('displayUser')?.innerText||'User';
+                const generatedAtText=generatedAt.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+                const text=(v,max=60)=>String(v??'-').replace(/[\r\n]+/g,' ').slice(0,max);
                 const header=(title,sub)=>{doc.setFillColor(17,42,46);doc.rect(0,0,W,24,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(title,12,10);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text(sub,12,18);};
-                const footer=()=>{doc.setFontSize(7);doc.setTextColor(110,120,120);doc.text('Generated: '+generatedAtText+' | By: '+generatedBy,12,H-6);doc.text('Page '+doc.getNumberOfPages(),W-28,H-6);};
-                const text=(v,max=45)=>String(v??'-').replace(/[\r\n]+/g,' ').slice(0,max);
-                const drawTable=(headers,rows,widths,startY,rowH=5.5)=>{let y=startY;doc.setFontSize(7);doc.setFont('helvetica','bold');let x=margin;headers.forEach((h,i)=>{doc.setFillColor(42,77,83);doc.rect(x,y,widths[i],rowH,'F');doc.setTextColor(255,255,255);doc.text(text(h,22),x+2,y+3.7);x+=widths[i];});y+=rowH;doc.setFont('helvetica','normal');rows.forEach((r,ri)=>{if(y>H-15){footer();doc.addPage('a4','landscape');header('OFFICE ZIMMEDAR — REPORT','Continued | '+month);y=30;}x=margin;if(ri%2===0){doc.setFillColor(247,250,250);doc.rect(margin,y,widths.reduce((a,b)=>a+b,0),rowH,'F');}r.forEach((v,i)=>{doc.setTextColor(55,65,81);doc.text(text(v,Math.max(10,Math.floor(widths[i]/2))),x+2,y+3.7);x+=widths[i];});y+=rowH;});return y;};
-                const total=report.stats.length,totalTasks=report.stats.reduce((n,s)=>n+s.tasks.length,0),done=report.stats.reduce((n,s)=>n+s.completed,0),on=report.stats.filter(s=>s.rows.some(a=>{const d=progressReportDateObj(a.Date),t=new Date();t.setHours(0,0,0,0);return d&&d.getTime()===t.getTime()&&a.InTime;})).length,taskPct=totalTasks?Math.round(done/totalTasks*100):0;
-
-                // PAGE 1 — clickable index
-                header('OFFICE ZIMMEDAR — REPORT INDEX','Clickable index | '+month+' | Generated: '+generatedAtText+' | By: '+generatedBy);
-                doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text('Report Index',12,36);
-                doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,105,105);doc.text('Index items par click karke PDF ke relevant page par direct ja sakte hain.',12,43);
-                let iy=55, indexRows=[];
-                const addIndex=(label,sub)=>{const y=iy;indexRows.push({label,sub,y});doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(label,16,y);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,115,115);if(sub)doc.text(sub,20,y+5);iy+=13;};
-                addIndex('1. Employee Summary','All employees — attendance, task progress and overall summary');
-                report.stats.forEach((s,i)=>{const meta=progressReportMetaFor(s.emp);addIndex((i+2)+'. '+(meta.displayName||s.emp),'Employee ID: '+(meta.employeeId||'-')+' · Department: '+(meta.department||'-'));});
-                doc.setFillColor(240,247,247);doc.roundedRect(12,iy+3,273,25,3,3,'F');doc.setTextColor(42,77,83);doc.setFontSize(8);doc.text('Tip: PDF viewer mein index link select karne par relevant employee page open hoga.',18,iy+13);footer();
-
-                // PAGE 2 — employee summary
-                doc.addPage('a4','landscape');header('OFFICE ZIMMEDAR — EMPLOYEE SUMMARY','Summary | '+month+' | Generated: '+generatedAtText+' | By: '+generatedBy);
-                const cards=[['Employees',total],['On Time Available',on],['Total Tasks',totalTasks],['Completed',done],['Task Progress',taskPct+'%']];cards.forEach((c,i)=>{const x=margin+i*55;doc.setFillColor(240,247,247);doc.roundedRect(x,31,50,18,3,3,'F');doc.setTextColor(75,109,112);doc.setFontSize(7);doc.text(c[0],x+3,37);doc.setTextColor(17,42,46);doc.setFontSize(12);doc.setFont('helvetica','bold');doc.text(String(c[1]),x+3,45);doc.setFont('helvetica','normal');});
-                doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.attendancePct),'Attendance Performance'),'PNG',10,55,135,52);doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.taskPct),'Task Progress'),'PNG',152,55,135,52);
-                let y=112; y=drawTable(['Employee','Employee ID / Department','Attendance %','Present','Absent','Leave','Weekoff','Tasks','Completed','Task %','Overall'],report.stats.map(s=>{const m=progressReportMetaFor(s.emp);return [m.displayName||s.emp,(m.employeeId||'-')+' / '+(m.department||'-'),s.attendancePct+'%',s.present,s.absent,s.leave,s.weekoff,s.tasks.length,s.completed,s.taskPct+'%',s.overall+'%'];}),[43,55,23,18,18,18,20,18,22,22,20],y,6);footer();
-
-                // PAGES 3+ — one direct employee destination per index item
-                report.stats.forEach((s,i)=>{
-                    const meta=progressReportMetaFor(s.emp);
+                const footer=()=>{doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(110,120,120);doc.text('Generated: '+generatedAtText+' | By: '+generatedBy,12,H-6);doc.text('Page '+doc.getCurrentPageInfo().pageNumber,265,H-6);};
+                const drawTable=(headers,rows,widths,startY,rowH=6)=>{let y=startY,totalW=widths.reduce((a,b)=>a+b,0);const newPage=()=>{doc.addPage('a4','landscape');header('OFFICE ZIMMEDAR — REPORT','Continued | '+month);y=30;};
+                    const drawHeader=()=>{let x=margin;doc.setFont('helvetica','bold');doc.setFontSize(7);headers.forEach((h,i)=>{doc.setFillColor(42,77,83);doc.rect(x,y,widths[i],rowH,'F');doc.setTextColor(255,255,255);doc.text(text(h,25),x+2,y+4);x+=widths[i];});y+=rowH;};
+                    drawHeader();doc.setFont('helvetica','normal');rows.forEach((r,ri)=>{if(y>H-17){footer();newPage();drawHeader();}let x=margin;if(ri%2===0){doc.setFillColor(247,250,250);doc.rect(margin,y,totalW,rowH,'F');}r.forEach((v,i)=>{doc.setTextColor(55,65,81);doc.text(text(v,Math.max(10,Math.floor(widths[i]/2))),x+2,y+4);x+=widths[i];});y+=rowH;});return y;};
+                const indexEntryCount=report.stats.length+1, indexPageCount=Math.max(1,Math.ceil(indexEntryCount/10)), summaryPage=indexPageCount+1, employeePages=[];
+                // Reserve page 1 (and continuation index pages if needed) before the summary so every target page stays exact.
+                header('OFFICE ZIMMEDAR — REPORT INDEX','Clickable Table of Contents | '+month);
+                for(let ip=2;ip<=indexPageCount;ip++){doc.addPage('a4','landscape');header('OFFICE ZIMMEDAR — REPORT INDEX','Clickable Table of Contents — Continued | '+month);}
+                doc.addPage('a4','landscape');
+                doc.setPage(summaryPage);
+                header('OFFICE ZIMMEDAR — PROGRESS REPORT','Employee Summary | '+month+' | '+generatedAtText+' | By: '+generatedBy);
+                const total=report.stats.length,totalTasks=report.stats.reduce((n,s)=>n+s.tasks.length,0),done=report.stats.reduce((n,s)=>n+s.completed,0),taskPct=totalTasks?Math.round(done/totalTasks*100):0;
+                const cards=[['Employees',total],['Total Tasks',totalTasks],['Completed',done],['Task Progress',taskPct+'%'],['Attendance Weight',report.aw+'%']];
+                cards.forEach((c,i)=>{const x=10+i*55;doc.setFillColor(240,247,247);doc.roundedRect(x,31,50,18,3,3,'F');doc.setTextColor(75,109,112);doc.setFontSize(7);doc.text(c[0],x+3,37);doc.setTextColor(17,42,46);doc.setFontSize(12);doc.setFont('helvetica','bold');doc.text(String(c[1]),x+3,45);});
+                doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.attendancePct),'Attendance Performance'),'PNG',10,55,135,52);
+                doc.addImage(progressReportCanvasData(report.stats.map(s=>s.emp),report.stats.map(s=>s.taskPct),'Task Progress'),'PNG',152,55,135,52);
+                drawTable(['Employee / Department','Attendance %','Present','Absent','Leave','Weekoff','Tasks','Completed','Task %','Overall'],report.stats.map(s=>[s.emp,(s.department||'-')+' '+(s.employeeId?'('+s.employeeId+')':''),s.attendancePct+'%',s.present,s.absent,s.leave,s.weekoff,s.tasks.length,s.completed,s.taskPct+'%',s.overall+'%']),[45,50,22,18,18,18,18,20,20,24,24],112,6);footer();
+                // Generate each employee report and record its starting page.
+                report.stats.forEach(s=>{
                     doc.addPage('a4','landscape');
-                    header('EMPLOYEE REPORT', (meta.displayName||s.emp)+' | '+month+' | ID: '+(meta.employeeId||'-')+' | '+(meta.department||'-'));
-                    pageMap.push(doc.getNumberOfPages());
+                    const startPage=doc.getCurrentPageInfo().pageNumber;
+                    employeePages.push({name:s.emp,department:s.department||'',employeeId:s.employeeId||'',page:startPage});
+                    header('EMPLOYEE REPORT',s.emp+' | '+(s.department||'Department not set')+(s.employeeId?' | '+s.employeeId:'')+' | '+month);
+                    doc.setFillColor(245,249,249);doc.roundedRect(10,30,277,18,3,3,'F');
+                    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(17,42,46);doc.text(s.emp,15,38);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,105,108);doc.text((s.department||'Department not set')+(s.employeeId?'  |  Employee ID: '+s.employeeId:''),15,44);
                     const vals=[['Attendance',s.attendancePct+'%'],['Present',s.present],['Absent',s.absent],['Leave',s.leave],['Weekoff',s.weekoff],['Tasks',s.tasks.length],['Completed',s.completed],['Task Progress',s.taskPct+'%'],['Overall',s.overall+'%']];
-                    vals.forEach((v,j)=>{const x=10+(j%9)*31.5;doc.setFillColor(248,250,250);doc.roundedRect(x,31,29,17,2,2,'F');doc.setFontSize(6.5);doc.setTextColor(90,100,100);doc.text(v[0],x+2,37);doc.setFontSize(9);doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.text(String(v[1]),x+2,44);doc.setFont('helvetica','normal');});
-                    doc.addImage(progressReportCanvasData([meta.displayName||s.emp],[s.attendancePct],'Attendance %'),'PNG',10,53,90,45);doc.addImage(progressReportCanvasData([meta.displayName||s.emp],[s.taskPct],'Task %'),'PNG',105,53,90,45);
-                    let yy=103;yy=drawTable(['Date','In Time','Out Time','Status','Reason'],s.rows.map(a=>[a.Date||'-',a.InTime||'-',a.OutTime||'-',a.InTime?'Present':(String(a.Leave||'').toLowerCase().includes('leave')?'Leave':String(a.Leave||'').toLowerCase().includes('weekoff')?'Weekoff':'Absent'),a.Reason||a.Leave||'-']),[28,30,30,30,120],yy,5.2);
-                    if(yy>H-55){doc.addPage('a4','landscape');header('EMPLOYEE REPORT — TASK DETAILS',(meta.displayName||s.emp)+' | '+month);yy=30;}
+                    vals.forEach((v,i)=>{const x=10+i*31.5;doc.setFillColor(248,250,250);doc.roundedRect(x,52,29,17,2,2,'F');doc.setFontSize(6.5);doc.setTextColor(90,100,100);doc.text(v[0],x+2,58);doc.setFontSize(9);doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.text(String(v[1]),x+2,65);});
+                    doc.addImage(progressReportCanvasData([s.emp],[s.attendancePct],'Attendance %'),'PNG',10,74,90,45);doc.addImage(progressReportCanvasData([s.emp],[s.taskPct],'Task %'),'PNG',105,74,90,45);
+                    let yy=124;
+                    yy=drawTable(['Date','In Time','Out Time','Status','Reason'],s.rows.map(a=>[a.Date||'-',a.InTime||'-',a.OutTime||'-',a.InTime?'Present':(String(a.Leave||'').toLowerCase().includes('leave')?'Leave':String(a.Leave||'').toLowerCase().includes('weekoff')?'Weekoff':'Absent'),a.Reason||a.Leave||'-']),[28,30,30,30,119],yy,5.2);
+                    if(yy>H-55){footer();doc.addPage('a4','landscape');header('EMPLOYEE REPORT — TASK DETAILS',s.emp+' | '+month);yy=30;}
                     yy+=5;drawTable(['Task','Timeline','Priority','Status','Time'],s.tasks.map(t=>[t.taskName||'-',(t.startDate||'-')+' → '+(t.endDate||'-'),t.priority||'Normal',t.empStatus||'Pending',(Number(t.timeSpent)||0)+' min']),[120,55,30,45,25],yy,5.2);footer();
                 });
-                // Finalize Page 1 index only after all employee pages are created, so long reports cannot break the links.
-                const actualPages=[2].concat(pageMap);
-                doc.setPage(1);
-                indexRows.forEach((row,i)=>{const pageNo=actualPages[i]||2;doc.setTextColor(15,118,110);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('Page '+pageNo,235,row.y);if(typeof doc.link==='function')doc.link(14,row.y-6,265,9,{pageNumber:pageNo});});
-                footer();
-                const safe='Progress_Report_Desktop_'+month.replace('-','_')+'_'+generatedAt.toISOString().replace(/[:.]/g,'-').slice(0,19)+'.pdf';doc.save(safe);alert('Professional PDF ready — Page 1 Index with clickable employee links.');
+                // Build the clickable index after all target pages are known.
+                const indexRows=[{title:'Employee Summary',detail:'Overall attendance, task and completion summary',page:summaryPage}].concat(employeePages.map(x=>({title:x.name,detail:(x.employeeId?'Employee ID: '+x.employeeId+'  ·  ':'')+(x.department||'Department not set'),page:x.page})));
+                for(let ip=1;ip<=indexPageCount;ip++){
+                    doc.setPage(ip);
+                    header('OFFICE ZIMMEDAR — REPORT INDEX',ip===1?('Clickable Table of Contents | '+month):('Clickable Table of Contents — Continued | '+month));
+                    if(ip===1){doc.setFillColor(240,247,247);doc.roundedRect(10,31,277,16,3,3,'F');doc.setTextColor(17,42,46);doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('Select an employee/topic below to jump directly to its PDF page.',16,41);}
+                    const start=(ip-1)*10, pageRows=indexRows.slice(start,start+10); let iy=ip===1?58:36;
+                    pageRows.forEach((r,localIdx)=>{const i=start+localIdx;doc.setFillColor(i%2?250:243,248,248);doc.roundedRect(12,iy-5,273,10,2,2,'F');doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(17,42,46);doc.text(String(i+1)+'. '+text(r.title,38),18,iy+1);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(85,100,103);doc.text(text(r.detail,62),112,iy+1);doc.setFont('helvetica','bold');doc.setTextColor(37,155,148);doc.text('Page '+r.page,262,iy+1,{align:'right'});doc.link(12,iy-5,273,10,{pageNumber:r.page});iy+=12;});
+                    footer();
+                }
+                doc.setPage(summaryPage);
+                const safe='Progress_Report_'+month.replace('-','_')+'_'+generatedAt.toISOString().replace(/[:.]/g,'-').slice(0,19)+'.pdf';doc.save(safe);alert('Progress Report PDF ready. Page 1 par clickable Index diya gaya hai.');
             }catch(e){console.error(e);alert('PDF generate nahi ho saka. Please try again.');}
         }
 
@@ -3635,7 +3663,7 @@
             const [yStr,mStr]=monthYear.split('-'), year=parseInt(yStr,10), month=parseInt(mStr,10);
             const daysInMonth=new Date(year,month,0).getDate();
             let visibleMembers=(selectedUser&&selectedUser!=='All')?[selectedUser]:members;
-            let theadHtml=`<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[190px] text-left">Employee / Department</th>`;
+            let theadHtml=`<tr class="ov-teal text-xs"><th class="p-2 border text-center">#</th><th class="p-2 border min-w-[210px]">Employee / Department</th>`;
             for(let d=1;d<=daysInMonth;d++) theadHtml+=`<th class="p-1 border text-center ov-yellow w-6">${d}</th>`;
             theadHtml+=`<th class="p-2 border text-center font-extrabold text-green-200">P</th><th class="p-2 border text-center font-extrabold text-red-200">A</th><th class="p-2 border text-center font-extrabold text-yellow-200">L</th><th class="p-2 border text-center font-extrabold text-blue-200">W</th><th class="p-2 border text-center font-extrabold text-purple-200">E</th><th class="p-2 border text-center font-extrabold text-white">%</th></tr>`;
             document.getElementById('oneViewThead').innerHTML=theadHtml;
@@ -3655,8 +3683,8 @@
             visibleMembers.forEach((m,idx)=>{
                 let p=0,a=0,l=0,w=0,eCount=0;
                 const meta=attendanceMetaForUser(m);
-                const displayName=meta.displayName||m, dept=meta.department||'Department not set';
-                let row=`<tr class="hover:bg-[#f3fbf9] transition border-b"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border attendance-employee-cell"><button class="attendance-employee-btn" onclick="openEmployeeProgressFromAttendance(${JSON.stringify(m)})"><div class="attendance-employee-name font-extrabold text-[#173f44]">${progressReportEscape(displayName)}</div><div class="attendance-dept">${progressReportEscape(dept)}</div></button></td>`;
+                const dept=meta.department||''; const eid=meta.employeeId||'';
+                let row=`<tr class="hover:bg-[#e6fcf5] transition"><td class="p-2 border text-center font-bold text-gray-500">${idx+1}</td><td class="p-2 border ov-light-teal oneview-employee-link" data-employee="${progressReportEscape(m)}" onclick="openEmployeeProgressDirect(this.dataset.employee)" title="Open ${progressReportEscape(m)} report"><div class="employee-name-line">${progressReportEscape(m)}</div><div class="employee-dept-line">${progressReportEscape(dept||'Department not set')}</div>${eid?`<div class="employee-id-line">ID: ${progressReportEscape(eid)}</div>`:''}</td>`;
                 for(let d=1;d<=daysInMonth;d++){
                     let st=matrix[m][d];
                     const dt=new Date(year,month-1,d);
@@ -3669,16 +3697,16 @@
                     }
                     if(st==='P')p++; if(st==='A')a++; if(st==='L')l++; if(st==='W')w++; if(st==='E')eCount++;
                     let color='text-gray-400';
-                    if(st==='P')color='text-[#0f9f8f] font-extrabold';
+                    if(st==='P')color='text-[#259b94] font-extrabold';
                     if(st==='A')color='text-red-500 font-extrabold bg-red-50';
                     if(st==='L')color='text-yellow-600 font-extrabold bg-yellow-50';
                     if(st==='W')color='text-blue-500 font-extrabold bg-blue-50';
                     if(st==='E')color='text-purple-600 font-extrabold bg-purple-50';
-                    row+=`<td class="p-1 border text-center text-xs ${color}"><span class="attendance-status-pill">${st}</span></td>`;
+                    row+=`<td class="p-1 border text-center text-xs ${color}">${st}</td>`;
                 }
                 const working=p+a;
                 const perc=working?Math.round(p/working*100):0;
-                row+=`<td class="p-2 border text-center font-bold text-[#0f8d82] bg-[#e5f6f2]">${p}</td><td class="p-2 border text-center font-bold text-red-500 bg-red-50">${a}</td><td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${l}</td><td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${w}</td><td class="p-2 border text-center font-bold text-purple-600 bg-purple-50">${eCount}</td><td class="p-2 border text-center font-bold text-white bg-gradient-to-r from-[#238f89] to-[#2aa49d] text-sm shadow-inner">${perc}%</td></tr>`;
+                row+=`<td class="p-2 border text-center font-bold text-[#259b94] bg-[#e1ebea]">${p}</td><td class="p-2 border text-center font-bold text-red-500 bg-red-50">${a}</td><td class="p-2 border text-center font-bold text-yellow-600 bg-yellow-50">${l}</td><td class="p-2 border text-center font-bold text-blue-500 bg-blue-50">${w}</td><td class="p-2 border text-center font-bold text-purple-600 bg-purple-50">${eCount}</td><td class="p-2 border text-center font-bold text-white bg-[#259b94] text-sm shadow-inner">${perc}%</td></tr>`;
                 tbody.innerHTML+=row;
             });
             if(!visibleMembers.length) tbody.innerHTML=`<tr><td colspan="${daysInMonth+7}" class="text-center p-8 text-gray-500 italic font-medium">No employees found.</td></tr>`;
