@@ -878,12 +878,12 @@
         }
         setInterval(updateLiveTime, 1000); updateLiveTime();
 
-        // 30 SECONDS AUTO SYNC
+        // Lightweight background sync: keep normal usage responsive.
         setInterval(() => {
             if(document.getElementById('dashboard-section').style.display === 'flex') {
                 fetchDashboardDataSilently();
             }
-        }, 30000);
+        }, 120000);
 
         function toggleInputs() {
             const action = document.getElementById('attendanceAction').value;
@@ -959,7 +959,8 @@
                     document.getElementById('displayWeekoff').innerText = data.weekoff || 'Sunday';
                     document.getElementById('displayOfficeLocation').innerText = [data.officeLocation,data.officeAddress].filter(Boolean).join(' : ') || '--';
                     setDashboardProfilePhoto(data);
-                    loadProfilePhotoFromServer(data.actualName);
+                    // Defer non-critical profile photo request so login/dashboard paint first.
+                    setTimeout(() => loadProfilePhotoFromServer(data.actualName), 1200);
                     
                     const role = data.role.toLowerCase();
                     document.getElementById('displayRole').innerText = role;
