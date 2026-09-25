@@ -901,7 +901,7 @@
     <div id="systemHealthModal" class="modal">
         <div class="modal-content max-w-4xl">
             <span onclick="closeSystemHealthModal()" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
-            <div class="flex justify-between items-center gap-3 mb-5"><div><h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-heart-pulse text-[#0f766e]"></i> System Health</h2><p class="text-sm text-gray-500">ERP, Google Sheet, backup, notification queue aur error status.</p></div><button onclick="loadSystemHealth()" class="bg-[#0f766e] text-white px-4 py-2 rounded-lg font-bold">Refresh</button></div>
+            <div class="flex justify-between items-center gap-3 mb-5"><div><h2 class="text-2xl font-bold text-[#112a2e]"><i class="fas fa-heart-pulse text-[#0f766e]"></i> System Health</h2><p class="text-sm text-gray-500">ERP, Google Sheet, backup, notification queue aur error status.</p></div><div class="flex gap-2"><button onclick="optimizeMasterSheets()" class="bg-[#4c1d95] text-white px-4 py-2 rounded-lg font-bold">Optimize Sheets</button><button onclick="loadSystemHealth()" class="bg-[#0f766e] text-white px-4 py-2 rounded-lg font-bold">Refresh</button></div></div>
             <div id="systemHealthBody" class="space-y-3"></div>
         </div>
     </div>
@@ -1152,9 +1152,10 @@
             <span onclick="closeFollowupReminderModal()" class="absolute top-3 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
             <h2 class="text-2xl font-extrabold text-[#112a2e] mb-1"><i class="fab fa-whatsapp text-[#25D366]"></i> Follow-up / Reminder</h2>
             <p class="text-sm text-gray-500 mb-5">Jis employee ne Attendance ya Task update nahi ki, uske liye reminder prepare/send karein.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="followupEmployee" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></select></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Reminder Type</label><select id="followupType" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"><option value="both">Attendance + Task — No Update</option><option value="attendance">Attendance Update Missing</option><option value="task">Task Update Missing</option></select></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="followupEmployee" class="w-full border p-3 rounded-lg" onchange="loadFollowupDates()"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Pending Date</label><select id="followupDate" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">Reminder Type</label><select id="followupType" class="w-full border p-3 rounded-lg" onchange="loadFollowupDates()"><option value="both">Attendance + Task — No Update</option><option value="attendance">Attendance Update Missing</option><option value="task">Task Update Missing</option></select></div>
             </div>
             <div class="mt-4 bg-[#f0f7f7] border border-[#cfe7e5] rounded-xl p-4">
                 <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-[#4b6d70]">MESSAGE PREVIEW</span><span class="text-[10px] text-gray-500">Generated automatically</span></div>
@@ -3080,6 +3081,12 @@
 
         function openSystemHealthModal(){document.getElementById('systemHealthModal').style.display='block';loadSystemHealth();}
         function closeSystemHealthModal(){document.getElementById('systemHealthModal').style.display='none';}
+        function optimizeMasterSheets(){
+            if(!confirm('Unused Master Sheet tabs ko remove karke sirf required sheets rakhi jayengi. Continue?')) return;
+            const fd=new FormData();fd.append('action','optimizeMasterSheets');fd.append('sessionToken',sessionToken);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{alert(d.message||'Master Sheet optimize result');loadSystemHealth();}).catch(()=>alert('Sheet optimization failed.'));
+        }
+
         function loadSystemHealth(){const box=document.getElementById('systemHealthBody');if(!box)return;box.innerHTML='<div class="p-5 text-center text-gray-500">Checking system...</div>';const fd=new FormData();fd.append('action','systemHealth');fd.append('sessionToken',sessionToken);fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd,cache:'no-store'}).then(r=>r.json()).then(d=>{if(d.status!=='success'){box.innerHTML='<div class="p-4 bg-red-50 text-red-700 rounded-lg">'+(d.message||'Health check failed.')+'</div>';return;}box.innerHTML=(d.checks||[]).map(x=>'<div class="flex justify-between items-center border rounded-xl p-4 bg-white"><span class="font-bold">'+x.name+'</span><span class="font-bold '+(x.status==='OK'||x.status==='ACTIVE'||x.status==='READY'?'text-green-600':'text-amber-600')+'">'+x.status+'</span></div>').join('')+'<div class="mt-4 border rounded-xl p-4 bg-gray-50"><b>Recent System Errors:</b><div class="mt-2 text-xs text-gray-600">'+((d.errors||[]).map(e=>e.id+' — '+e.where+' — '+e.message).join('<br>')||'No recent errors.')+'</div></div>';}).catch(()=>{box.innerHTML='<div class="p-4 bg-red-50 text-red-700 rounded-lg">Health check connection failed.</div>';});}
 
         function openAuditLogModal(){document.getElementById('auditLogModal').style.display='block';loadAuditLog();}
@@ -3148,28 +3155,64 @@
             const fd=new FormData();fd.append('action','setPerformanceWeightage');fd.append('attendanceWeightage',aw);fd.append('taskWeightage',tw);fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status!=='success'){alert(d.message||'Weightage save failed.');return;}performanceWeights=d.performanceWeights||{attendance:aw,task:tw};document.getElementById('attendanceWeightage').value=performanceWeights.attendance;document.getElementById('taskWeightage').value=performanceWeights.task;renderProgressReport();alert('Admin performance rule saved.');}).catch(()=>alert('Weightage save failed.'));
         }
-        function openFollowupReminderModal(){
+        function followupDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+        function followupDateLabel(key){ const p=String(key).split('-'); if(p.length!==3)return key; return `${p[2]}-${p[1]}-${p[0]}`; }
+        function followupIsWorkingDay(date, meta){
+            const day=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
+            if(String(meta?.weekoff||'Sunday').toLowerCase()===day.toLowerCase()) return false;
+            return !(globalOfficeEvents||[]).some(ev=>String(followupDateKey(date))>=String(ev.fromDate||'')&&String(followupDateKey(date))<=String(ev.toDate||ev.fromDate||''));
+        }
+        function followupMissingDates(user,type){
+            const meta=attendanceMetaForUser(user), today=new Date(); today.setHours(0,0,0,0);
+            const dates=[];
+            // Last 90 calendar days: only working days and only dates up to today.
+            for(let i=89;i>=0;i--){
+                const d=new Date(today); d.setDate(today.getDate()-i);
+                if(!followupIsWorkingDay(d,meta)) continue;
+                const key=followupDateKey(d);
+                const att=(globalMonthlyFullAttendance||[]).find(a=>String(a.Employee||'').toLowerCase()===String(user||'').toLowerCase()&&String(a.Date||'')===key);
+                const hasAtt=!!(att&&att.InTime);
+                const hasLeave=!!(att&&String(att.Leave||'').toLowerCase().includes('leave'));
+                const hasTask=(globalWorkLogs||[]).some(w=>String(w.Employee||'').toLowerCase()===String(user||'').toLowerCase()&&String(w.WorkDate||'')===key);
+                const missingAtt=!hasAtt&&!hasLeave, missingTask=!hasTask;
+                const pending=type==='attendance'?missingAtt:type==='task'?missingTask:(missingAtt||missingTask);
+                if(pending) dates.push({key,missingAtt,missingTask});
+            }
+            return dates;
+        }
+        async function openFollowupReminderModal(){
             const role=String(document.getElementById('displayRole')?.innerText||'').toLowerCase();if(!role.includes('admin'))return;
             document.getElementById('followupReminderModal').style.display='block';
             const sel=document.getElementById('followupEmployee');sel.innerHTML='';
-            const emps=globalTeamMembers||[];const todayKey=new Date().toLocaleDateString('en-GB').split('/').reverse().join('-');emps.forEach(e=>{const a=(globalMonthlyFullAttendance||[]).find(x=>String(x.Employee||'').toLowerCase()===String(e).toLowerCase()&&String(x.Date||'')===todayKey);const hasAtt=!!(a&&a.InTime);const hasTask=(globalAllTasks||[]).some(t=>String(t.assignedTo||'').toLowerCase()===String(e).toLowerCase()&&String(t.empStatus||'').toLowerCase()==='completed');const flag=!hasAtt&&!hasTask?' — No Attendance/Task Update':(!hasAtt?' — Attendance Missing':' — Task Update Check');sel.innerHTML+=`<option value="${progressReportEscape(e)}">${progressReportEscape(e)}${flag}</option>`;});
-            buildFollowupMessage();
+            (globalTeamMembers||[]).forEach(e=>{sel.innerHTML+=`<option value="${progressReportEscape(e)}">${progressReportEscape(e)}</option>`;});
+            if(!(globalWorkLogs||[]).length){ try{ await ensureWorkLogsLoaded(true); }catch(e){} }
+            await loadFollowupDates();
         }
         function closeFollowupReminderModal(){document.getElementById('followupReminderModal').style.display='none';}
+        function loadFollowupDates(){
+            const user=document.getElementById('followupEmployee')?.value||'',type=document.getElementById('followupType')?.value||'both',sel=document.getElementById('followupDate'); if(!sel)return;
+            const rows=followupMissingDates(user,type); sel.innerHTML='';
+            if(!rows.length){sel.innerHTML='<option value="">No pending date found</option>';buildFollowupMessage();return;}
+            rows.slice().reverse().forEach(r=>{sel.innerHTML+=`<option value="${r.key}">${followupDateLabel(r.key)}${r.missingAtt&&r.missingTask?' — Attendance + Task':r.missingAtt?' — Attendance':' — Task'}</option>`;});
+            buildFollowupMessage();
+        }
         function buildFollowupMessage(){
-            const user=document.getElementById('followupEmployee').value||'Employee',type=document.getElementById('followupType').value;
+            const user=document.getElementById('followupEmployee')?.value||'Employee',type=document.getElementById('followupType')?.value||'both',date=document.getElementById('followupDate')?.value||'';
             const heading='FOLLOW-UP / REMINDER — ADMIN OFFICE';
+            const dateText=date?followupDateLabel(date):'selected date';
             const now=new Date().toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
-            let body='Dear '+user+',\n\n';
-            if(type==='attendance') body+='We have not received your attendance update for today yet. Please update your attendance as soon as possible. If you have not been able to do so, kindly mention the reason as well.';
-            else if(type==='task') body+='We have not received your task/work update for today yet. Please update your assigned tasks and today’s work at the earliest. If you have not been able to do so, kindly mention the reason as well.';
-            else body+='We have not received your attendance and task/work update for today yet. Please update your attendance, assigned tasks and today’s work at the earliest. If you have not been able to do so, kindly mention the reason as well.';
-            body+='\n\nThank you for keeping the office reporting updated.\n\nGenerated By: Admin\nGenerated Date & Time: '+now;
+            let body='Assalam-o-Alaikum '+user+',\n\n';
+            if(type==='attendance') body+='Aap ki attendance '+dateText+' ki abhi tak update nahi hui hai. Meherbani karke is date ki attendance jaldi update karein aur agar koi wajah ho to reason bhi mention karein.';
+            else if(type==='task') body+='Aap ka work/task update '+dateText+' ka abhi tak receive nahi hua hai. Meherbani karke apne assigned task ka work update jaldi add karein aur agar koi wajah ho to reason bhi mention karein.';
+            else body+='Aap ki attendance aur work/task update '+dateText+' ki abhi tak complete nahi hui hai. Meherbani karke attendance aur work update jaldi complete karein aur agar koi wajah ho to reason bhi mention karein.';
+            body+='\n\nShukriya. Office reporting ko barwaqt update rakhein.\n\nAdmin Office\nGenerated: '+now;
             document.getElementById('followupMessage').value=heading+'\n\n'+body;
         }
         function sendFollowupReminder(){
-            const user=document.getElementById('followupEmployee').value,msg=document.getElementById('followupMessage').value.trim();if(!user||!msg)return alert('Employee aur message required hai.');
-            const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('sessionToken',sessionToken);
+            const user=document.getElementById('followupEmployee').value,msg=document.getElementById('followupMessage').value.trim(),date=document.getElementById('followupDate').value;
+            if(!user||!msg)return alert('Employee aur message required hai.');
+            if(!date)return alert('Pending date select karein.');
+            const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('pendingDate',date);fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Reminder result');if(d.status==='success')closeFollowupReminderModal();}).catch(()=>alert('Reminder send failed.'));
         }
         function openOwnProfileModal(){document.getElementById('ownProfileModal').style.display='block';document.getElementById('ownOldPassword').value='';document.getElementById('ownNewPassword').value='';document.getElementById('ownConfirmPassword').value='';}
