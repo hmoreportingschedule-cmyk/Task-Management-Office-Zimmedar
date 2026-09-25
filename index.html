@@ -1152,18 +1152,25 @@
             <span onclick="closeFollowupReminderModal()" class="absolute top-3 right-4 text-gray-400 hover:text-red-500 cursor-pointer text-3xl font-bold">&times;</span>
             <h2 class="text-2xl font-extrabold text-[#112a2e] mb-1"><i class="fab fa-whatsapp text-[#25D366]"></i> Follow-up / Reminder</h2>
             <p class="text-sm text-gray-500 mb-5">Jis employee ne Attendance ya Task update nahi ki, uske liye reminder prepare/send karein.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Employee</label><select id="followupEmployee" class="w-full border p-3 rounded-lg" onchange="loadFollowupDates()"></select></div>
-                <div><label class="block text-xs font-bold text-gray-600 mb-1">Pending Date</label><select id="followupDate" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></select></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">From Date</label><input id="followupFromDate" type="date" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></div>
+                <div><label class="block text-xs font-bold text-gray-600 mb-1">To Date</label><input id="followupToDate" type="date" class="w-full border p-3 rounded-lg" onchange="buildFollowupMessage()"></div>
                 <div><label class="block text-xs font-bold text-gray-600 mb-1">Reminder Type</label><select id="followupType" class="w-full border p-3 rounded-lg" onchange="loadFollowupDates()"><option value="both">Attendance + Task — No Update</option><option value="attendance">Attendance Update Missing</option><option value="task">Task Update Missing</option></select></div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-3">
+                <button type="button" onclick="setFollowupToday()" class="px-3 py-2 rounded-lg border border-[#259b94] text-[#176b67] font-bold text-xs">Today</button>
+                <button type="button" onclick="setFollowupPendingRange()" class="px-3 py-2 rounded-lg bg-[#eaf7f6] text-[#176b67] font-bold text-xs">Latest Pending Range</button>
+                <button type="button" onclick="buildTodayTaskReminder()" class="px-3 py-2 rounded-lg bg-[#2563eb] text-white font-bold text-xs"><i class="fas fa-list-check"></i> Today Task Reminder</button>
             </div>
             <div class="mt-4 bg-[#f0f7f7] border border-[#cfe7e5] rounded-xl p-4">
                 <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-[#4b6d70]">MESSAGE PREVIEW</span><span class="text-[10px] text-gray-500">Generated automatically</span></div>
-                <textarea id="followupMessage" rows="9" class="w-full border rounded-lg p-3 text-sm bg-white"></textarea>
+                <textarea id="followupMessage" rows="11" class="w-full border rounded-lg p-3 text-sm bg-white"></textarea>
             </div>
             <div class="flex justify-end gap-2 mt-4">
                 <button onclick="closeFollowupReminderModal()" class="px-5 py-2.5 rounded-lg border font-bold text-gray-600">Close</button>
                 <button onclick="sendFollowupReminder()" class="px-5 py-2.5 rounded-lg bg-[#25D366] hover:bg-[#1da851] text-white font-bold"><i class="fab fa-whatsapp"></i> Send Reminder</button>
+                <button onclick="sendTodayTaskReminder()" class="px-5 py-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold"><i class="fas fa-list-check"></i> Today Task Reminder</button>
             </div>
             <p class="text-[11px] text-gray-500 mt-3">Automatic group sending ke liye WhatsApp API credentials + Group ID configured hona zaroori hai.</p>
         </div>
@@ -3163,22 +3170,28 @@
             return !(globalOfficeEvents||[]).some(ev=>String(followupDateKey(date))>=String(ev.fromDate||'')&&String(followupDateKey(date))<=String(ev.toDate||ev.fromDate||''));
         }
         function followupMissingDates(user,type){
-            const meta=attendanceMetaForUser(user), today=new Date(); today.setHours(0,0,0,0);
-            const dates=[];
-            // Last 90 calendar days: only working days and only dates up to today.
+            const meta=attendanceMetaForUser(user), today=new Date(); today.setHours(0,0,0,0), dates=[];
             for(let i=89;i>=0;i--){
                 const d=new Date(today); d.setDate(today.getDate()-i);
                 if(!followupIsWorkingDay(d,meta)) continue;
                 const key=followupDateKey(d);
                 const att=(globalMonthlyFullAttendance||[]).find(a=>String(a.Employee||'').toLowerCase()===String(user||'').toLowerCase()&&String(a.Date||'')===key);
-                const hasAtt=!!(att&&att.InTime);
-                const hasLeave=!!(att&&String(att.Leave||'').toLowerCase().includes('leave'));
+                const hasAtt=!!(att&&att.InTime), hasLeave=!!(att&&String(att.Leave||'').toLowerCase().includes('leave'));
                 const hasTask=(globalWorkLogs||[]).some(w=>String(w.Employee||'').toLowerCase()===String(user||'').toLowerCase()&&String(w.WorkDate||'')===key);
                 const missingAtt=!hasAtt&&!hasLeave, missingTask=!hasTask;
                 const pending=type==='attendance'?missingAtt:type==='task'?missingTask:(missingAtt||missingTask);
                 if(pending) dates.push({key,missingAtt,missingTask});
             }
             return dates;
+        }
+        function setFollowupToday(){
+            const k=followupDateKey(new Date());
+            document.getElementById('followupFromDate').value=k; document.getElementById('followupToDate').value=k; buildFollowupMessage();
+        }
+        function setFollowupPendingRange(){
+            const user=document.getElementById('followupEmployee')?.value||'', type=document.getElementById('followupType')?.value||'both', rows=followupMissingDates(user,type);
+            if(!rows.length){ setFollowupToday(); return; }
+            document.getElementById('followupFromDate').value=rows[0].key; document.getElementById('followupToDate').value=rows[rows.length-1].key; buildFollowupMessage();
         }
         async function openFollowupReminderModal(){
             const role=String(document.getElementById('displayRole')?.innerText||'').toLowerCase();if(!role.includes('admin'))return;
@@ -3190,30 +3203,54 @@
         }
         function closeFollowupReminderModal(){document.getElementById('followupReminderModal').style.display='none';}
         function loadFollowupDates(){
-            const user=document.getElementById('followupEmployee')?.value||'',type=document.getElementById('followupType')?.value||'both',sel=document.getElementById('followupDate'); if(!sel)return;
-            const rows=followupMissingDates(user,type); sel.innerHTML='';
-            if(!rows.length){sel.innerHTML='<option value="">No pending date found</option>';buildFollowupMessage();return;}
-            rows.slice().reverse().forEach(r=>{sel.innerHTML+=`<option value="${r.key}">${followupDateLabel(r.key)}${r.missingAtt&&r.missingTask?' — Attendance + Task':r.missingAtt?' — Attendance':' — Task'}</option>`;});
+            const user=document.getElementById('followupEmployee')?.value||'',type=document.getElementById('followupType')?.value||'both';
+            const rows=followupMissingDates(user,type);
+            if(rows.length){
+                document.getElementById('followupFromDate').value=rows[0].key;
+                document.getElementById('followupToDate').value=rows[rows.length-1].key;
+            } else setFollowupToday();
             buildFollowupMessage();
         }
         function buildFollowupMessage(){
-            const user=document.getElementById('followupEmployee')?.value||'Employee',type=document.getElementById('followupType')?.value||'both',date=document.getElementById('followupDate')?.value||'';
-            const heading='FOLLOW-UP / REMINDER — ADMIN OFFICE';
-            const dateText=date?followupDateLabel(date):'selected date';
+            const user=document.getElementById('followupEmployee')?.value||'Employee',type=document.getElementById('followupType')?.value||'both';
+            const from=document.getElementById('followupFromDate')?.value||'',to=document.getElementById('followupToDate')?.value||'';
+            if(!from||!to)return;
+            const start=from<=to?from:to,end=from<=to?to:from;
+            const dateText=`${followupDateLabel(start)} Se ${followupDateLabel(end)} Tak`;
             const now=new Date().toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
-            let body='Assalam-o-Alaikum '+user+',\n\n';
-            if(type==='attendance') body+='Aap ki attendance '+dateText+' ki abhi tak update nahi hui hai. Meherbani karke is date ki attendance jaldi update karein aur agar koi wajah ho to reason bhi mention karein.';
-            else if(type==='task') body+='Aap ka work/task update '+dateText+' ka abhi tak receive nahi hua hai. Meherbani karke apne assigned task ka work update jaldi add karein aur agar koi wajah ho to reason bhi mention karein.';
-            else body+='Aap ki attendance aur work/task update '+dateText+' ki abhi tak complete nahi hui hai. Meherbani karke attendance aur work update jaldi complete karein aur agar koi wajah ho to reason bhi mention karein.';
-            body+='\n\nShukriya. Office reporting ko barwaqt update rakhein.\n\nAdmin Office\nGenerated: '+now;
-            document.getElementById('followupMessage').value=heading+'\n\n'+body;
+            let body=`Salaam Pyare ${user},\n\n`;
+            if(type==='attendance') body+=`Aap ki attendance ${dateText} Ki Attendance Aap Ne Update Nahi Ki Hai Jis Wajah Se Approval Pending Hai, Delay Karne Ka Reason Kya Hai Yeh Aap Bataye. On Time Attendance Update Karne Par Aap Ki Salary Sheet & Shoba Report Banne Men Ham Aazmaish Hogi Zarurat Ke Peshe Nazar Sharai Rahnumai Bhi Li Ja Sakti Hai. Bara E Karam On Time Attendance Ki Update Karne Ki Niyyat Farmalijiye. Allah Kareem Aap Ki Koshish Qabool Faramye.`;
+            else if(type==='task') body+=`Aap ke work/task update ${dateText} Ke Task Ki Aap Ne Update Nahi Ki Hai Jis Wajah Se Approval Pending Hai, Delay Karne Ka Reason Kya Hai Yeh Aap Bataye. On Time Task Ki Update Karne Par Aap Ki Salary Sheet & Shoba Report Banne Men Ham Aazmaish Hogi Zarurat Ke Peshe Nazar Sharai Rahnumai Bhi Li Ja Sakti Hai. Bara E Karam On Time Task Ki Update Karne Ki Niyyat Farmalijiye. Allah Kareem Aap Ki Koshish Qabool Faramye.`;
+            else body+=`Aap ki attendance aur work/task update ${dateText} Ki Attendance & Task Ki Aap Ne Update Nahi Ki Hai Jis Wajah Se Approval Pending Hai, Delay Karne Ka Reason Kya Hai Yeh Aap Bataye. On Time Attendance, Task Ki Update Karne Par Aap Ki Salary Sheet & Shoba Report Banne Men Ham Aazmaish Hogi Zarurat Ke Peshe Nazar Sharai Rahnumai Bhi Li Ja Sakti Hai. Bara E Karam On Time Attendance & Task Ki Update Karne Ki Niyyat Farmalijiye. Allah Kareem Aap Ki Koshish Qabool Faramye.`;
+            body+=`\n\nAdmin Office\nGenerated: ${now}`;
+            document.getElementById('followupMessage').value='FOLLOW-UP / REMINDER — ADMIN OFFICE\n\n'+body;
+        }
+        function buildTodayTaskReminder(){
+            const user=document.getElementById('followupEmployee')?.value||'Employee';
+            const today=followupDateKey(new Date());
+            const tasks=(globalAllTasks||[]).filter(t=>String(t.assignedTo||'').toLowerCase()===String(user).toLowerCase()).filter(t=>{
+                const s=progressReportDateObj(t.startDate),e=progressReportDateObj(t.endDate)||s, d=progressReportDateObj(today); if(!s||!d)return false;
+                return s<=d&&(!e||e>=d)&&!['completed','approved'].includes(String(t.empStatus||t.status||'').toLowerCase());
+            });
+            const now=new Date().toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+            let msg='TODAY TASK REMINDER — ADMIN OFFICE\n\nSalaam Pyare '+user+',\n\nAaj Ke Task Jo Aap Ko Assign Kiye Gaye Hai Isper Working Karna Zaruri Hai..\n\nAaj Ke Assigned Tasks Ki Details:\n';
+            if(!tasks.length) msg+='\nAaj ke liye koi pending assigned task nahi mila.\n';
+            else tasks.forEach((t,i)=>{msg+=`\n${i+1}. ${t.taskName||t.name||t.title||'Task'} | Category: ${t.category||'-'} | Priority: ${t.priority||'Normal'} | From: ${t.startDate||'-'} | To: ${t.endDate||'-'} | Status: ${t.empStatus||t.status||'Pending'}${t.assignedBy?' | Assigned By: '+t.assignedBy:''}`;});
+            msg+='\n\nBara E Karam In Tasks Par Aaj Hi Working Kar Lijiye Aur Update Kar Dijiye.\nShukriya.\n\nAdmin Office\nGenerated: '+now;
+            document.getElementById('followupMessage').value=msg;
         }
         function sendFollowupReminder(){
-            const user=document.getElementById('followupEmployee').value,msg=document.getElementById('followupMessage').value.trim(),date=document.getElementById('followupDate').value;
+            const user=document.getElementById('followupEmployee').value,msg=document.getElementById('followupMessage').value.trim(),from=document.getElementById('followupFromDate').value,to=document.getElementById('followupToDate').value;
             if(!user||!msg)return alert('Employee aur message required hai.');
-            if(!date)return alert('Pending date select karein.');
-            const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('pendingDate',date);fd.append('sessionToken',sessionToken);
+            if(!from||!to)return alert('From Date aur To Date select karein.');
+            const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('pendingDate',from+' to '+to);fd.append('sessionToken',sessionToken);
             fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Reminder result');if(d.status==='success')closeFollowupReminderModal();}).catch(()=>alert('Reminder send failed.'));
+        }
+        function sendTodayTaskReminder(){
+            const user=document.getElementById('followupEmployee')?.value,msg=document.getElementById('followupMessage')?.value.trim();
+            if(!user||!msg)return alert('Employee aur message required hai.');
+            const fd=new FormData();fd.append('action','sendFollowupReminder');fd.append('username',user);fd.append('message',msg);fd.append('pendingDate',followupDateKey(new Date()));fd.append('sessionToken',sessionToken);
+            fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||'Today task reminder result');if(d.status==='success')closeFollowupReminderModal();}).catch(()=>alert('Today task reminder send failed.'));
         }
         function openOwnProfileModal(){document.getElementById('ownProfileModal').style.display='block';document.getElementById('ownOldPassword').value='';document.getElementById('ownNewPassword').value='';document.getElementById('ownConfirmPassword').value='';}
         function closeOwnProfileModal(){document.getElementById('ownProfileModal').style.display='none';}
